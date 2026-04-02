@@ -628,39 +628,32 @@
 (function () {
 
   /* ════════════════════════════════════════════════
-     ▌ CONFIG — edite aqui
+     ▌ CONFIG — carregado do config.json
   ════════════════════════════════════════════════ */
-  const CONFIG = {
-    // URL da foto de perfil da Clara
+  const DEFAULT_CONFIG = {
     AVATAR_URL: 'https://ui-avatars.com/api/?name=Clara+Aureliano&background=2a3942&color=e9edef&size=80&bold=true',
-
-    // URLs dos áudios (pode ser caminho local ou URL hospedada)
-    AUDIO_URLS: [
-      '',   // Áudio 1 (0:03) — ex: './audio1.mp3'
-      '',   // Áudio 2 (0:11) — ex: './audio2.mp3'
-    ],
-
-    // URLs dos PDFs
-    PDF_URLS: [
-      '',   // PDF 1 — Receitas de Recheios (2.5 MB)
-      '',   // PDF 2 — Receitas de Recheios Vol.2 (1.6 MB)
-      '',   // PDF 3 — Sobremesas Sem Fogo, BÔNUS (6.6 MB)
-    ],
-
-    PDF_NAMES: [
-      'Receitas de Recheios',
-      'Receitas de Recheios Vol. 2',
-      'Sobremesas Sem Fogo',
-    ],
-
-    // Links dos botões de pagamento
-    PAYMENT_LINKS: {
-      '1,99':  '#',
-      '5,90':  '#',
-      '7,90':  '#',
-      '14,90': '#',
-    },
+    AUDIO_URLS: ['', ''],
+    PDF_URLS: ['', '', ''],
+    PDF_NAMES: ['Receitas de Recheios', 'Receitas de Recheios Vol. 2', 'Sobremesas Sem Fogo'],
+    PDF_SIZES: ['2.5 MB', '1.6 MB', '6.6 MB'],
+    PAYMENT_LINKS: { '1,99': '#', '5,90': '#', '7,90': '#', '14,90': '#' },
   };
+
+  async function loadConfig() {
+    try {
+      const res = await fetch('./config.json?v=' + Date.now());
+      if (!res.ok) return DEFAULT_CONFIG;
+      const c = await res.json();
+      return {
+        AVATAR_URL:    c.avatarUrl    || DEFAULT_CONFIG.AVATAR_URL,
+        AUDIO_URLS:    c.audioUrls    || DEFAULT_CONFIG.AUDIO_URLS,
+        PDF_URLS:      c.pdfUrls      || DEFAULT_CONFIG.PDF_URLS,
+        PDF_NAMES:     c.pdfNames     || DEFAULT_CONFIG.PDF_NAMES,
+        PDF_SIZES:     c.pdfSizes     || DEFAULT_CONFIG.PDF_SIZES,
+        PAYMENT_LINKS: c.paymentLinks || DEFAULT_CONFIG.PAYMENT_LINKS,
+      };
+    } catch { return DEFAULT_CONFIG; }
+  }
 
   /* ════════════════════════════════════════════════
      ▌ WALLPAPER — fundo com ícones estilo WhatsApp
@@ -707,7 +700,7 @@
   const micBtn     = document.getElementById('micBtn');
   const emojiBtn   = document.getElementById('emojiBtn');
 
-  document.getElementById('avatar').src = CONFIG.AVATAR_URL;
+  let CONFIG = DEFAULT_CONFIG;
 
   /* ════════════════════════════════════════════════
      ▌ HELPERS
@@ -1020,6 +1013,8 @@
      ▌ FLUXO PRINCIPAL
   ════════════════════════════════════════════════ */
   async function runFunnel() {
+    CONFIG = await loadConfig();
+    document.getElementById('avatar').src = CONFIG.AVATAR_URL;
     await sleep(900);
 
     showTyping();

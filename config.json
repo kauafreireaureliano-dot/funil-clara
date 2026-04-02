@@ -1,0 +1,13 @@
+{
+  "avatarUrl": "https://ui-avatars.com/api/?name=Clara+Aureliano&background=2a3942&color=e9edef&size=80&bold=true",
+  "audioUrls": ["", ""],
+  "pdfUrls": ["", "", ""],
+  "pdfNames": ["Receitas de Recheios", "Receitas de Recheios Vol. 2", "Sobremesas Sem Fogo"],
+  "pdfSizes": ["2.5 MB", "1.6 MB", "6.6 MB"],
+  "paymentLinks": {
+    "1,99": "#",
+    "5,90": "#",
+    "7,90": "#",
+    "14,90": "#"
+  }
+}

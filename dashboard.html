@@ -1,0 +1,983 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Dashboard — Clara Aureliano</title>
+  <style>
+    *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+
+    :root {
+      --green: #25d366;
+      --green-dark: #1aaa52;
+      --dark: #111b21;
+      --card: #ffffff;
+      --bg: #f0f2f5;
+      --border: #e9edef;
+      --text: #111b21;
+      --muted: #667781;
+      --danger: #e74c3c;
+      --shadow: 0 1px 3px rgba(0,0,0,.12);
+    }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Helvetica, Arial, sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      min-height: 100vh;
+    }
+
+    /* ── LAYOUT ── */
+    .app { display: flex; min-height: 100vh; }
+
+    /* ── SIDEBAR ── */
+    .sidebar {
+      width: 240px;
+      background: var(--dark);
+      display: flex;
+      flex-direction: column;
+      flex-shrink: 0;
+      position: sticky;
+      top: 0;
+      height: 100vh;
+    }
+
+    .logo {
+      padding: 20px 16px;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      border-bottom: 1px solid rgba(255,255,255,.08);
+    }
+
+    .logo-av {
+      width: 40px; height: 40px;
+      border-radius: 50%;
+      background: var(--green);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: 700;
+      color: white;
+      font-size: 15px;
+      flex-shrink: 0;
+      overflow: hidden;
+    }
+
+    .logo-av img { width: 100%; height: 100%; object-fit: cover; border-radius: 50%; }
+
+    .logo-name { color: #e9edef; font-size: 14px; font-weight: 600; line-height: 1.2; }
+    .logo-sub  { color: #8696a0; font-size: 11px; }
+
+    nav { flex: 1; padding: 8px 0; }
+
+    .nav-item {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding: 11px 16px;
+      color: #aebac1;
+      text-decoration: none;
+      font-size: 14px;
+      cursor: pointer;
+      border: none;
+      background: none;
+      width: 100%;
+      text-align: left;
+      transition: background 0.15s, color 0.15s;
+      border-radius: 0;
+    }
+
+    .nav-item:hover { background: rgba(255,255,255,.06); color: #e9edef; }
+    .nav-item.active { background: rgba(37,211,102,.15); color: var(--green); }
+    .nav-item .ni { font-size: 16px; width: 20px; text-align: center; }
+
+    .sidebar-footer { padding: 16px; }
+
+    .deploy-btn {
+      width: 100%;
+      background: var(--green);
+      color: white;
+      border: none;
+      border-radius: 8px;
+      padding: 12px 16px;
+      font-size: 14px;
+      font-weight: 700;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      transition: background 0.15s, transform 0.1s;
+    }
+
+    .deploy-btn:hover:not(:disabled) { background: var(--green-dark); }
+    .deploy-btn:active:not(:disabled) { transform: scale(0.98); }
+    .deploy-btn:disabled { background: #374045; cursor: not-allowed; }
+
+    .site-link {
+      display: block;
+      color: #8696a0;
+      font-size: 11px;
+      text-align: center;
+      margin-top: 8px;
+      text-decoration: none;
+    }
+    .site-link:hover { color: var(--green); }
+
+    /* ── MAIN ── */
+    .main {
+      flex: 1;
+      padding: 24px;
+      overflow-y: auto;
+    }
+
+    /* ── SECTIONS ── */
+    .section { display: none; }
+    .section.active { display: block; }
+
+    .section-title {
+      font-size: 20px;
+      font-weight: 700;
+      margin-bottom: 4px;
+    }
+
+    .section-desc {
+      color: var(--muted);
+      font-size: 13.5px;
+      margin-bottom: 20px;
+    }
+
+    /* ── CARD ── */
+    .card {
+      background: var(--card);
+      border-radius: 12px;
+      padding: 20px;
+      box-shadow: var(--shadow);
+      margin-bottom: 16px;
+    }
+
+    .card-title {
+      font-size: 14px;
+      font-weight: 700;
+      margin-bottom: 14px;
+      color: var(--text);
+      display: flex;
+      align-items: center;
+      gap: 7px;
+    }
+
+    /* ── FORM ELEMENTS ── */
+    label {
+      display: block;
+      font-size: 13px;
+      font-weight: 600;
+      color: var(--muted);
+      margin-bottom: 6px;
+      text-transform: uppercase;
+      letter-spacing: .4px;
+    }
+
+    input[type="text"], input[type="url"] {
+      width: 100%;
+      border: 1.5px solid var(--border);
+      border-radius: 8px;
+      padding: 10px 12px;
+      font-size: 14px;
+      color: var(--text);
+      outline: none;
+      transition: border 0.15s;
+      background: #fafafa;
+    }
+
+    input[type="text"]:focus, input[type="url"]:focus {
+      border-color: var(--green);
+      background: white;
+    }
+
+    .field { margin-bottom: 14px; }
+    .field:last-child { margin-bottom: 0; }
+
+    /* ── DROPZONE ── */
+    .dropzone {
+      border: 2px dashed var(--border);
+      border-radius: 10px;
+      padding: 20px 16px;
+      text-align: center;
+      cursor: pointer;
+      transition: border 0.15s, background 0.15s;
+      position: relative;
+    }
+
+    .dropzone:hover, .dropzone.dragover {
+      border-color: var(--green);
+      background: rgba(37,211,102,.04);
+    }
+
+    .dropzone.has-file {
+      border-color: var(--green);
+      border-style: solid;
+      background: rgba(37,211,102,.06);
+    }
+
+    .dropzone input[type="file"] {
+      position: absolute;
+      inset: 0;
+      opacity: 0;
+      cursor: pointer;
+      width: 100%;
+      height: 100%;
+    }
+
+    .dz-icon { font-size: 28px; margin-bottom: 6px; }
+    .dz-label { font-size: 13.5px; font-weight: 600; color: var(--text); margin-bottom: 3px; }
+    .dz-hint { font-size: 12px; color: var(--muted); }
+    .dz-filename { font-size: 13px; color: var(--green); font-weight: 600; margin-top: 4px; }
+
+    /* ── AVATAR PREVIEW ── */
+    .avatar-wrap {
+      display: flex;
+      align-items: center;
+      gap: 16px;
+      margin-bottom: 16px;
+    }
+
+    .avatar-preview {
+      width: 64px; height: 64px;
+      border-radius: 50%;
+      object-fit: cover;
+      background: #2a3942;
+      flex-shrink: 0;
+    }
+
+    .avatar-info { flex: 1; }
+    .avatar-info p { font-size: 13px; color: var(--muted); line-height: 1.5; }
+
+    /* ── AUDIO PREVIEW ── */
+    .audio-preview {
+      margin-top: 10px;
+      display: none;
+    }
+
+    .audio-preview audio {
+      width: 100%;
+      height: 36px;
+    }
+
+    /* ── GRID ── */
+    .grid-2 {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 12px;
+    }
+
+    /* ── SETUP ALERT ── */
+    .setup-alert {
+      background: #fff3cd;
+      border: 1px solid #ffc107;
+      border-radius: 10px;
+      padding: 14px 16px;
+      margin-bottom: 16px;
+      font-size: 13.5px;
+      line-height: 1.5;
+    }
+
+    .setup-alert a { color: #856404; font-weight: 600; }
+
+    /* ── STATUS BADGE ── */
+    .status-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 5px;
+      font-size: 12px;
+      padding: 3px 10px;
+      border-radius: 20px;
+      font-weight: 600;
+    }
+
+    .status-badge.ok { background: #d4edda; color: #155724; }
+    .status-badge.err { background: #f8d7da; color: #721c24; }
+    .status-badge.pending { background: #fff3cd; color: #856404; }
+    .status-badge .dot { width: 7px; height: 7px; border-radius: 50%; background: currentColor; }
+
+    .token-row {
+      display: flex;
+      gap: 8px;
+    }
+
+    .token-row input { flex: 1; font-family: monospace; font-size: 13px; }
+
+    .btn-sm {
+      background: var(--dark);
+      color: white;
+      border: none;
+      border-radius: 8px;
+      padding: 10px 14px;
+      font-size: 13px;
+      font-weight: 600;
+      cursor: pointer;
+      white-space: nowrap;
+      transition: background .15s;
+    }
+
+    .btn-sm:hover { background: #1a2530; }
+    .btn-sm.danger { background: var(--danger); }
+
+    /* ── PAYMENT ROWS ── */
+    .pay-row {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      margin-bottom: 10px;
+    }
+
+    .pay-label {
+      background: var(--green);
+      color: white;
+      border-radius: 6px;
+      padding: 8px 12px;
+      font-size: 13px;
+      font-weight: 700;
+      white-space: nowrap;
+      flex-shrink: 0;
+      min-width: 110px;
+      text-align: center;
+    }
+
+    /* ── TOAST ── */
+    .toast {
+      position: fixed;
+      bottom: 24px;
+      left: 50%;
+      transform: translateX(-50%) translateY(80px);
+      background: var(--dark);
+      color: white;
+      padding: 12px 20px;
+      border-radius: 10px;
+      font-size: 14px;
+      font-weight: 500;
+      box-shadow: 0 4px 20px rgba(0,0,0,.3);
+      transition: transform 0.3s ease;
+      z-index: 999;
+      white-space: nowrap;
+    }
+
+    .toast.show { transform: translateX(-50%) translateY(0); }
+    .toast.green { background: var(--green-dark); }
+    .toast.red   { background: var(--danger); }
+
+    /* ── PROGRESS ── */
+    .progress-bar {
+      height: 4px;
+      background: var(--border);
+      border-radius: 2px;
+      margin-top: 12px;
+      overflow: hidden;
+      display: none;
+    }
+
+    .progress-bar.show { display: block; }
+
+    .progress-fill {
+      height: 100%;
+      background: var(--green);
+      border-radius: 2px;
+      transition: width 0.3s;
+      width: 0%;
+    }
+
+    /* ── MOBILE ── */
+    @media (max-width: 700px) {
+      .sidebar { display: none; }
+      .main { padding: 16px; }
+      .grid-2 { grid-template-columns: 1fr; }
+      .mobile-nav {
+        display: flex;
+        background: var(--dark);
+        overflow-x: auto;
+        padding: 4px;
+        gap: 2px;
+      }
+      .mobile-nav .nav-item {
+        flex-direction: column;
+        gap: 3px;
+        padding: 8px 12px;
+        font-size: 11px;
+        white-space: nowrap;
+        border-radius: 6px;
+      }
+    }
+
+    @media (min-width: 701px) {
+      .mobile-nav { display: none; }
+    }
+  </style>
+</head>
+<body>
+
+<div class="app">
+
+  <!-- ── SIDEBAR ── -->
+  <aside class="sidebar">
+    <div class="logo">
+      <div class="logo-av" id="sideAvatar">CA</div>
+      <div>
+        <div class="logo-name">Clara Aureliano</div>
+        <div class="logo-sub">Dashboard</div>
+      </div>
+    </div>
+
+    <nav>
+      <button class="nav-item active" onclick="goTo('setup')"><span class="ni">⚙️</span> Configuração</button>
+      <button class="nav-item" onclick="goTo('perfil')"><span class="ni">👤</span> Foto de perfil</button>
+      <button class="nav-item" onclick="goTo('audios')"><span class="ni">🎙️</span> Áudios</button>
+      <button class="nav-item" onclick="goTo('pdfs')"><span class="ni">📄</span> PDFs</button>
+      <button class="nav-item" onclick="goTo('pagamento')"><span class="ni">💳</span> Pagamento</button>
+    </nav>
+
+    <div class="sidebar-footer">
+      <div class="progress-bar" id="progressBar">
+        <div class="progress-fill" id="progressFill"></div>
+      </div>
+      <button class="deploy-btn" id="deployBtn" onclick="deploy()">
+        🚀 Publicar mudanças
+      </button>
+      <a class="site-link" href="https://funil-clara.pages.dev" target="_blank">
+        ↗ funil-clara.pages.dev
+      </a>
+    </div>
+  </aside>
+
+  <!-- ── MOBILE NAV ── -->
+  <div style="flex:1;display:flex;flex-direction:column;">
+  <div class="mobile-nav">
+    <button class="nav-item active" onclick="goTo('setup')"><span class="ni">⚙️</span> Config</button>
+    <button class="nav-item" onclick="goTo('perfil')"><span class="ni">👤</span> Foto</button>
+    <button class="nav-item" onclick="goTo('audios')"><span class="ni">🎙️</span> Áudios</button>
+    <button class="nav-item" onclick="goTo('pdfs')"><span class="ni">📄</span> PDFs</button>
+    <button class="nav-item" onclick="goTo('pagamento')"><span class="ni">💳</span> Pgto</button>
+    <button class="nav-item" style="background:var(--green);color:white" onclick="deploy()"><span class="ni">🚀</span> Publicar</button>
+  </div>
+
+  <!-- ── MAIN CONTENT ── -->
+  <main class="main">
+
+    <!-- ══ SETUP ══ -->
+    <div class="section active" id="sec-setup">
+      <div class="section-title">⚙️ Configuração do GitHub</div>
+      <div class="section-desc">Configure o token uma única vez para poder publicar mudanças direto pelo dashboard.</div>
+
+      <div class="setup-alert" id="setupAlert">
+        <strong>Como criar o token:</strong><br>
+        1. Acesse <a href="https://github.com/settings/tokens/new" target="_blank">github.com/settings/tokens/new</a><br>
+        2. Dê um nome (ex: "Dashboard Clara")<br>
+        3. Em <strong>Scopes</strong>, marque apenas <strong>repo</strong><br>
+        4. Clique <strong>Generate token</strong> e cole abaixo
+      </div>
+
+      <div class="card">
+        <div class="card-title">🔑 GitHub Personal Access Token</div>
+        <div class="field">
+          <label>Token</label>
+          <div class="token-row">
+            <input type="text" id="tokenInput" placeholder="ghp_xxxxxxxxxxxxxxxxxxxx" autocomplete="off">
+            <button class="btn-sm" onclick="testToken()">Testar</button>
+            <button class="btn-sm danger" onclick="clearToken()">Limpar</button>
+          </div>
+        </div>
+        <div style="margin-top:10px" id="tokenStatus"></div>
+        <p style="font-size:12px;color:var(--muted);margin-top:10px">
+          O token fica salvo só no seu navegador (localStorage). Ninguém mais tem acesso.
+        </p>
+      </div>
+
+      <div class="card">
+        <div class="card-title">📦 Repositório</div>
+        <div class="field">
+          <label>Owner / Repo</label>
+          <input type="text" id="repoInput" value="kauafreireaureliano-dot/funil-clara" readonly style="background:#f5f5f5;color:var(--muted)">
+        </div>
+        <p style="font-size:12px;color:var(--muted)">Conectado ao GitHub automaticamente.</p>
+      </div>
+    </div>
+
+    <!-- ══ PERFIL ══ -->
+    <div class="section" id="sec-perfil">
+      <div class="section-title">👤 Foto de perfil</div>
+      <div class="section-desc">Foto que aparece no topo do chat e nas mensagens de áudio.</div>
+
+      <div class="card">
+        <div class="avatar-wrap">
+          <img class="avatar-preview" id="avatarPreview" src="https://ui-avatars.com/api/?name=Clara+Aureliano&background=2a3942&color=e9edef&size=80&bold=true" alt="Clara">
+          <div class="avatar-info">
+            <p>Foto circular, <strong>200×200px</strong> recomendado.<br>Formatos: JPG, PNG, WEBP.</p>
+          </div>
+        </div>
+        <div class="dropzone" id="avatarDrop" ondragover="dzOver(event,this)" ondragleave="dzLeave(this)" ondrop="dzDrop(event,'avatar')">
+          <input type="file" accept="image/*" onchange="fileChosen(this,'avatar')">
+          <div class="dz-icon">🖼️</div>
+          <div class="dz-label">Arraste a foto ou clique aqui</div>
+          <div class="dz-hint">JPG, PNG, WEBP</div>
+          <div class="dz-filename" id="avatarName"></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ══ ÁUDIOS ══ -->
+    <div class="section" id="sec-audios">
+      <div class="section-title">🎙️ Áudios</div>
+      <div class="section-desc">São 2 áudios da Clara no funil. Grave no WhatsApp, salve e faça upload aqui.</div>
+
+      <div class="card">
+        <div class="card-title">🎙️ Áudio 1 — aparece logo após a cliente responder</div>
+        <div class="dropzone" id="audio0Drop" ondragover="dzOver(event,this)" ondragleave="dzLeave(this)" ondrop="dzDrop(event,'audio0')">
+          <input type="file" accept="audio/*" onchange="fileChosen(this,'audio0')">
+          <div class="dz-icon">🎵</div>
+          <div class="dz-label">Arraste o áudio ou clique aqui</div>
+          <div class="dz-hint">MP3, M4A, OGG, WAV</div>
+          <div class="dz-filename" id="audio0Name"></div>
+        </div>
+        <div class="audio-preview" id="audio0Preview">
+          <audio controls id="audio0Player"></audio>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="card-title">🎙️ Áudio 2 — aparece no final do funil</div>
+        <div class="dropzone" id="audio1Drop" ondragover="dzOver(event,this)" ondragleave="dzLeave(this)" ondrop="dzDrop(event,'audio1')">
+          <input type="file" accept="audio/*" onchange="fileChosen(this,'audio1')">
+          <div class="dz-icon">🎵</div>
+          <div class="dz-label">Arraste o áudio ou clique aqui</div>
+          <div class="dz-hint">MP3, M4A, OGG, WAV</div>
+          <div class="dz-filename" id="audio1Name"></div>
+        </div>
+        <div class="audio-preview" id="audio1Preview">
+          <audio controls id="audio1Player"></audio>
+        </div>
+      </div>
+    </div>
+
+    <!-- ══ PDFs ══ -->
+    <div class="section" id="sec-pdfs">
+      <div class="section-title">📄 PDFs das apostilas</div>
+      <div class="section-desc">São 3 PDFs que aparecem no chat. O cliente clica e vê antes de pagar.</div>
+
+      <div class="card">
+        <div class="card-title">📄 PDF 1 — Receitas de Recheios (2.5 MB)</div>
+        <div class="field">
+          <label>Nome exibido no chat</label>
+          <input type="text" id="pdfName0" value="Receitas de Recheios">
+        </div>
+        <div class="dropzone" id="pdf0Drop" ondragover="dzOver(event,this)" ondragleave="dzLeave(this)" ondrop="dzDrop(event,'pdf0')">
+          <input type="file" accept=".pdf,application/pdf" onchange="fileChosen(this,'pdf0')">
+          <div class="dz-icon">📑</div>
+          <div class="dz-label">Arraste o PDF ou clique aqui</div>
+          <div class="dz-hint">Apenas PDF • Máx. 25 MB</div>
+          <div class="dz-filename" id="pdf0Name"></div>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="card-title">📄 PDF 2 — Receitas de Recheios Vol. 2 (1.6 MB)</div>
+        <div class="field">
+          <label>Nome exibido no chat</label>
+          <input type="text" id="pdfName1" value="Receitas de Recheios Vol. 2">
+        </div>
+        <div class="dropzone" id="pdf1Drop" ondragover="dzOver(event,this)" ondragleave="dzLeave(this)" ondrop="dzDrop(event,'pdf1')">
+          <input type="file" accept=".pdf,application/pdf" onchange="fileChosen(this,'pdf1')">
+          <div class="dz-icon">📑</div>
+          <div class="dz-label">Arraste o PDF ou clique aqui</div>
+          <div class="dz-hint">Apenas PDF • Máx. 25 MB</div>
+          <div class="dz-filename" id="pdf1Name"></div>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="card-title">🎁 PDF 3 — Bônus: Sobremesas Sem Fogo (6.6 MB)</div>
+        <div class="field">
+          <label>Nome exibido no chat</label>
+          <input type="text" id="pdfName2" value="Sobremesas Sem Fogo">
+        </div>
+        <div class="dropzone" id="pdf2Drop" ondragover="dzOver(event,this)" ondragleave="dzLeave(this)" ondrop="dzDrop(event,'pdf2')">
+          <input type="file" accept=".pdf,application/pdf" onchange="fileChosen(this,'pdf2')">
+          <div class="dz-icon">📑</div>
+          <div class="dz-label">Arraste o PDF ou clique aqui</div>
+          <div class="dz-hint">Apenas PDF • Máx. 25 MB</div>
+          <div class="dz-filename" id="pdf2Name"></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ══ PAGAMENTO ══ -->
+    <div class="section" id="sec-pagamento">
+      <div class="section-title">💳 Links de pagamento</div>
+      <div class="section-desc">Cole os links do PIX, Hotmart, Kiwify ou onde quiser. Cada botão leva para um link diferente.</div>
+
+      <div class="card">
+        <div class="pay-row">
+          <div class="pay-label">R$ 1,99</div>
+          <input type="url" id="pay199" placeholder="https://..." value="#">
+        </div>
+        <div class="pay-row">
+          <div class="pay-label">R$ 5,90</div>
+          <input type="url" id="pay590" placeholder="https://..." value="#">
+        </div>
+        <div class="pay-row">
+          <div class="pay-label">R$ 7,90</div>
+          <input type="url" id="pay790" placeholder="https://..." value="#">
+        </div>
+        <div class="pay-row">
+          <div class="pay-label">R$ 14,90</div>
+          <input type="url" id="pay1490" placeholder="https://..." value="#">
+        </div>
+      </div>
+    </div>
+
+  </main>
+  </div><!-- fim wrapper mobile -->
+</div>
+
+<!-- TOAST -->
+<div class="toast" id="toast"></div>
+
+<script>
+/* ════════════════════════════════════════════════
+   ▌ CONFIG
+════════════════════════════════════════════════ */
+const OWNER  = 'kauafreireaureliano-dot';
+const REPO   = 'funil-clara';
+const BRANCH = 'master';
+const RAW    = `https://raw.githubusercontent.com/${OWNER}/${REPO}/${BRANCH}`;
+const API    = 'https://api.github.com';
+
+/* ════════════════════════════════════════════════
+   ▌ STATE
+════════════════════════════════════════════════ */
+const pending = {
+  avatar: null,   // { file, ext }
+  audio0: null,
+  audio1: null,
+  pdf0:   null,
+  pdf1:   null,
+  pdf2:   null,
+};
+
+let currentConfig = null;
+
+/* ════════════════════════════════════════════════
+   ▌ INIT
+════════════════════════════════════════════════ */
+(async function init() {
+  const token = localStorage.getItem('gh_token');
+  if (token) {
+    document.getElementById('tokenInput').value = token;
+    document.getElementById('setupAlert').style.display = 'none';
+    await checkToken(token, false);
+  }
+  await loadCurrentConfig();
+})();
+
+async function loadCurrentConfig() {
+  try {
+    const res = await fetch(`${RAW}/config.json?v=${Date.now()}`);
+    if (!res.ok) return;
+    currentConfig = await res.json();
+    applyConfigToUI(currentConfig);
+  } catch {}
+}
+
+function applyConfigToUI(c) {
+  if (!c) return;
+  if (c.avatarUrl) {
+    document.getElementById('avatarPreview').src = c.avatarUrl;
+    setSideAvatar(c.avatarUrl);
+  }
+  if (c.pdfNames) {
+    if (c.pdfNames[0]) document.getElementById('pdfName0').value = c.pdfNames[0];
+    if (c.pdfNames[1]) document.getElementById('pdfName1').value = c.pdfNames[1];
+    if (c.pdfNames[2]) document.getElementById('pdfName2').value = c.pdfNames[2];
+  }
+  if (c.paymentLinks) {
+    if (c.paymentLinks['1,99'])  document.getElementById('pay199').value  = c.paymentLinks['1,99'];
+    if (c.paymentLinks['5,90'])  document.getElementById('pay590').value  = c.paymentLinks['5,90'];
+    if (c.paymentLinks['7,90'])  document.getElementById('pay790').value  = c.paymentLinks['7,90'];
+    if (c.paymentLinks['14,90']) document.getElementById('pay1490').value = c.paymentLinks['14,90'];
+  }
+}
+
+/* ════════════════════════════════════════════════
+   ▌ NAVIGATION
+════════════════════════════════════════════════ */
+function goTo(id) {
+  document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
+  document.querySelectorAll('.nav-item').forEach(b => b.classList.remove('active'));
+  document.getElementById('sec-' + id).classList.add('active');
+  document.querySelectorAll(`[onclick="goTo('${id}')"]`).forEach(b => b.classList.add('active'));
+}
+
+/* ════════════════════════════════════════════════
+   ▌ TOKEN
+════════════════════════════════════════════════ */
+async function testToken() {
+  const token = document.getElementById('tokenInput').value.trim();
+  if (!token) { toast('Cole o token primeiro', 'red'); return; }
+  const ok = await checkToken(token, true);
+  if (ok) localStorage.setItem('gh_token', token);
+}
+
+async function checkToken(token, showMsg) {
+  try {
+    const res = await fetch(`${API}/repos/${OWNER}/${REPO}`, {
+      headers: { Authorization: `Bearer ${token}` }
+    });
+    if (res.ok) {
+      setTokenStatus('ok', '✓ Conectado ao repositório');
+      if (showMsg) toast('Conectado com sucesso!', 'green');
+      document.getElementById('setupAlert').style.display = 'none';
+      return true;
+    } else {
+      setTokenStatus('err', '✗ Token inválido ou sem permissão');
+      if (showMsg) toast('Token inválido', 'red');
+      return false;
+    }
+  } catch {
+    setTokenStatus('err', '✗ Erro de conexão');
+    return false;
+  }
+}
+
+function clearToken() {
+  localStorage.removeItem('gh_token');
+  document.getElementById('tokenInput').value = '';
+  setTokenStatus('pending', 'Token removido');
+}
+
+function setTokenStatus(type, msg) {
+  const el = document.getElementById('tokenStatus');
+  el.innerHTML = `<span class="status-badge ${type}"><span class="dot"></span>${msg}</span>`;
+}
+
+/* ════════════════════════════════════════════════
+   ▌ DROPZONE
+════════════════════════════════════════════════ */
+function dzOver(e, el)  { e.preventDefault(); el.classList.add('dragover'); }
+function dzLeave(el)    { el.classList.remove('dragover'); }
+function dzDrop(e, key) {
+  e.preventDefault();
+  const el = document.getElementById(key + 'Drop');
+  el.classList.remove('dragover');
+  const file = e.dataTransfer.files[0];
+  if (file) processFile(file, key);
+}
+
+function fileChosen(input, key) {
+  const file = input.files[0];
+  if (file) processFile(file, key);
+}
+
+function processFile(file, key) {
+  const ext  = file.name.split('.').pop().toLowerCase();
+  const drop = document.getElementById(key + 'Drop');
+  const nameEl = document.getElementById(key + 'Name');
+
+  pending[key] = { file, ext };
+  drop.classList.add('has-file');
+  nameEl.textContent = '✓ ' + file.name;
+
+  // Preview de imagem
+  if (key === 'avatar') {
+    const url = URL.createObjectURL(file);
+    document.getElementById('avatarPreview').src = url;
+    setSideAvatar(url);
+  }
+
+  // Preview de áudio
+  if (key === 'audio0' || key === 'audio1') {
+    const idx     = key === 'audio0' ? '0' : '1';
+    const preview = document.getElementById(`audio${idx}Preview`);
+    const player  = document.getElementById(`audio${idx}Player`);
+    preview.style.display = 'block';
+    player.src = URL.createObjectURL(file);
+  }
+}
+
+function setSideAvatar(src) {
+  const av = document.getElementById('sideAvatar');
+  av.innerHTML = `<img src="${src}" alt="Clara">`;
+}
+
+/* ════════════════════════════════════════════════
+   ▌ GITHUB API
+════════════════════════════════════════════════ */
+function getToken() {
+  return localStorage.getItem('gh_token') || document.getElementById('tokenInput').value.trim();
+}
+
+function ghHeaders() {
+  return {
+    'Authorization': `Bearer ${getToken()}`,
+    'Content-Type': 'application/json',
+    'Accept': 'application/vnd.github.v3+json',
+  };
+}
+
+async function ghGet(path) {
+  const res = await fetch(`${API}/repos/${OWNER}/${REPO}/contents/${path}`, { headers: ghHeaders() });
+  if (!res.ok) return null;
+  return res.json();
+}
+
+async function ghPut(path, base64Content, message, sha) {
+  const body = { message, content: base64Content, branch: BRANCH };
+  if (sha) body.sha = sha;
+  const res = await fetch(`${API}/repos/${OWNER}/${REPO}/contents/${path}`, {
+    method: 'PUT',
+    headers: ghHeaders(),
+    body: JSON.stringify(body),
+  });
+  return res.json();
+}
+
+async function fileToBase64(file) {
+  const buf = await file.arrayBuffer();
+  const bytes = new Uint8Array(buf);
+  let bin = '';
+  for (let i = 0; i < bytes.length; i++) bin += String.fromCharCode(bytes[i]);
+  return btoa(bin);
+}
+
+function strToBase64(str) {
+  return btoa(unescape(encodeURIComponent(str)));
+}
+
+/* ════════════════════════════════════════════════
+   ▌ DEPLOY
+════════════════════════════════════════════════ */
+async function deploy() {
+  const token = getToken();
+  if (!token) { toast('Configure o token primeiro! (aba Configuração)', 'red'); goTo('setup'); return; }
+
+  const btn = document.getElementById('deployBtn');
+  btn.disabled = true;
+  btn.textContent = '⏳ Publicando...';
+
+  const bar  = document.getElementById('progressBar');
+  const fill = document.getElementById('progressFill');
+  bar.classList.add('show');
+
+  let progress = 0;
+  const setProgress = (p) => { progress = p; fill.style.width = p + '%'; };
+
+  try {
+    // Carregar config atual
+    const cfgFile = await ghGet('config.json');
+    const cfgSha  = cfgFile ? cfgFile.sha : null;
+    const config  = currentConfig ? { ...currentConfig } : {};
+
+    setProgress(10);
+
+    // ── Upload avatar ──
+    if (pending.avatar) {
+      toast('Subindo foto...', '');
+      const b64 = await fileToBase64(pending.avatar.file);
+      const path = `assets/avatar.${pending.avatar.ext}`;
+      const existing = await ghGet(path);
+      await ghPut(path, b64, 'upload: avatar', existing?.sha);
+      config.avatarUrl = `${RAW}/${path}`;
+      pending.avatar = null;
+      setProgress(25);
+    }
+
+    // ── Upload áudio 0 ──
+    if (pending.audio0) {
+      toast('Subindo áudio 1...', '');
+      const b64 = await fileToBase64(pending.audio0.file);
+      const path = `assets/audio1.${pending.audio0.ext}`;
+      const existing = await ghGet(path);
+      await ghPut(path, b64, 'upload: audio1', existing?.sha);
+      config.audioUrls = config.audioUrls || ['', ''];
+      config.audioUrls[0] = `${RAW}/${path}`;
+      pending.audio0 = null;
+      setProgress(40);
+    }
+
+    // ── Upload áudio 1 ──
+    if (pending.audio1) {
+      toast('Subindo áudio 2...', '');
+      const b64 = await fileToBase64(pending.audio1.file);
+      const path = `assets/audio2.${pending.audio1.ext}`;
+      const existing = await ghGet(path);
+      await ghPut(path, b64, 'upload: audio2', existing?.sha);
+      config.audioUrls = config.audioUrls || ['', ''];
+      config.audioUrls[1] = `${RAW}/${path}`;
+      pending.audio1 = null;
+      setProgress(55);
+    }
+
+    // ── Upload PDFs ──
+    const pdfKeys = ['pdf0', 'pdf1', 'pdf2'];
+    for (let i = 0; i < pdfKeys.length; i++) {
+      const key = pdfKeys[i];
+      if (pending[key]) {
+        toast(`Subindo PDF ${i + 1}...`, '');
+        const b64 = await fileToBase64(pending[key].file);
+        const path = `assets/pdf${i + 1}.pdf`;
+        const existing = await ghGet(path);
+        await ghPut(path, b64, `upload: pdf${i + 1}`, existing?.sha);
+        config.pdfUrls = config.pdfUrls || ['', '', ''];
+        config.pdfUrls[i] = `${RAW}/${path}`;
+        pending[key] = null;
+        setProgress(55 + (i + 1) * 10);
+      }
+    }
+
+    // ── Atualizar config.json ──
+    config.pdfNames = [
+      document.getElementById('pdfName0').value || 'Receitas de Recheios',
+      document.getElementById('pdfName1').value || 'Receitas de Recheios Vol. 2',
+      document.getElementById('pdfName2').value || 'Sobremesas Sem Fogo',
+    ];
+    config.paymentLinks = {
+      '1,99':  document.getElementById('pay199').value  || '#',
+      '5,90':  document.getElementById('pay590').value  || '#',
+      '7,90':  document.getElementById('pay790').value  || '#',
+      '14,90': document.getElementById('pay1490').value || '#',
+    };
+
+    setProgress(88);
+    toast('Salvando configurações...', '');
+
+    const cfgJson = JSON.stringify(config, null, 2);
+    await ghPut('config.json', strToBase64(cfgJson), 'config: atualizar config.json', cfgSha);
+
+    currentConfig = config;
+    setProgress(100);
+
+    toast('✅ Publicado! Site atualiza em ~30s', 'green');
+    setTimeout(() => { bar.classList.remove('show'); fill.style.width = '0%'; }, 2000);
+
+  } catch (err) {
+    toast('Erro: ' + err.message, 'red');
+    console.error(err);
+    bar.classList.remove('show');
+    fill.style.width = '0%';
+  }
+
+  btn.disabled = false;
+  btn.textContent = '🚀 Publicar mudanças';
+}
+
+/* ════════════════════════════════════════════════
+   ▌ TOAST
+════════════════════════════════════════════════ */
+let toastTimer;
+function toast(msg, type) {
+  const el = document.getElementById('toast');
+  el.textContent = msg;
+  el.className = 'toast show' + (type ? ' ' + type : '');
+  clearTimeout(toastTimer);
+  toastTimer = setTimeout(() => { el.classList.remove('show'); }, 3000);
+}
+</script>
+</body>
+</html>
