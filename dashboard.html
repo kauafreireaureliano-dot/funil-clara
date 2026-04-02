@@ -527,6 +527,18 @@
         </div>
         <p style="font-size:12px;color:var(--muted)">Conectado ao GitHub automaticamente.</p>
       </div>
+
+      <div class="card">
+        <div class="card-title">🎨 Tema do funil</div>
+        <div class="field">
+          <label>Aparência do chat</label>
+          <select id="themeSelect" style="padding:8px 12px;border:1.5px solid var(--border);border-radius:8px;font-size:14px;background:var(--card);color:var(--text);width:100%;cursor:pointer;">
+            <option value="dark">🌙 Escuro (padrão WhatsApp)</option>
+            <option value="light">☀️ Claro</option>
+          </select>
+        </div>
+        <p style="font-size:12px;color:var(--muted);margin-top:6px">Selinho de verificado: azul no escuro, verde no claro.</p>
+      </div>
     </div>
 
     <!-- ══ PERFIL ══ -->
@@ -762,6 +774,9 @@ function applyConfigToUI(c) {
     if (c.paymentLinks['5,90'])  document.getElementById('pay590').value  = c.paymentLinks['5,90'];
     if (c.paymentLinks['7,90'])  document.getElementById('pay790').value  = c.paymentLinks['7,90'];
     if (c.paymentLinks['14,90']) document.getElementById('pay1490').value = c.paymentLinks['14,90'];
+  }
+  if (c.theme) {
+    document.getElementById('themeSelect').value = c.theme;
   }
 }
 
@@ -1003,6 +1018,7 @@ async function deploy() {
       '7,90':  document.getElementById('pay790').value  || '#',
       '14,90': document.getElementById('pay1490').value || '#',
     };
+    config.theme = document.getElementById('themeSelect').value || 'dark';
 
     setProgress(88);
     toast('Salvando configurações...', '');
