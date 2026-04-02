@@ -1,9 +1,24 @@
 {
-  "avatarUrl": "https://ui-avatars.com/api/?name=Clara+Aureliano&background=2a3942&color=e9edef&size=80&bold=true",
-  "audioUrls": ["", ""],
-  "pdfUrls": ["", "", ""],
-  "pdfNames": ["Receitas de Recheios", "Receitas de Recheios Vol. 2", "Sobremesas Sem Fogo"],
-  "pdfSizes": ["2.5 MB", "1.6 MB", "6.6 MB"],
+  "avatarUrl": "https://raw.githubusercontent.com/kauafreireaureliano-dot/funil-clara/master/assets/avatar.png",
+  "audioUrls": [
+    "https://raw.githubusercontent.com/kauafreireaureliano-dot/funil-clara/master/assets/audio1.mp3",
+    "https://raw.githubusercontent.com/kauafreireaureliano-dot/funil-clara/master/assets/audio2.mp3"
+  ],
+  "pdfUrls": [
+    "https://raw.githubusercontent.com/kauafreireaureliano-dot/funil-clara/master/assets/pdf1.pdf",
+    "https://raw.githubusercontent.com/kauafreireaureliano-dot/funil-clara/master/assets/pdf2.pdf",
+    "https://raw.githubusercontent.com/kauafreireaureliano-dot/funil-clara/master/assets/pdf3.pdf"
+  ],
+  "pdfNames": [
+    "Recheios Sem fogo",
+    "Receitas de Recheios Vol. 2",
+    "Sobremesas Sem Fogo"
+  ],
+  "pdfSizes": [
+    "2.5 MB",
+    "1.6 MB",
+    "6.6 MB"
+  ],
   "paymentLinks": {
     "1,99": "#",
     "5,90": "#",
