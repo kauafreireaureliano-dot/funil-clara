@@ -4,6 +4,7 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
   <title>Clara Aureliano</title>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
   <style>
     *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
 
@@ -406,6 +407,28 @@
     .pay-btn:active { transform: scale(0.97); }
     .pay-btn svg { fill: white; flex-shrink: 0; }
 
+    /* ── BADGE NOVA MENSAGEM ── */
+    .new-msg-badge {
+      position: absolute;
+      bottom: 68px;
+      left: 50%;
+      transform: translateX(-50%);
+      background: #005c4b;
+      color: #e9edef;
+      border: none;
+      border-radius: 20px;
+      padding: 7px 16px;
+      font-size: 13px;
+      font-weight: 600;
+      cursor: pointer;
+      box-shadow: 0 2px 10px rgba(0,0,0,.4);
+      z-index: 20;
+      display: none;
+      white-space: nowrap;
+      animation: msgIn 0.2s ease;
+    }
+    .new-msg-badge.show { display: block; }
+
     /* ── INPUT BAR ── */
     .wa-input {
       background: #202c33;
@@ -606,6 +629,9 @@
     <div class="date-pill">Hoje</div>
   </div>
 
+  <!-- BADGE NOVA MENSAGEM -->
+  <button class="new-msg-badge" id="newMsgBadge" onclick="scrollToBottom()">↓ Nova mensagem</button>
+
   <!-- INPUT BAR -->
   <div class="wa-input">
     <button class="wa-ico-btn" id="emojiBtn">
@@ -777,12 +803,35 @@
     return new Date().toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' });
   }
 
-  // Não rola se o PDF estiver aberto
   let pdfIsOpen = false;
+  const newMsgBadge = document.getElementById('newMsgBadge');
+
+  function isNearBottom() {
+    return chat.scrollHeight - chat.scrollTop - chat.clientHeight < 120;
+  }
+
+  function scrollToBottom() {
+    chat.scrollTop = chat.scrollHeight;
+    newMsgBadge.classList.remove('show');
+  }
+
+  // Scroll inteligente: só desce se já estiver perto do fim
   function scroll() {
     if (pdfIsOpen) return;
-    requestAnimationFrame(() => { chat.scrollTop = chat.scrollHeight; });
+    requestAnimationFrame(() => {
+      if (isNearBottom()) {
+        chat.scrollTop = chat.scrollHeight;
+        newMsgBadge.classList.remove('show');
+      } else {
+        newMsgBadge.classList.add('show');
+      }
+    });
   }
+
+  // Quando o usuário rola manualmente até o fim, esconde o badge
+  chat.addEventListener('scroll', () => {
+    if (isNearBottom()) newMsgBadge.classList.remove('show');
+  });
 
   /* ── Indicadores ── */
   let indicatorEl = null;
@@ -981,6 +1030,51 @@
   const pdfTitle     = document.getElementById('pdfTitle');
   const pdfFrameWrap = document.getElementById('pdfFrameWrap');
 
+  // ── Renderiza PDF com PDF.js (sem iframe externo, sem botões do Google) ──
+  async function renderPdfJs(url) {
+    pdfFrameWrap.style.overflowY = 'auto';
+    pdfFrameWrap.style.background = '#3a3a3a';
+    pdfFrameWrap.style.padding = '8px';
+    pdfFrameWrap.innerHTML = `
+      <div style="color:#ccc;text-align:center;padding:48px 16px;font-size:14px">
+        <div style="font-size:28px;margin-bottom:12px">⏳</div>Carregando apostila...
+      </div>`;
+
+    try {
+      if (typeof pdfjsLib === 'undefined') throw new Error('PDF.js não carregou');
+      pdfjsLib.GlobalWorkerOptions.workerSrc =
+        'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js';
+
+      const pdf = await pdfjsLib.getDocument({ url, withCredentials: false }).promise;
+      pdfFrameWrap.innerHTML = '';
+
+      const containerW = pdfFrameWrap.clientWidth - 16;
+
+      for (let p = 1; p <= pdf.numPages; p++) {
+        const page     = await pdf.getPage(p);
+        const base     = page.getViewport({ scale: 1 });
+        const scale    = Math.min(containerW / base.width, 2);
+        const viewport = page.getViewport({ scale });
+
+        const canvas   = document.createElement('canvas');
+        const ctx      = canvas.getContext('2d');
+        canvas.width   = viewport.width;
+        canvas.height  = viewport.height;
+        canvas.style.cssText = 'display:block;margin:0 auto 6px;border-radius:3px;max-width:100%';
+
+        await page.render({ canvasContext: ctx, viewport }).promise;
+        pdfFrameWrap.appendChild(canvas);
+      }
+    } catch (err) {
+      pdfFrameWrap.innerHTML = `
+        <div style="color:#ccc;text-align:center;padding:48px 16px;font-size:14px">
+          <div style="font-size:28px;margin-bottom:12px">❌</div>
+          Não foi possível carregar o PDF.<br>
+          <small style="opacity:.6">${err.message}</small>
+        </div>`;
+    }
+  }
+
   let pdfTriggerEl = null; // elemento que abriu o PDF
 
   function openPdf(url, name, triggerEl) {
@@ -996,12 +1090,7 @@
           <p>Apostila disponível após o pagamento! 📩<br>Você receberá o acesso no seu e-mail.</p>
         </div>`;
     } else {
-      const viewerUrl = url.startsWith('http')
-        ? `https://docs.google.com/viewer?url=${encodeURIComponent(url)}&embedded=true`
-        : url;
-      const iframe = document.createElement('iframe');
-      iframe.src = viewerUrl;
-      pdfFrameWrap.appendChild(iframe);
+      renderPdfJs(url);
     }
 
     pdfModal.classList.add('open');
@@ -1100,91 +1189,91 @@
     removeIndicator();
     addText('Oiie minha benção, tudo bem? 😊', 'r');
 
-    await sleep(1000);
+    await sleep(3000);
 
     showTyping();
     await sleep(2400);
     removeIndicator();
     addText('Prazer aqui é a Clara! Vou te ensinar todas as minhas receitas de recheios ❤️', 'r');
 
-    await sleep(1000);
+    await sleep(3000);
 
     showTyping();
     await sleep(2800);
     removeIndicator();
     addText('Para mostrar nossa confiança e compromisso, eu envio todas as apostilas antes de você fazer o pagamento.', 'r');
 
-    await sleep(900);
+    await sleep(3000);
 
     showTyping();
     await sleep(1400);
     removeIndicator();
     addText('Pode ser? ❤️', 'r');
 
-    await sleep(600);
+    await sleep(800);
 
     // ── Cliente digita no chat ──
     await waitForInput('Digite sua resposta...');
 
-    await sleep(700);
+    await sleep(1000);
 
     showRecording();
     await sleep(3000);
     removeIndicator();
     addAudio(0, '0:03');
 
-    await sleep(900);
+    await sleep(3000);
 
     addPdf(0, '2.5 MB');
 
-    await sleep(700);
+    await sleep(3000);
 
     addPdf(1, '1.6 MB');
 
-    await sleep(1100);
+    await sleep(3000);
 
     showTyping();
     await sleep(2000);
     removeIndicator();
     addText('E de bônus vou te mandar nossas <strong>receitas de Sobremesas sem fogo</strong> 😍👇', 'r');
 
-    await sleep(700);
+    await sleep(3000);
 
     addPdf(2, '6.6 MB');
 
-    await sleep(1100);
+    await sleep(3000);
 
     showTyping();
     await sleep(1900);
     removeIndicator();
     addText('Agora eu conto com a <strong>sua honestidade!</strong>', 'r');
 
-    await sleep(1000);
+    await sleep(3000);
 
     showTyping();
     await sleep(2700);
     removeIndicator();
     addText('Contribua com o Valor que sentir no coração:<br><br><strong>R$1,99, R$5,90, R$ 9,90, R$14,90</strong><br><br>Conto com você 🙏❤️', 'r');
 
-    await sleep(1100);
+    await sleep(3000);
 
     showTyping();
     await sleep(3000);
     removeIndicator();
     addText('LEMBRANDO! 🚨 Assim que você faz o pagamento, eu te mando o acesso novamente no seu e-mail (pra ficar salvo) e mando + 3 presentes ❤️😍', 'r');
 
-    await sleep(900);
+    await sleep(3000);
 
     addPaymentButtons();
 
-    await sleep(2000);
+    await sleep(3000);
 
     showRecording();
     await sleep(3300);
     removeIndicator();
     addAudio(1, '0:11');
 
-    await sleep(900);
+    await sleep(3000);
 
     showTyping();
     await sleep(1000);
