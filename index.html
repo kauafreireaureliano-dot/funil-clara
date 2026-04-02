@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="pt-BR">
+<html lang="pt-BR" data-theme="dark">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
@@ -8,9 +8,87 @@
   <style>
     *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
 
+    /* ══════════════════════════════════════════
+       TEMA ESCURO (padrão)
+    ══════════════════════════════════════════ */
+    :root, [data-theme="dark"] {
+      --bg-body:        #111b21;
+      --bg-header:      #202c33;
+      --bg-chat:        #0b141a;
+      --bg-input-bar:   #202c33;
+      --bg-field:       #2a3942;
+      --bg-bubble-r:    #202c33;
+      --bg-bubble-s:    #005c4b;
+      --bg-date:        rgba(11,20,26,.88);
+      --bg-e2e:         #182229;
+      --bg-indicator:   #202c33;
+      --bg-pdf-outer:   #202c33;
+      --bg-pdf-icon:    #1a2530;
+      --bg-modal-hdr:   #202c33;
+      --bg-modal:       #111b21;
+      --color-name:     #e9edef;
+      --color-status:   #8696a0;
+      --color-hdr-icon: #aebac1;
+      --color-text:     #e9edef;
+      --color-text-r:   #e9edef;
+      --color-text-s:   #e9edef;
+      --color-muted:    #8696a0;
+      --color-ts:       #8696a0;
+      --color-ticks:    #53bdeb;
+      --color-e2e:      #8696a0;
+      --color-badge:    #53bdeb;  /* azul dark */
+      --color-pdf-name: #e9edef;
+      --color-pdf-size: #8696a0;
+      --scrollbar:      #374045;
+      --wp-icon-opacity: .06;
+      --wp-icon-color:  255,255,255;
+      --wp-bg:          #0b141a;
+      --new-badge-bg:   #005c4b;
+      --pdf-btn-border: #2a3942;
+    }
+
+    /* ══════════════════════════════════════════
+       TEMA CLARO
+    ══════════════════════════════════════════ */
+    [data-theme="light"] {
+      --bg-body:        #f0f2f5;
+      --bg-header:      #008069;
+      --bg-chat:        #efeae2;
+      --bg-input-bar:   #f0f2f5;
+      --bg-field:       #ffffff;
+      --bg-bubble-r:    #ffffff;
+      --bg-bubble-s:    #d9fdd3;
+      --bg-date:        rgba(11,20,26,.55);
+      --bg-e2e:         #fef9c3;
+      --bg-indicator:   #ffffff;
+      --bg-pdf-outer:   #ffffff;
+      --bg-pdf-icon:    #f0f2f5;
+      --bg-modal-hdr:   #008069;
+      --bg-modal:       #efeae2;
+      --color-name:     #ffffff;
+      --color-status:   rgba(255,255,255,.85);
+      --color-hdr-icon: #ffffff;
+      --color-text:     #111b21;
+      --color-text-r:   #111b21;
+      --color-text-s:   #111b21;
+      --color-muted:    #667781;
+      --color-ts:       #667781;
+      --color-ticks:    #53bdeb;
+      --color-e2e:      #54656f;
+      --color-badge:    #25d366;  /* verde light */
+      --color-pdf-name: #111b21;
+      --color-pdf-size: #667781;
+      --scrollbar:      #c0cdd4;
+      --wp-icon-opacity: .065;
+      --wp-icon-color:  11,20,26;
+      --wp-bg:          #efeae2;
+      --new-badge-bg:   #008069;
+      --pdf-btn-border: #e9edef;
+    }
+
     body {
       font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Helvetica, Arial, sans-serif;
-      background: #111b21;
+      background: var(--bg-body);
       min-height: 100vh;
       display: flex;
       justify-content: center;
@@ -30,23 +108,24 @@
 
     /* ── HEADER ── */
     .wa-header {
-      background: #202c33;
+      background: var(--bg-header);
       display: flex;
       align-items: center;
-      padding: 6px 12px 6px 6px;
-      gap: 8px;
-      min-height: 58px;
+      padding: 6px 8px 6px 4px;
+      gap: 6px;
+      min-height: 56px;
       flex-shrink: 0;
       z-index: 10;
     }
 
     .wa-back {
-      color: #aebac1;
+      color: var(--color-hdr-icon);
       font-size: 22px;
-      padding: 4px 8px;
+      padding: 4px 6px;
       cursor: pointer;
       line-height: 1;
       user-select: none;
+      flex-shrink: 0;
     }
 
     .wa-avatar {
@@ -56,12 +135,23 @@
       object-fit: cover;
       background: #2a3942;
       flex-shrink: 0;
+      cursor: pointer;
     }
 
-    .wa-info { flex: 1; min-width: 0; }
+    .wa-info {
+      flex: 1;
+      min-width: 0;
+      cursor: pointer;
+    }
+
+    .wa-name-row {
+      display: flex;
+      align-items: center;
+      gap: 5px;
+    }
 
     .wa-name {
-      color: #e9edef;
+      color: var(--color-name);
       font-size: 16px;
       font-weight: 600;
       line-height: 1.2;
@@ -70,63 +160,95 @@
       text-overflow: ellipsis;
     }
 
+    /* Badge verificado */
+    .wa-verified {
+      flex-shrink: 0;
+      width: 16px;
+      height: 16px;
+      border-radius: 50%;
+      background: var(--color-badge);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .wa-verified svg { fill: white; }
+
     .wa-status {
-      color: #8696a0;
+      color: var(--color-status);
       font-size: 12.5px;
       line-height: 1.3;
     }
 
     .wa-icons {
       display: flex;
-      gap: 18px;
       align-items: center;
-      color: #aebac1;
+      gap: 4px;
+      color: var(--color-hdr-icon);
       flex-shrink: 0;
     }
 
-    .wa-icons svg { width: 22px; height: 22px; cursor: pointer; fill: currentColor; }
-
-    /* ── COMMERCIAL BANNER ── */
-    .wa-banner {
-      background: #182229;
-      color: #8696a0;
-      font-size: 12px;
-      text-align: center;
-      padding: 7px 16px;
+    .wa-icon-btn {
+      background: none;
+      border: none;
+      cursor: pointer;
+      padding: 8px;
       display: flex;
       align-items: center;
       justify-content: center;
-      gap: 6px;
-      flex-shrink: 0;
+      border-radius: 50%;
+      transition: background .15s;
     }
 
-    .wa-banner svg { width: 14px; height: 14px; fill: currentColor; flex-shrink: 0; }
+    .wa-icon-btn:hover { background: rgba(255,255,255,.1); }
+    .wa-icon-btn svg { fill: var(--color-hdr-icon); }
+
+    /* ── E2E NOTICE ── */
+    .e2e-notice {
+      align-self: center;
+      background: var(--bg-e2e);
+      color: var(--color-e2e);
+      font-size: 12.5px;
+      text-align: center;
+      padding: 8px 14px;
+      border-radius: 8px;
+      margin: 10px 16px 6px;
+      line-height: 1.5;
+      flex-shrink: 0;
+      max-width: 88%;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .e2e-notice svg { fill: var(--color-e2e); flex-shrink: 0; opacity: .85; }
 
     /* ── CHAT AREA ── */
     .wa-chat {
       flex: 1;
       overflow-y: auto;
       overflow-x: hidden;
-      padding: 8px 6px 12px;
+      padding: 6px 6px 12px;
       display: flex;
       flex-direction: column;
-      gap: 3px;
-      background-color: #0b141a;
+      gap: 2px;
+      background-color: var(--wp-bg);
+      background-size: 300px 300px;
     }
 
     .wa-chat::-webkit-scrollbar { width: 5px; }
     .wa-chat::-webkit-scrollbar-track { background: transparent; }
-    .wa-chat::-webkit-scrollbar-thumb { background: #374045; border-radius: 3px; }
+    .wa-chat::-webkit-scrollbar-thumb { background: var(--scrollbar); border-radius: 3px; }
 
     /* ── DATE PILL ── */
     .date-pill {
       align-self: center;
-      background: #182229;
-      color: #8696a0;
+      background: var(--bg-date);
+      color: #e9edef;
       font-size: 12px;
       padding: 5px 12px;
       border-radius: 8px;
-      margin: 6px 0 10px;
+      margin: 6px 0 8px;
       flex-shrink: 0;
     }
 
@@ -137,35 +259,36 @@
       flex-shrink: 0;
     }
 
-    .mw.r { align-items: flex-start; padding-left: 4px; }
-    .mw.s { align-items: flex-end; padding-right: 4px; }
+    .mw.r { align-items: flex-start; padding-left: 6px; }
+    .mw.s { align-items: flex-end;   padding-right: 6px; }
 
     @keyframes msgIn {
-      from { opacity: 0; transform: translateY(6px); }
+      from { opacity: 0; transform: translateY(5px); }
       to   { opacity: 1; transform: translateY(0); }
     }
-    .mw { animation: msgIn 0.22s ease forwards; }
+    .mw { animation: msgIn 0.2s ease forwards; }
 
     /* ── TEXT BUBBLE ── */
     .bubble {
       max-width: 78%;
-      padding: 7px 10px 5px;
+      padding: 6px 9px 4px;
       border-radius: 7.5px;
       word-wrap: break-word;
       font-size: 14.5px;
       line-height: 1.45;
       position: relative;
+      box-shadow: 0 1px 1px rgba(0,0,0,.13);
     }
 
     .bubble.r {
-      background: #202c33;
-      color: #e9edef;
+      background: var(--bg-bubble-r);
+      color: var(--color-text-r);
       border-top-left-radius: 0;
     }
 
     .bubble.s {
-      background: #005c4b;
-      color: #e9edef;
+      background: var(--bg-bubble-s);
+      color: var(--color-text-s);
       border-top-right-radius: 0;
     }
 
@@ -174,33 +297,34 @@
       align-items: center;
       justify-content: flex-end;
       gap: 3px;
-      margin-top: 3px;
+      margin-top: 2px;
     }
 
-    .ts { font-size: 11px; color: #8696a0; }
-    .ticks { font-size: 13px; color: #53bdeb; }
+    .ts    { font-size: 11px; color: var(--color-ts); }
+    .ticks { font-size: 13px; color: var(--color-ticks); }
 
-    /* ── TYPING / RECORDING INDICATOR ── */
+    /* ── TYPING / RECORDING ── */
     .indicator-wrap {
       display: flex;
       align-items: flex-end;
-      padding-left: 4px;
+      padding-left: 6px;
       flex-shrink: 0;
     }
 
     .indicator-bubble {
-      background: #202c33;
+      background: var(--bg-indicator);
       border-radius: 7.5px;
       border-top-left-radius: 0;
       padding: 11px 14px;
       display: flex;
       align-items: center;
       gap: 5px;
+      box-shadow: 0 1px 1px rgba(0,0,0,.13);
     }
 
     .i-dot {
       width: 8px; height: 8px;
-      background: #8696a0;
+      background: var(--color-muted);
       border-radius: 50%;
       animation: iDot 1.4s ease-in-out infinite;
     }
@@ -210,25 +334,21 @@
     .i-dot:nth-child(3) { animation-delay: 0.4s; }
 
     @keyframes iDot {
-      0%, 60%, 100% { transform: translateY(0); opacity: 0.45; }
-      30% { transform: translateY(-5px); opacity: 1; }
+      0%,60%,100% { transform: translateY(0); opacity: .4; }
+      30%          { transform: translateY(-5px); opacity: 1; }
     }
 
-    .rec-label { color: #8696a0; font-size: 13px; }
-
-    .rec-mic {
-      animation: recPulse 0.9s ease-in-out infinite;
-      display: flex;
-    }
+    .rec-label { color: var(--color-muted); font-size: 13px; }
+    .rec-mic   { animation: recPulse .9s ease-in-out infinite; display: flex; }
 
     @keyframes recPulse {
-      0%, 100% { opacity: 1; }
-      50% { opacity: 0.25; }
+      0%,100% { opacity: 1; }
+      50%      { opacity: .25; }
     }
 
     /* ── AUDIO BUBBLE ── */
     .audio-bubble {
-      background: #202c33;
+      background: var(--bg-bubble-r);
       border-radius: 7.5px;
       border-top-left-radius: 0;
       padding: 9px 10px;
@@ -237,6 +357,7 @@
       gap: 9px;
       min-width: 220px;
       max-width: 280px;
+      box-shadow: 0 1px 1px rgba(0,0,0,.13);
     }
 
     .play-btn {
@@ -249,11 +370,11 @@
       justify-content: center;
       cursor: pointer;
       flex-shrink: 0;
-      transition: background 0.15s;
+      transition: background .15s;
     }
 
     .play-btn:hover { background: #008f71; }
-    .play-btn svg { fill: white; pointer-events: none; }
+    .play-btn svg   { fill: white; pointer-events: none; }
 
     .audio-body { flex: 1; min-width: 0; }
 
@@ -262,24 +383,24 @@
       align-items: center;
       gap: 2px;
       height: 30px;
-      margin-bottom: 5px;
+      margin-bottom: 4px;
     }
 
     .wbar {
       width: 3px;
       border-radius: 2px;
-      background: #8696a0;
+      background: var(--color-muted);
       flex-shrink: 0;
       transform-origin: center;
     }
 
     .wbar.playing {
       background: #00a884;
-      animation: wavePlay 0.5s ease-in-out infinite alternate;
+      animation: wavePlay .5s ease-in-out infinite alternate;
     }
 
     @keyframes wavePlay {
-      from { transform: scaleY(0.4); }
+      from { transform: scaleY(.4); }
       to   { transform: scaleY(1); }
     }
 
@@ -289,7 +410,7 @@
       justify-content: space-between;
     }
 
-    .audio-dur { color: #8696a0; font-size: 11.5px; }
+    .audio-dur { color: var(--color-ts); font-size: 11.5px; }
 
     .audio-av {
       width: 30px; height: 30px;
@@ -300,11 +421,12 @@
 
     /* ── PDF BUBBLE ── */
     .pdf-outer {
-      background: #202c33;
+      background: var(--bg-pdf-outer);
       border-radius: 7.5px;
       border-top-left-radius: 0;
       overflow: hidden;
-      max-width: 275px;
+      max-width: 278px;
+      box-shadow: 0 1px 1px rgba(0,0,0,.13);
     }
 
     .pdf-head {
@@ -316,7 +438,7 @@
 
     .pdf-icon-box {
       width: 46px; height: 56px;
-      background: #1a2530;
+      background: var(--bg-pdf-icon);
       border-radius: 5px;
       display: flex;
       flex-direction: column;
@@ -327,12 +449,12 @@
     }
 
     .pdf-icon-box svg { fill: #e74c3c; }
-    .pdf-badge-text { font-size: 9px; font-weight: 700; color: #e74c3c; letter-spacing: 0.5px; }
+    .pdf-badge-text { font-size: 9px; font-weight: 700; color: #e74c3c; letter-spacing: .5px; }
 
     .pdf-info { flex: 1; min-width: 0; }
 
     .pdf-name {
-      color: #e9edef;
+      color: var(--color-pdf-name);
       font-size: 13px;
       font-weight: 500;
       margin-bottom: 3px;
@@ -341,14 +463,14 @@
       text-overflow: ellipsis;
     }
 
-    .pdf-size { color: #8696a0; font-size: 11.5px; }
+    .pdf-size { color: var(--color-pdf-size); font-size: 11.5px; }
 
     .pdf-btn {
       width: 100%;
       background: #00a884;
       color: white;
       border: none;
-      border-top: 1px solid #2a3942;
+      border-top: 1px solid var(--pdf-btn-border);
       padding: 10px 14px;
       font-size: 14px;
       font-weight: 600;
@@ -357,33 +479,12 @@
       align-items: center;
       justify-content: center;
       gap: 7px;
-      transition: background 0.15s;
+      transition: background .15s;
     }
 
     .pdf-btn:hover { background: #008f71; }
-    .pdf-btn svg { fill: white; flex-shrink: 0; }
-    .pdf-foot { padding: 4px 10px 8px; }
-
-    /* ── RESPONSE BUTTON ── */
-    .response-btn {
-      background: #005c4b;
-      color: #e9edef;
-      border: none;
-      border-radius: 7.5px;
-      border-top-right-radius: 0;
-      padding: 9px 14px;
-      font-size: 14.5px;
-      font-weight: 500;
-      cursor: pointer;
-      max-width: 78%;
-      display: flex;
-      align-items: center;
-      gap: 7px;
-      transition: background 0.15s;
-    }
-
-    .response-btn:hover:not(:disabled) { background: #004a3c; }
-    .response-btn:disabled { background: #374045; cursor: default; }
+    .pdf-btn svg   { fill: white; flex-shrink: 0; }
+    .pdf-foot      { padding: 4px 10px 8px; }
 
     /* ── PAYMENT BUTTONS ── */
     .pay-btn {
@@ -398,14 +499,15 @@
       display: flex;
       align-items: center;
       gap: 8px;
-      transition: background 0.15s, transform 0.1s;
+      transition: background .15s, transform .1s;
       text-decoration: none;
       max-width: 78%;
+      box-shadow: 0 1px 2px rgba(0,0,0,.2);
     }
 
-    .pay-btn:hover { background: #1db954; transform: scale(1.02); }
-    .pay-btn:active { transform: scale(0.97); }
-    .pay-btn svg { fill: white; flex-shrink: 0; }
+    .pay-btn:hover  { background: #1db954; transform: scale(1.02); }
+    .pay-btn:active { transform: scale(.97); }
+    .pay-btn svg    { fill: white; flex-shrink: 0; }
 
     /* ── BADGE NOVA MENSAGEM ── */
     .new-msg-badge {
@@ -413,7 +515,7 @@
       bottom: 68px;
       left: 50%;
       transform: translateX(-50%);
-      background: #005c4b;
+      background: var(--new-badge-bg);
       color: #e9edef;
       border: none;
       border-radius: 20px;
@@ -421,65 +523,76 @@
       font-size: 13px;
       font-weight: 600;
       cursor: pointer;
-      box-shadow: 0 2px 10px rgba(0,0,0,.4);
+      box-shadow: 0 2px 10px rgba(0,0,0,.35);
       z-index: 20;
       display: none;
       white-space: nowrap;
-      animation: msgIn 0.2s ease;
+      animation: msgIn .2s ease;
     }
     .new-msg-badge.show { display: block; }
 
     /* ── INPUT BAR ── */
     .wa-input {
-      background: #202c33;
-      padding: 8px 10px;
+      background: var(--bg-input-bar);
+      padding: 8px 8px;
       display: flex;
       align-items: center;
-      gap: 8px;
+      gap: 6px;
       flex-shrink: 0;
+    }
+
+    .wa-input-field-wrap {
+      flex: 1;
+      background: var(--bg-field);
+      border-radius: 24px;
+      display: flex;
+      align-items: center;
+      padding: 0 6px 0 14px;
+      min-height: 42px;
     }
 
     .wa-input-inner {
       flex: 1;
-      background: #2a3942;
+      background: transparent;
       border: none;
-      border-radius: 22px;
-      padding: 10px 16px;
-      color: #e9edef;
+      color: var(--color-text);
       font-size: 15px;
       outline: none;
+      padding: 10px 0;
     }
 
-    .wa-input-inner::placeholder { color: #8696a0; }
-    .wa-input-inner:disabled { pointer-events: none; opacity: 0.5; }
+    .wa-input-inner::placeholder { color: var(--color-muted); }
+    .wa-input-inner:disabled     { pointer-events: none; opacity: .55; }
 
     .wa-ico-btn {
       background: none;
       border: none;
       cursor: pointer;
-      padding: 4px;
+      padding: 6px;
       display: flex;
       align-items: center;
       flex-shrink: 0;
     }
 
-    .wa-ico-btn svg { fill: #8696a0; }
+    .wa-ico-btn svg { fill: var(--color-muted); }
 
-    #sendBtn {
-      display: none;
-      background: #00a884;
+    #micCircleBtn, #sendCircleBtn {
+      width: 46px; height: 46px;
       border-radius: 50%;
-      width: 40px;
-      height: 40px;
-      padding: 0;
+      background: #25d366;
+      border: none;
+      display: flex;
       align-items: center;
       justify-content: center;
       flex-shrink: 0;
-      transition: background 0.15s;
+      cursor: pointer;
+      transition: background .15s;
     }
 
-    #sendBtn:hover { background: #008f71; }
-    #sendBtn svg { fill: white; }
+    #micCircleBtn:hover, #sendCircleBtn:hover { background: #1db954; }
+    #micCircleBtn svg, #sendCircleBtn svg     { fill: white; }
+
+    #sendCircleBtn { display: none; }
 
     /* ── PDF MODAL ── */
     .pdf-modal {
@@ -496,7 +609,7 @@
     .pdf-modal-overlay {
       position: absolute;
       inset: 0;
-      background: rgba(0,0,0,0.85);
+      background: rgba(0,0,0,.85);
     }
 
     .pdf-modal-box {
@@ -508,11 +621,11 @@
       height: 100dvh;
       display: flex;
       flex-direction: column;
-      background: #111b21;
+      background: var(--bg-modal);
     }
 
     .pdf-modal-header {
-      background: #202c33;
+      background: var(--bg-modal-hdr);
       display: flex;
       align-items: center;
       padding: 8px 12px;
@@ -525,7 +638,7 @@
       background: none;
       border: none;
       cursor: pointer;
-      color: #aebac1;
+      color: #e9edef;
       padding: 6px;
       display: flex;
       align-items: center;
@@ -543,29 +656,10 @@
       text-overflow: ellipsis;
     }
 
-    .pdf-modal-dl {
-      background: none;
-      border: none;
-      cursor: pointer;
-      color: #aebac1;
-      padding: 6px;
-      display: flex;
-      align-items: center;
-    }
-
-    .pdf-modal-dl svg { fill: currentColor; }
-
     .pdf-frame-wrap {
       flex: 1;
       position: relative;
       overflow: hidden;
-    }
-
-    .pdf-frame-wrap iframe {
-      width: 100%;
-      height: 100%;
-      border: none;
-      background: #fff;
     }
 
     .pdf-no-url {
@@ -575,18 +669,18 @@
       align-items: center;
       justify-content: center;
       gap: 16px;
-      color: #8696a0;
+      color: var(--color-muted);
       padding: 32px;
       text-align: center;
     }
 
-    .pdf-no-url svg { fill: #8696a0; opacity: 0.5; }
-    .pdf-no-url p { font-size: 15px; line-height: 1.5; }
+    .pdf-no-url svg { fill: var(--color-muted); opacity: .5; }
+    .pdf-no-url p   { font-size: 15px; line-height: 1.5; }
   </style>
 </head>
 <body>
 
-<!-- PDF MODAL (fora do .wa para ficar fullscreen) -->
+<!-- PDF MODAL -->
 <div class="pdf-modal" id="pdfModal">
   <div class="pdf-modal-overlay" id="pdfOverlay"></div>
   <div class="pdf-modal-box">
@@ -594,9 +688,7 @@
       <button class="pdf-modal-close" id="pdfClose">&#8592;</button>
       <span class="pdf-modal-title" id="pdfTitle">Apostila</span>
     </div>
-    <div class="pdf-frame-wrap" id="pdfFrameWrap">
-      <!-- iframe ou mensagem injetado por JS -->
-    </div>
+    <div class="pdf-frame-wrap" id="pdfFrameWrap"></div>
   </div>
 </div>
 
@@ -608,25 +700,39 @@
     <span class="wa-back">&#8592;</span>
     <img class="wa-avatar" id="avatar" src="" alt="C">
     <div class="wa-info">
-      <div class="wa-name">Clara Aureliano</div>
+      <div class="wa-name-row">
+        <span class="wa-name">Clara Aureliano</span>
+        <span class="wa-verified" title="Conta verificada">
+          <svg width="10" height="10" viewBox="0 0 24 24"><path d="M9 16.2l-4.2-4.2-1.4 1.4L9 19 21 7l-1.4-1.4L9 16.2z"/></svg>
+        </span>
+      </div>
       <div class="wa-status" id="statusLine">online</div>
     </div>
     <div class="wa-icons">
-      <svg viewBox="0 0 24 24"><path d="M17 10.5V7c0-.55-.45-1-1-1H4c-.55 0-1 .45-1 1v10c0 .55.45 1 1 1h12c.55 0 1-.45 1-1v-3.5l4 4v-11l-4 4z"/></svg>
-      <svg viewBox="0 0 24 24"><path d="M6.62 10.79c1.44 2.83 3.76 5.14 6.59 6.59l2.2-2.2c.27-.27.67-.36 1.02-.24 1.12.37 2.33.57 3.57.57.55 0 1 .45 1 1V20c0 .55-.45 1-1 1-9.39 0-17-7.61-17-17 0-.55.45-1 1-1h3.5c.55 0 1 .45 1 1 0 1.25.2 2.45.57 3.57.11.35.03.74-.25 1.02l-2.2 2.2z"/></svg>
-      <svg viewBox="0 0 24 24"><path d="M12 8c1.1 0 2-.9 2-2s-.9-2-2-2-2 .9-2 2 .9 2 2 2zm0 2c-1.1 0-2 .9-2 2s.9 2 2 2 2-.9 2-2-.9-2-2-2zm0 6c-1.1 0-2 .9-2 2s.9 2 2 2 2-.9 2-2-.9-2-2-2z"/></svg>
+      <!-- Chamada de vídeo -->
+      <button class="wa-icon-btn">
+        <svg width="24" height="24" viewBox="0 0 24 24"><path d="M17 10.5V7c0-.55-.45-1-1-1H4c-.55 0-1 .45-1 1v10c0 .55.45 1 1 1h12c.55 0 1-.45 1-1v-3.5l4 4v-11l-4 4z"/></svg>
+      </button>
+      <!-- Chamada de voz -->
+      <button class="wa-icon-btn">
+        <svg width="24" height="24" viewBox="0 0 24 24"><path d="M6.62 10.79c1.44 2.83 3.76 5.14 6.59 6.59l2.2-2.2c.27-.27.67-.36 1.02-.24 1.12.37 2.33.57 3.57.57.55 0 1 .45 1 1V20c0 .55-.45 1-1 1-9.39 0-17-7.61-17-17 0-.55.45-1 1-1h3.5c.55 0 1 .45 1 1 0 1.25.2 2.45.57 3.57.11.35.03.74-.25 1.02l-2.2 2.2z"/></svg>
+      </button>
+      <!-- Três pontos -->
+      <button class="wa-icon-btn">
+        <svg width="24" height="24" viewBox="0 0 24 24"><path d="M12 8c1.1 0 2-.9 2-2s-.9-2-2-2-2 .9-2 2 .9 2 2 2zm0 2c-1.1 0-2 .9-2 2s.9 2 2 2 2-.9 2-2-.9-2-2-2zm0 6c-1.1 0-2 .9-2 2s.9 2 2 2 2-.9 2-2-.9-2-2-2z"/></svg>
+      </button>
     </div>
-  </div>
-
-  <!-- COMMERCIAL BANNER -->
-  <div class="wa-banner">
-    <svg viewBox="0 0 24 24"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 15h-2v-6h2v6zm0-8h-2V7h2v2z"/></svg>
-    Esta é uma conta comercial
   </div>
 
   <!-- CHAT -->
   <div class="wa-chat" id="chat">
-    <div class="date-pill">Hoje</div>
+    <div class="date-pill" id="datePill">Hoje</div>
+
+    <!-- E2E Notice -->
+    <div class="e2e-notice">
+      <svg width="14" height="14" viewBox="0 0 24 24"><path d="M18 8h-1V6c0-2.76-2.24-5-5-5S7 3.24 7 6v2H6c-1.1 0-2 .9-2 2v10c0 1.1.9 2 2 2h12c1.1 0 2-.9 2-2V10c0-1.1-.9-2-2-2zm-6 9c-1.1 0-2-.9-2-2s.9-2 2-2 2 .9 2 2-.9 2-2 2zm3.1-9H8.9V6c0-1.71 1.39-3.1 3.1-3.1 1.71 0 3.1 1.39 3.1 3.1v2z"/></svg>
+      As mensagens e chamadas desta conversa estão protegidas com a criptografia de ponta a ponta.
+    </div>
   </div>
 
   <!-- BADGE NOVA MENSAGEM -->
@@ -634,14 +740,28 @@
 
   <!-- INPUT BAR -->
   <div class="wa-input">
+    <!-- Emoji -->
     <button class="wa-ico-btn" id="emojiBtn">
-      <svg width="24" height="24" viewBox="0 0 24 24"><path d="M11.99 2C6.47 2 2 6.48 2 12s4.47 10 9.99 10C17.52 22 22 17.52 22 12S17.52 2 11.99 2zM12 20c-4.42 0-8-3.58-8-8s3.58-8 8-8 8 3.58 8 8-3.58 8-8 8zm3.5-9c.83 0 1.5-.67 1.5-1.5S16.33 8 15.5 8 14 8.67 14 9.5s.67 1.5 1.5 1.5zm-7 0c.83 0 1.5-.67 1.5-1.5S9.33 8 8.5 8 7 8.67 7 9.5 7.67 11 8.5 11zm3.5 6.5c2.33 0 4.31-1.46 5.11-3.5H6.89c.8 2.04 2.78 3.5 5.11 3.5z"/></svg>
+      <svg width="26" height="26" viewBox="0 0 24 24"><path d="M11.99 2C6.47 2 2 6.48 2 12s4.47 10 9.99 10C17.52 22 22 17.52 22 12S17.52 2 11.99 2zM12 20c-4.42 0-8-3.58-8-8s3.58-8 8-8 8 3.58 8 8-3.58 8-8 8zm3.5-9c.83 0 1.5-.67 1.5-1.5S16.33 8 15.5 8 14 8.67 14 9.5s.67 1.5 1.5 1.5zm-7 0c.83 0 1.5-.67 1.5-1.5S9.33 8 8.5 8 7 8.67 7 9.5 7.67 11 8.5 11zm3.5 6.5c2.33 0 4.31-1.46 5.11-3.5H6.89c.8 2.04 2.78 3.5 5.11 3.5z"/></svg>
     </button>
-    <input class="wa-input-inner" id="msgInput" placeholder="Mensagem" disabled>
-    <button class="wa-ico-btn" id="micBtn">
-      <svg width="24" height="24" viewBox="0 0 24 24"><path d="M12 14c1.66 0 2.99-1.34 2.99-3L15 5c0-1.66-1.34-3-3-3S9 3.34 9 5v6c0 1.66 1.34 3 3 3zm5.3-3c0 3-2.54 5.1-5.3 5.1S6.7 14 6.7 11H5c0 3.41 2.72 6.23 6 6.72V21h2v-3.28c3.28-.48 6-3.3 6-6.72h-1.7z"/></svg>
+    <!-- Campo de texto -->
+    <div class="wa-input-field-wrap">
+      <input class="wa-input-inner" id="msgInput" placeholder="Mensagem" disabled>
+      <!-- Anexo -->
+      <button class="wa-ico-btn" id="attachBtn">
+        <svg width="24" height="24" viewBox="0 0 24 24"><path d="M16.5 6v11.5c0 2.21-1.79 4-4 4s-4-1.79-4-4V5c0-1.38 1.12-2.5 2.5-2.5s2.5 1.12 2.5 2.5v10.5c0 .55-.45 1-1 1s-1-.45-1-1V6H10v9.5c0 1.38 1.12 2.5 2.5 2.5s2.5-1.12 2.5-2.5V5c0-2.21-1.79-4-4-4S7 2.79 7 5v12.5c0 3.04 2.46 5.5 5.5 5.5s5.5-2.46 5.5-5.5V6h-1.5z"/></svg>
+      </button>
+      <!-- Câmera -->
+      <button class="wa-ico-btn" id="camBtn">
+        <svg width="24" height="24" viewBox="0 0 24 24"><path d="M9 2L7.17 4H4c-1.1 0-2 .9-2 2v12c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V6c0-1.1-.9-2-2-2h-3.17L15 2H9zm3 15c-2.76 0-5-2.24-5-5s2.24-5 5-5 5 2.24 5 5-2.24 5-5 5zm0-8c-1.66 0-3 1.34-3 3s1.34 3 3 3 3-1.34 3-3-1.34-3-3-3z"/></svg>
+      </button>
+    </div>
+    <!-- Microfone (círculo verde) -->
+    <button id="micCircleBtn">
+      <svg width="22" height="22" viewBox="0 0 24 24"><path d="M12 14c1.66 0 2.99-1.34 2.99-3L15 5c0-1.66-1.34-3-3-3S9 3.34 9 5v6c0 1.66 1.34 3 3 3zm5.3-3c0 3-2.54 5.1-5.3 5.1S6.7 14 6.7 11H5c0 3.41 2.72 6.23 6 6.72V21h2v-3.28c3.28-.48 6-3.3 6-6.72h-1.7z"/></svg>
     </button>
-    <button class="wa-ico-btn" id="sendBtn">
+    <!-- Enviar (aparece ao digitar) -->
+    <button id="sendCircleBtn">
       <svg width="22" height="22" viewBox="0 0 24 24"><path d="M2.01 21L23 12 2.01 3 2 10l15 2-15 2z"/></svg>
     </button>
   </div>
@@ -651,15 +771,67 @@
 (function () {
 
   /* ════════════════════════════════════════════════
+     ▌ TEMA
+  ════════════════════════════════════════════════ */
+  const html = document.documentElement;
+
+  function applyTheme(theme) {
+    html.setAttribute('data-theme', theme === 'light' ? 'light' : 'dark');
+    applyWallpaper(theme);
+  }
+
+  /* ════════════════════════════════════════════════
+     ▌ WALLPAPER (dark e light idênticos ao WA)
+  ════════════════════════════════════════════════ */
+  const ICONS = [
+    'M20 2H4c-1.1 0-2 .9-2 2v18l4-4h14c1.1 0 2-.9 2-2V4c0-1.1-.9-2-2-2z',   // chat
+    'M12 21.6C6.4 16 1 11.3 1 7.2 1 3.4 4.1 2 6.3 2c1.3 0 4.2.5 5.7 4.5C13.6 2.5 16.4 2 17.7 2 20.2 2 23 3.6 23 7.2c0 4.1-5.1 8.6-11 14.4z', // heart
+    'M6.6 10.8c1.4 2.8 3.8 5.1 6.6 6.6l2.2-2.2c.3-.3.7-.4 1-.2 1.1.4 2.3.6 3.6.6.6 0 1 .4 1 1V20c0 .6-.4 1-1 1C9.6 21 3 14.4 3 6c0-.6.4-1 1-1h3.5c.6 0 1 .4 1 1 0 1.3.2 2.5.6 3.6.1.3 0 .7-.5 1.2z', // phone
+    'M12 17.3l6.2 3.7-1.6-7 5.5-4.7-7.2-.6L12 2 9.1 8.7l-7.2.6 5.5 4.7-1.6 7z', // star
+    'M12 3v10.6c-.6-.3-1.3-.6-2-.6-2.2 0-4 1.8-4 4s1.8 4 4 4 4-1.8 4-4V7h4V3h-6z', // music
+    'M9 2L7.17 4H4C2.9 4 2 4.9 2 6v12c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V6c0-1.1-.9-2-2-2h-3.17L15 2H9zm3 15c-2.76 0-5-2.24-5-5s2.24-5 5-5 5 2.24 5 5-2.24 5-5 5z', // camera
+    'M12 2C6.5 2 2 6.5 2 12s4.5 10 10 10 10-4.5 10-10S17.5 2 12 2zm0 18c-4.4 0-8-3.6-8-8s3.6-8 8-8 8 3.6 8 8-3.6 8-8 8zm3.5-9c.8 0 1.5-.7 1.5-1.5S16.3 8 15.5 8 14 8.7 14 9.5s.7 1.5 1.5 1.5zm-7 0c.8 0 1.5-.7 1.5-1.5S9.3 8 8.5 8 7 8.7 7 9.5 7.7 11 8.5 11zm3.5 6.5c2.3 0 4.3-1.5 5.1-3.5H6.9c.8 2 2.8 3.5 5.1 3.5z', // smiley
+    'M17 10.5V7c0-.55-.45-1-1-1H4c-.55 0-1 .45-1 1v10c0 .55.45 1 1 1h12c.55 0 1-.45 1-1v-3.5l4 4v-11l-4 4z', // video
+  ];
+
+  const POSITIONS = [
+    [12,14,.9],[180,22,.7],[80,210,.85],[240,80,.65],[45,185,.7],
+    [160,75,.8],[5,125,.65],[235,195,.75],[90,148,.85],[258,148,.7],
+    [155,222,.85],[22,242,.8],[252,42,.75],[110,50,.6],[200,130,.8],
+    [130,260,.7],[60,70,.75],[280,170,.65],[30,100,.7],[210,220,.75],
+  ];
+
+  function applyWallpaper(theme) {
+    const isDark  = theme !== 'light';
+    const bg      = isDark ? '#0b141a' : '#efeae2';
+    const iconRGB = isDark ? '255,255,255' : '0,0,0';
+    const opacity = isDark ? .055 : .06;
+
+    const paths = POSITIONS.map(([x, y, s], i) => {
+      const d = ICONS[i % ICONS.length];
+      return `<path opacity='${opacity}' transform='translate(${x},${y}) scale(${s})' d='${d}'/>`;
+    }).join('');
+
+    const svg = `<svg xmlns='http://www.w3.org/2000/svg' width='300' height='300'>
+      <rect fill='${bg}' width='300' height='300'/>
+      <g fill='rgb(${iconRGB})'>${paths}</g>
+    </svg>`;
+
+    document.getElementById('chat').style.backgroundImage =
+      'url("data:image/svg+xml,' + encodeURIComponent(svg) + '")';
+  }
+
+  /* ════════════════════════════════════════════════
      ▌ CONFIG — carregado do config.json
   ════════════════════════════════════════════════ */
   const DEFAULT_CONFIG = {
-    AVATAR_URL: 'https://ui-avatars.com/api/?name=Clara+Aureliano&background=2a3942&color=e9edef&size=80&bold=true',
-    AUDIO_URLS: ['', ''],
-    PDF_URLS: ['', '', ''],
-    PDF_NAMES: ['Receitas de Recheios', 'Receitas de Recheios Vol. 2', 'Sobremesas Sem Fogo'],
-    PDF_SIZES: ['2.5 MB', '1.6 MB', '6.6 MB'],
+    AVATAR_URL:    'https://ui-avatars.com/api/?name=Clara+Aureliano&background=2a3942&color=e9edef&size=80&bold=true',
+    AUDIO_URLS:    ['', ''],
+    PDF_URLS:      ['', '', ''],
+    PDF_NAMES:     ['Receitas de Recheios', 'Receitas de Recheios Vol. 2', 'Sobremesas Sem Fogo'],
+    PDF_SIZES:     ['2.5 MB', '1.6 MB', '6.6 MB'],
     PAYMENT_LINKS: { '1,99': '#', '5,90': '#', '7,90': '#', '14,90': '#' },
+    THEME:         'dark',
   };
 
   async function loadConfig() {
@@ -674,56 +846,25 @@
         PDF_NAMES:     c.pdfNames     || DEFAULT_CONFIG.PDF_NAMES,
         PDF_SIZES:     c.pdfSizes     || DEFAULT_CONFIG.PDF_SIZES,
         PAYMENT_LINKS: c.paymentLinks || DEFAULT_CONFIG.PAYMENT_LINKS,
+        THEME:         c.theme        || DEFAULT_CONFIG.THEME,
       };
     } catch { return DEFAULT_CONFIG; }
   }
 
   /* ════════════════════════════════════════════════
-     ▌ WALLPAPER — fundo com ícones estilo WhatsApp
-  ════════════════════════════════════════════════ */
-  const WP_SVG = `<svg xmlns='http://www.w3.org/2000/svg' width='300' height='300'>
-<rect fill='#0b141a' width='300' height='300'/>
-<g fill='#182a33'>
-<!-- chat bubbles -->
-<path opacity='.55' transform='translate(8,10) scale(.9)' d='M20 2H4c-1.1 0-2 .9-2 2v18l4-4h14c1.1 0 2-.9 2-2V4c0-1.1-.9-2-2-2z'/>
-<path opacity='.45' transform='translate(210,18) scale(.7)' d='M20 2H4c-1.1 0-2 .9-2 2v18l4-4h14c1.1 0 2-.9 2-2V4c0-1.1-.9-2-2-2z'/>
-<path opacity='.5' transform='translate(100,220) scale(.8)' d='M20 2H4c-1.1 0-2 .9-2 2v18l4-4h14c1.1 0 2-.9 2-2V4c0-1.1-.9-2-2-2z'/>
-<!-- hearts -->
-<path opacity='.5' transform='translate(120,40) scale(.85)' d='M12 21.6C6.4 16 1 11.3 1 7.2 1 3.4 4.1 2 6.3 2c1.3 0 4.2.5 5.7 4.5C13.6 2.5 16.4 2 17.7 2 20.2 2 23 3.6 23 7.2c0 4.1-5.1 8.6-11 14.4z'/>
-<path opacity='.4' transform='translate(250,90) scale(.65)' d='M12 21.6C6.4 16 1 11.3 1 7.2 1 3.4 4.1 2 6.3 2c1.3 0 4.2.5 5.7 4.5C13.6 2.5 16.4 2 17.7 2 20.2 2 23 3.6 23 7.2c0 4.1-5.1 8.6-11 14.4z'/>
-<path opacity='.45' transform='translate(40,190) scale(.7)' d='M12 21.6C6.4 16 1 11.3 1 7.2 1 3.4 4.1 2 6.3 2c1.3 0 4.2.5 5.7 4.5C13.6 2.5 16.4 2 17.7 2 20.2 2 23 3.6 23 7.2c0 4.1-5.1 8.6-11 14.4z'/>
-<!-- phone -->
-<path opacity='.5' transform='translate(200,130) scale(.85)' d='M6.6 10.8c1.4 2.8 3.8 5.1 6.6 6.6l2.2-2.2c.3-.3.7-.4 1-.2 1.1.4 2.3.6 3.6.6.6 0 1 .4 1 1V20c0 .6-.4 1-1 1C9.6 21 3 14.4 3 6c0-.6.4-1 1-1h3.5c.6 0 1 .4 1 1 0 1.3.2 2.5.6 3.6.1.3 0 .7-.5 1.2z'/>
-<path opacity='.4' transform='translate(55,75) scale(.7)' d='M6.6 10.8c1.4 2.8 3.8 5.1 6.6 6.6l2.2-2.2c.3-.3.7-.4 1-.2 1.1.4 2.3.6 3.6.6.6 0 1 .4 1 1V20c0 .6-.4 1-1 1C9.6 21 3 14.4 3 6c0-.6.4-1 1-1h3.5c.6 0 1 .4 1 1 0 1.3.2 2.5.6 3.6.1.3 0 .7-.5 1.2z'/>
-<!-- stars -->
-<path opacity='.45' transform='translate(160,80) scale(.8)' d='M12 17.3l6.2 3.7-1.6-7 5.5-4.7-7.2-.6L12 2 9.1 8.7l-7.2.6 5.5 4.7-1.6 7z'/>
-<path opacity='.4' transform='translate(5,130) scale(.65)' d='M12 17.3l6.2 3.7-1.6-7 5.5-4.7-7.2-.6L12 2 9.1 8.7l-7.2.6 5.5 4.7-1.6 7z'/>
-<path opacity='.5' transform='translate(235,200) scale(.75)' d='M12 17.3l6.2 3.7-1.6-7 5.5-4.7-7.2-.6L12 2 9.1 8.7l-7.2.6 5.5 4.7-1.6 7z'/>
-<!-- music notes -->
-<path opacity='.45' transform='translate(90,150) scale(.85)' d='M12 3v10.6c-.6-.3-1.3-.6-2-.6-2.2 0-4 1.8-4 4s1.8 4 4 4 4-1.8 4-4V7h4V3h-6z'/>
-<path opacity='.4' transform='translate(260,150) scale(.7)' d='M12 3v10.6c-.6-.3-1.3-.6-2-.6-2.2 0-4 1.8-4 4s1.8 4 4 4 4-1.8 4-4V7h4V3h-6z'/>
-<!-- headphones -->
-<path opacity='.45' transform='translate(155,225) scale(.85)' d='M12 1C7 1 3 5 3 10v7c0 .6.4 1 1 1h1v-8H4v-1c0-4.4 3.6-8 8-8s8 3.6 8 8v1h-1v8h1c.6 0 1-.4 1-1v-7c0-5-4-9-9-9z'/>
-<!-- smiley -->
-<path opacity='.45' transform='translate(20,245) scale(.8)' d='M12 2C6.5 2 2 6.5 2 12s4.5 10 10 10 10-4.5 10-10S17.5 2 12 2zm0 18c-4.4 0-8-3.6-8-8s3.6-8 8-8 8 3.6 8 8-3.6 8-8 8zm3.5-9c.8 0 1.5-.7 1.5-1.5S16.3 8 15.5 8 14 8.7 14 9.5s.7 1.5 1.5 1.5zm-7 0c.8 0 1.5-.7 1.5-1.5S9.3 8 8.5 8 7 8.7 7 9.5 7.7 11 8.5 11zm3.5 6.5c2.3 0 4.3-1.5 5.1-3.5H6.9c.8 2 2.8 3.5 5.1 3.5z'/>
-<!-- camera -->
-<path opacity='.4' transform='translate(255,45) scale(.75)' d='M12 15.2c-1.8 0-3.2-1.4-3.2-3.2S10.2 8.8 12 8.8s3.2 1.4 3.2 3.2-1.4 3.2-3.2 3.2zM9 2L7.2 4H4C2.9 4 2 4.9 2 6v12c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V6c0-1.1-.9-2-2-2h-3.2L15 2H9z'/>
-</g></svg>`;
-
-  document.getElementById('chat').style.backgroundImage =
-    'url("data:image/svg+xml,' + encodeURIComponent(WP_SVG) + '")';
-
-  /* ════════════════════════════════════════════════
      ▌ DOM refs
   ════════════════════════════════════════════════ */
-  const chat       = document.getElementById('chat');
-  const statusLine = document.getElementById('statusLine');
-  const msgInput   = document.getElementById('msgInput');
-  const sendBtn    = document.getElementById('sendBtn');
-  const micBtn     = document.getElementById('micBtn');
-  const emojiBtn   = document.getElementById('emojiBtn');
+  const chat          = document.getElementById('chat');
+  const statusLine    = document.getElementById('statusLine');
+  const msgInput      = document.getElementById('msgInput');
+  const sendCircleBtn = document.getElementById('sendCircleBtn');
+  const micCircleBtn  = document.getElementById('micCircleBtn');
+  const emojiBtn      = document.getElementById('emojiBtn');
 
   let CONFIG = DEFAULT_CONFIG;
+
+  // Aplica tema padrão no carregamento
+  applyTheme('dark');
 
   /* ════════════════════════════════════════════════
      ▌ SONS DO WHATSAPP (Web Audio API)
@@ -744,7 +885,6 @@
     return _actx;
   }
 
-  // Som de mensagem recebida — dois tons rápidos (estilo WhatsApp)
   function sndReceive() {
     if (!soundUnlocked) return;
     try {
@@ -762,7 +902,6 @@
     } catch {}
   }
 
-  // Som de mensagem enviada — clique suave
   function sndSend() {
     if (!soundUnlocked) return;
     try {
@@ -777,7 +916,6 @@
     } catch {}
   }
 
-  // Som de início de gravação — bip curto
   function sndRecord() {
     if (!soundUnlocked) return;
     try {
@@ -815,7 +953,6 @@
     newMsgBadge.classList.remove('show');
   }
 
-  // Scroll inteligente: só desce se já estiver perto do fim
   function scroll() {
     if (pdfIsOpen) return;
     requestAnimationFrame(() => {
@@ -828,7 +965,6 @@
     });
   }
 
-  // Quando o usuário rola manualmente até o fim, esconde o badge
   chat.addEventListener('scroll', () => {
     if (isNearBottom()) newMsgBadge.classList.remove('show');
   });
@@ -846,7 +982,8 @@
     scroll();
   }
 
-  function showRecording() { sndRecord();
+  function showRecording() {
+    sndRecord();
     removeIndicator();
     indicatorEl = document.createElement('div');
     indicatorEl.className = 'indicator-wrap';
@@ -888,20 +1025,15 @@
   }
 
   /* ════════════════════════════════════════════════
-     ▌ MENSAGEM DE ÁUDIO (com reprodução real)
+     ▌ MENSAGEM DE ÁUDIO
   ════════════════════════════════════════════════ */
-  let activeAudio = null;
-  let activePlayBtn = null;
-  let activeWbars = null;
+  let activeAudio = null, activePlayBtn = null, activeWbars = null;
 
   const PLAY_ICON  = `<svg width="18" height="18" viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg>`;
   const PAUSE_ICON = `<svg width="18" height="18" viewBox="0 0 24 24"><path d="M6 19h4V5H6v14zm8-14v14h4V5h-4z"/></svg>`;
 
   function resetActiveAudio() {
-    if (activeAudio) {
-      activeAudio.pause();
-      activeAudio.currentTime = 0;
-    }
+    if (activeAudio) { activeAudio.pause(); activeAudio.currentTime = 0; }
     if (activePlayBtn) activePlayBtn.innerHTML = PLAY_ICON;
     if (activeWbars)   activeWbars.forEach(b => b.classList.remove('playing'));
     activeAudio = activePlayBtn = activeWbars = null;
@@ -915,10 +1047,10 @@
     const w = document.createElement('div');
     w.className = `mw ${side}`;
 
-    const heights = Array.from({ length: 30 }, () => (4 + Math.random() * 22).toFixed(0));
-    const bars = heights.map((h, i) =>
-      `<div class="wbar" style="height:${h}px;animation-delay:${(i * 0.04).toFixed(2)}s"></div>`
-    ).join('');
+    const bars = Array.from({ length: 30 }, (_, i) => {
+      const h = (4 + Math.random() * 22).toFixed(0);
+      return `<div class="wbar" style="height:${h}px;animation-delay:${(i * 0.04).toFixed(2)}s"></div>`;
+    }).join('');
 
     w.innerHTML = `
       <div class="audio-bubble">
@@ -931,7 +1063,7 @@
           </div>
         </div>
       </div>
-      <div style="font-size:11px;color:#8696a0;margin-top:2px;padding-left:4px">${time}</div>`;
+      <div style="font-size:11px;color:var(--color-ts);margin-top:2px;padding-left:4px">${time}</div>`;
 
     chat.appendChild(w);
     scroll();
@@ -940,10 +1072,7 @@
     const durEl   = w.querySelector('.audio-dur');
     const wbars   = Array.from(w.querySelectorAll('.wbar'));
 
-    if (!url) {
-      playBtn.title = 'Áudio não configurado';
-      return w;
-    }
+    if (!url) { playBtn.title = 'Áudio não configurado'; return w; }
 
     const audio = new Audio(url);
 
@@ -967,14 +1096,11 @@
 
     playBtn.addEventListener('click', () => {
       if (activeAudio && activeAudio !== audio) resetActiveAudio();
-
       if (audio.paused) {
         audio.play().catch(() => {});
         playBtn.innerHTML = PAUSE_ICON;
         wbars.forEach(b => b.classList.add('playing'));
-        activeAudio = audio;
-        activePlayBtn = playBtn;
-        activeWbars = wbars;
+        activeAudio = audio; activePlayBtn = playBtn; activeWbars = wbars;
       } else {
         audio.pause();
         playBtn.innerHTML = PLAY_ICON;
@@ -987,12 +1113,12 @@
   }
 
   /* ════════════════════════════════════════════════
-     ▌ MENSAGEM DE PDF (abre modal ao clicar)
+     ▌ MENSAGEM DE PDF
   ════════════════════════════════════════════════ */
   function addPdf(pdfIndex, size) {
-    const time  = getTime();
-    const name  = CONFIG.PDF_NAMES[pdfIndex]  || 'Apostila';
-    const url   = CONFIG.PDF_URLS[pdfIndex]   || '';
+    const time = getTime();
+    const name = CONFIG.PDF_NAMES[pdfIndex] || 'Apostila';
+    const url  = CONFIG.PDF_URLS[pdfIndex]  || '';
 
     const w = document.createElement('div');
     w.className = 'mw r';
@@ -1024,21 +1150,15 @@
   }
 
   /* ════════════════════════════════════════════════
-     ▌ PDF MODAL
+     ▌ PDF MODAL (PDF.js)
   ════════════════════════════════════════════════ */
   const pdfModal     = document.getElementById('pdfModal');
   const pdfTitle     = document.getElementById('pdfTitle');
   const pdfFrameWrap = document.getElementById('pdfFrameWrap');
 
-  // ── Renderiza PDF com PDF.js (sem iframe externo, sem botões do Google) ──
   async function renderPdfJs(url) {
-    pdfFrameWrap.style.overflowY = 'auto';
-    pdfFrameWrap.style.background = '#3a3a3a';
-    pdfFrameWrap.style.padding = '8px';
-    pdfFrameWrap.innerHTML = `
-      <div style="color:#ccc;text-align:center;padding:48px 16px;font-size:14px">
-        <div style="font-size:28px;margin-bottom:12px">⏳</div>Carregando apostila...
-      </div>`;
+    pdfFrameWrap.style.cssText = 'overflow-y:auto;background:#3a3a3a;padding:8px';
+    pdfFrameWrap.innerHTML = `<div style="color:#ccc;text-align:center;padding:48px 16px;font-size:14px"><div style="font-size:28px;margin-bottom:12px">⏳</div>Carregando apostila...</div>`;
 
     try {
       if (typeof pdfjsLib === 'undefined') throw new Error('PDF.js não carregou');
@@ -1047,35 +1167,27 @@
 
       const pdf = await pdfjsLib.getDocument({ url, withCredentials: false }).promise;
       pdfFrameWrap.innerHTML = '';
-
-      const containerW = pdfFrameWrap.clientWidth - 16;
+      const W = pdfFrameWrap.clientWidth - 16;
 
       for (let p = 1; p <= pdf.numPages; p++) {
         const page     = await pdf.getPage(p);
         const base     = page.getViewport({ scale: 1 });
-        const scale    = Math.min(containerW / base.width, 2);
+        const scale    = Math.min(W / base.width, 2);
         const viewport = page.getViewport({ scale });
-
         const canvas   = document.createElement('canvas');
-        const ctx      = canvas.getContext('2d');
+        const ctx2d    = canvas.getContext('2d');
         canvas.width   = viewport.width;
         canvas.height  = viewport.height;
         canvas.style.cssText = 'display:block;margin:0 auto 6px;border-radius:3px;max-width:100%';
-
-        await page.render({ canvasContext: ctx, viewport }).promise;
+        await page.render({ canvasContext: ctx2d, viewport }).promise;
         pdfFrameWrap.appendChild(canvas);
       }
     } catch (err) {
-      pdfFrameWrap.innerHTML = `
-        <div style="color:#ccc;text-align:center;padding:48px 16px;font-size:14px">
-          <div style="font-size:28px;margin-bottom:12px">❌</div>
-          Não foi possível carregar o PDF.<br>
-          <small style="opacity:.6">${err.message}</small>
-        </div>`;
+      pdfFrameWrap.innerHTML = `<div style="color:#ccc;text-align:center;padding:48px 16px;font-size:14px"><div style="font-size:28px;margin-bottom:12px">❌</div>Não foi possível carregar o PDF.<br><small style="opacity:.6">${err.message}</small></div>`;
     }
   }
 
-  let pdfTriggerEl = null; // elemento que abriu o PDF
+  let pdfTriggerEl = null;
 
   function openPdf(url, name, triggerEl) {
     pdfTriggerEl = triggerEl || null;
@@ -1100,8 +1212,6 @@
     pdfModal.classList.remove('open');
     pdfFrameWrap.innerHTML = '';
     pdfIsOpen = false;
-
-    // Volta exatamente pro PDF que foi aberto
     if (pdfTriggerEl) {
       setTimeout(() => {
         pdfTriggerEl.scrollIntoView({ behavior: 'smooth', block: 'center' });
@@ -1115,16 +1225,15 @@
   document.addEventListener('keydown', e => { if (e.key === 'Escape') closePdf(); });
 
   /* ════════════════════════════════════════════════
-     ▌ INPUT DO CLIENTE (digitação real)
+     ▌ INPUT DO CLIENTE
   ════════════════════════════════════════════════ */
   function waitForInput(placeholder) {
     return new Promise(resolve => {
       placeholder = placeholder || 'Digite uma mensagem...';
-      msgInput.disabled    = false;
-      msgInput.placeholder = placeholder;
-      micBtn.style.display  = 'none';
-      sendBtn.style.display = 'flex';
-      emojiBtn.style.cursor = 'pointer';
+      msgInput.disabled         = false;
+      msgInput.placeholder      = placeholder;
+      micCircleBtn.style.display  = 'none';
+      sendCircleBtn.style.display = 'flex';
 
       setTimeout(() => msgInput.focus(), 100);
 
@@ -1132,21 +1241,20 @@
         const text = msgInput.value.trim();
         if (!text) return;
 
-        msgInput.value        = '';
-        msgInput.disabled     = true;
-        msgInput.placeholder  = 'Mensagem';
-        micBtn.style.display  = '';
-        sendBtn.style.display = 'none';
-        sendBtn.onclick       = null;
-        msgInput.onkeydown    = null;
+        msgInput.value            = '';
+        msgInput.disabled         = true;
+        msgInput.placeholder      = 'Mensagem';
+        micCircleBtn.style.display  = '';
+        sendCircleBtn.style.display = 'none';
+        sendCircleBtn.onclick       = null;
+        msgInput.onkeydown          = null;
 
         sndSend();
-        const sentTime = getTime();
-        addText(text, 's', sentTime);
+        addText(text, 's', getTime());
         resolve(text);
       }
 
-      sendBtn.onclick    = doSend;
+      sendCircleBtn.onclick  = doSend;
       msgInput.onkeydown = e => { if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); doSend(); } };
     });
   }
@@ -1182,6 +1290,8 @@
   async function runFunnel() {
     CONFIG = await loadConfig();
     document.getElementById('avatar').src = CONFIG.AVATAR_URL;
+    applyTheme(CONFIG.THEME);
+
     await sleep(900);
 
     showTyping();
@@ -1212,7 +1322,6 @@
 
     await sleep(800);
 
-    // ── Cliente digita no chat ──
     await waitForInput('Digite sua resposta...');
 
     await sleep(1000);
