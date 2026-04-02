@@ -1,0 +1,537 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1.0,maximum-scale=1.0,user-scalable=no">
+  <title>Finalizar Compra — Clara Aureliano</title>
+  <style>
+    *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Helvetica, Arial, sans-serif;
+      background: #f0f2f5;
+      min-height: 100dvh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+    }
+
+    /* ── HEADER ── */
+    .wa-header {
+      width: 100%;
+      max-width: 480px;
+      background: #128C7E;
+      padding: 10px 16px;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      position: sticky;
+      top: 0;
+      z-index: 10;
+      box-shadow: 0 1px 3px rgba(0,0,0,.2);
+    }
+
+    .wa-back {
+      background: none;
+      border: none;
+      color: white;
+      cursor: pointer;
+      padding: 4px;
+      display: flex;
+      align-items: center;
+      flex-shrink: 0;
+    }
+
+    .wa-avatar {
+      width: 38px; height: 38px;
+      border-radius: 50%;
+      object-fit: cover;
+      flex-shrink: 0;
+    }
+
+    .wa-header-info { flex: 1; min-width: 0; }
+    .wa-header-name { color: white; font-size: 16px; font-weight: 600; line-height: 1.2; }
+    .wa-header-sub  { color: rgba(255,255,255,.8); font-size: 12px; }
+
+    .wa-lock { flex-shrink: 0; }
+
+    /* ── CONTENT ── */
+    .content {
+      width: 100%;
+      max-width: 480px;
+      padding: 16px;
+      flex: 1;
+    }
+
+    /* ── CARD ── */
+    .card {
+      background: white;
+      border-radius: 12px;
+      padding: 16px;
+      margin-bottom: 12px;
+      box-shadow: 0 1px 3px rgba(0,0,0,.08);
+    }
+
+    .card-title {
+      font-size: 11px;
+      font-weight: 700;
+      color: #667781;
+      text-transform: uppercase;
+      letter-spacing: .6px;
+      margin-bottom: 14px;
+    }
+
+    /* ── PRODUCT ROW ── */
+    .product-row {
+      display: flex;
+      align-items: center;
+      gap: 14px;
+    }
+
+    .product-icon {
+      width: 52px; height: 52px;
+      background: #e8f5e9;
+      border-radius: 10px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 26px;
+      flex-shrink: 0;
+    }
+
+    .product-name  { font-size: 15px; font-weight: 600; color: #111; line-height: 1.3; }
+    .product-price { font-size: 20px; font-weight: 700; color: #128C7E; margin-top: 3px; }
+
+    /* ── SECTIONS ── */
+    .screen { display: none; }
+    .screen.active { display: block; }
+
+    /* ── FIELD ── */
+    .field label {
+      display: block;
+      font-size: 12px;
+      color: #667781;
+      font-weight: 600;
+      margin-bottom: 6px;
+    }
+
+    .field input {
+      width: 100%;
+      padding: 13px 14px;
+      border: 1.5px solid #e9edef;
+      border-radius: 10px;
+      font-size: 16px;
+      outline: none;
+      transition: border-color .2s;
+      -webkit-appearance: none;
+    }
+
+    .field input:focus { border-color: #128C7E; }
+    .field input.err   { border-color: #e74c3c; }
+
+    /* ── BUTTONS ── */
+    .btn-primary {
+      width: 100%;
+      background: #25d366;
+      color: white;
+      border: none;
+      border-radius: 28px;
+      padding: 15px;
+      font-size: 16px;
+      font-weight: 700;
+      cursor: pointer;
+      margin-top: 6px;
+      letter-spacing: .3px;
+      transition: background .2s, opacity .2s;
+    }
+
+    .btn-primary:hover   { background: #1aaa52; }
+    .btn-primary:disabled { opacity: .5; cursor: default; }
+
+    /* ── QR SCREEN ── */
+    .qr-wrap {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 14px;
+    }
+
+    .qr-img-wrap {
+      background: white;
+      border: 6px solid white;
+      border-radius: 12px;
+      box-shadow: 0 4px 16px rgba(0,0,0,.12);
+      overflow: hidden;
+      line-height: 0;
+    }
+
+    .qr-img-wrap img { width: 200px; height: 200px; display: block; }
+
+    .qr-status {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      color: #667781;
+      font-size: 14px;
+    }
+
+    .spinner {
+      width: 16px; height: 16px;
+      border: 2px solid #e9edef;
+      border-top-color: #25d366;
+      border-radius: 50%;
+      animation: spin .8s linear infinite;
+      flex-shrink: 0;
+    }
+
+    @keyframes spin { to { transform: rotate(360deg); } }
+
+    .copy-row {
+      display: flex;
+      gap: 8px;
+      width: 100%;
+    }
+
+    .copy-input {
+      flex: 1;
+      padding: 10px 12px;
+      border: 1.5px solid #e9edef;
+      border-radius: 10px;
+      font-size: 12px;
+      color: #667781;
+      background: #f9f9f9;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+      min-width: 0;
+    }
+
+    .btn-copy {
+      background: none;
+      border: 1.5px solid #25d366;
+      color: #25d366;
+      border-radius: 10px;
+      padding: 0 14px;
+      font-weight: 700;
+      font-size: 13px;
+      cursor: pointer;
+      white-space: nowrap;
+      transition: background .15s, color .15s;
+    }
+
+    .btn-copy.copied {
+      background: #e8f5e9;
+      color: #1b5e20;
+    }
+
+    .expiry-text {
+      font-size: 12px;
+      color: #e74c3c;
+      text-align: center;
+    }
+
+    /* ── SUCCESS ── */
+    .success-body {
+      text-align: center;
+      padding: 8px 0 16px;
+    }
+
+    .success-circle {
+      width: 84px; height: 84px;
+      background: #e8f5e9;
+      border-radius: 50%;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 44px;
+      margin-bottom: 16px;
+    }
+
+    .success-title { font-size: 20px; font-weight: 700; color: #111; margin-bottom: 8px; }
+    .success-sub   { color: #667781; font-size: 14px; line-height: 1.6; }
+    .success-email { color: #128C7E; font-weight: 700; }
+
+    /* ── INFO PILL ── */
+    .info-pill {
+      background: #e8f5e9;
+      border-radius: 10px;
+      padding: 13px 14px;
+      display: flex;
+      align-items: flex-start;
+      gap: 10px;
+      font-size: 13px;
+      color: #1b5e20;
+      line-height: 1.5;
+      margin-bottom: 10px;
+    }
+
+    .info-pill.gold { background: #fff8e1; color: #7c4d00; }
+
+    /* ── FOOTER ── */
+    .footer {
+      text-align: center;
+      padding: 8px 0 20px;
+      color: #aaa;
+      font-size: 11px;
+      line-height: 1.8;
+    }
+
+    /* ── LOADING ── */
+    .loading-overlay {
+      position: fixed;
+      inset: 0;
+      background: rgba(255,255,255,.92);
+      display: none;
+      align-items: center;
+      justify-content: center;
+      flex-direction: column;
+      gap: 14px;
+      z-index: 100;
+    }
+
+    .loading-overlay.show { display: flex; }
+
+    .loading-big {
+      width: 44px; height: 44px;
+      border: 3px solid #e9edef;
+      border-top-color: #25d366;
+      border-radius: 50%;
+      animation: spin .8s linear infinite;
+    }
+
+    .loading-text { color: #667781; font-size: 14px; }
+  </style>
+</head>
+<body>
+
+<!-- Loading overlay -->
+<div class="loading-overlay" id="loadingOverlay">
+  <div class="loading-big"></div>
+  <p class="loading-text" id="loadingText">Gerando seu PIX...</p>
+</div>
+
+<!-- Header -->
+<header class="wa-header">
+  <button class="wa-back" onclick="history.back()" aria-label="Voltar">
+    <svg width="24" height="24" viewBox="0 0 24 24" fill="white"><path d="M20 11H7.83l5.59-5.59L12 4l-8 8 8 8 1.41-1.41L7.83 13H20v-2z"/></svg>
+  </button>
+  <img class="wa-avatar" id="headerAvatar" src="https://ui-avatars.com/api/?name=Clara+Aureliano&background=128C7E&color=fff&size=80&bold=true" alt="Clara Aureliano">
+  <div class="wa-header-info">
+    <div class="wa-header-name">Clara Aureliano</div>
+    <div class="wa-header-sub">Finalizar pedido</div>
+  </div>
+  <svg class="wa-lock" width="18" height="18" viewBox="0 0 24 24" fill="rgba(255,255,255,.6)"><path d="M18 8h-1V6c0-2.76-2.24-5-5-5S7 3.24 7 6v2H6c-1.1 0-2 .9-2 2v10c0 1.1.9 2 2 2h12c1.1 0 2-.9 2-2V10c0-1.1-.9-2-2-2zM12 17c-1.1 0-2-.9-2-2s.9-2 2-2 2 .9 2 2-.9 2-2 2zm3.1-9H8.9V6c0-1.71 1.39-3.1 3.1-3.1 1.71 0 3.1 1.39 3.1 3.1v2z"/></svg>
+</header>
+
+<div class="content">
+
+  <!-- Resumo do pedido (sempre visível) -->
+  <div class="card">
+    <div class="card-title">Resumo do pedido</div>
+    <div class="product-row">
+      <div class="product-icon">📚</div>
+      <div>
+        <div class="product-name" id="productName">Carregando...</div>
+        <div class="product-price" id="productPrice">R$ —</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ══ TELA 1: Email ══ -->
+  <div class="screen active" id="screen-email">
+    <div class="card">
+      <div class="card-title">Identificação</div>
+      <div class="field">
+        <label>Email para receber os PDFs</label>
+        <input type="email" id="emailInput" placeholder="seuemail@gmail.com" inputmode="email" autocomplete="email" autocorrect="off" autocapitalize="none">
+      </div>
+    </div>
+    <button class="btn-primary" onclick="gerarPix()">💲 Gerar PIX</button>
+    <div class="footer">🔒 Pagamento 100% seguro · Acesso vitalício após confirmação</div>
+  </div>
+
+  <!-- ══ TELA 2: QR PIX ══ -->
+  <div class="screen" id="screen-pix">
+    <div class="card">
+      <div class="card-title">Forma de pagamento — PIX</div>
+      <div class="qr-wrap">
+        <div class="qr-img-wrap">
+          <img id="qrImg" src="" alt="QR Code PIX">
+        </div>
+        <div class="qr-status">
+          <div class="spinner" id="qrSpinner"></div>
+          <span id="qrStatusText">Aguardando pagamento...</span>
+        </div>
+        <div class="copy-row">
+          <input class="copy-input" id="pixCopyInput" readonly>
+          <button class="btn-copy" id="btnCopy" onclick="copiarPix()">Copiar</button>
+        </div>
+        <div class="expiry-text" id="expiryText"></div>
+      </div>
+    </div>
+    <div class="info-pill">
+      <span>📱</span>
+      <span>Abra o app do seu banco → PIX → <strong>QR Code</strong> ou <strong>Pix Copia e Cola</strong> → cole o código acima.</span>
+    </div>
+  </div>
+
+  <!-- ══ TELA 3: Sucesso ══ -->
+  <div class="screen" id="screen-ok">
+    <div class="card">
+      <div class="success-body">
+        <div class="success-circle">✅</div>
+        <div class="success-title">Pagamento confirmado!</div>
+        <div class="success-sub">
+          Seus PDFs foram enviados para<br>
+          <span class="success-email" id="successEmail"></span>
+        </div>
+      </div>
+    </div>
+    <div class="info-pill">
+      <span>📬</span>
+      <span>Verifique sua caixa de entrada (e a pasta de spam, por garantia). Os links de download estão no email.</span>
+    </div>
+    <div class="info-pill gold">
+      <span>♾️</span>
+      <span><strong>Acesso vitalício</strong> — guarde esse email com carinho, os links não expiram nunca!</span>
+    </div>
+  </div>
+
+</div><!-- /content -->
+
+<script>
+  const params  = new URLSearchParams(location.search);
+  const VALOR   = params.get('valor') || '1,99';
+  const PRODUTO = params.get('produto') || 'Apostilas Clara Aureliano';
+
+  let paymentId    = null;
+  let pollInterval = null;
+  let expiryTimer  = null;
+  let userEmail    = '';
+
+  /* ── Init ── */
+  async function init() {
+    document.getElementById('productPrice').textContent = 'R$ ' + VALOR;
+
+    try {
+      const cfg = await fetch('/config.json?v=' + Date.now()).then(r => r.json());
+      if (cfg.avatarUrl) document.getElementById('headerAvatar').src = cfg.avatarUrl;
+      const nome = cfg.produtos?.[VALOR] || decodeURIComponent(PRODUTO.replace(/\+/g, ' '));
+      document.getElementById('productName').textContent = nome;
+    } catch {
+      document.getElementById('productName').textContent = decodeURIComponent(PRODUTO.replace(/\+/g, ' '));
+    }
+  }
+
+  init();
+
+  /* ── Gerar PIX ── */
+  async function gerarPix() {
+    const emailEl = document.getElementById('emailInput');
+    const email   = emailEl.value.trim();
+
+    if (!email || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
+      emailEl.classList.add('err');
+      emailEl.focus();
+      setTimeout(() => emailEl.classList.remove('err'), 2500);
+      return;
+    }
+
+    userEmail = email;
+    document.getElementById('successEmail').textContent = email;
+    showLoading('Gerando seu PIX...');
+
+    try {
+      const res = await fetch('/api/pagamento', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          email,
+          valor: VALOR,
+          produto: document.getElementById('productName').textContent,
+        }),
+      });
+
+      const data = await res.json();
+      if (data.erro) throw new Error(data.erro);
+
+      paymentId = data.id;
+      document.getElementById('qrImg').src       = 'data:image/png;base64,' + data.qr_code_base64;
+      document.getElementById('pixCopyInput').value = data.qr_code;
+
+      hideLoading();
+      showScreen('pix');
+
+      pollInterval = setInterval(checkStatus, 3000);
+      startExpiry(30 * 60);
+
+    } catch (err) {
+      hideLoading();
+      alert('Erro ao gerar PIX: ' + err.message + '\n\nVerifique sua conexão e tente novamente.');
+    }
+  }
+
+  /* ── Consultar status ── */
+  async function checkStatus() {
+    if (!paymentId) return;
+    try {
+      const res  = await fetch('/api/status?id=' + paymentId);
+      const data = await res.json();
+      if (data.status === 'approved') {
+        clearInterval(pollInterval);
+        clearTimeout(expiryTimer);
+        document.getElementById('qrSpinner').style.display = 'none';
+        document.getElementById('qrStatusText').textContent = '✅ Pago!';
+        setTimeout(() => showScreen('ok'), 900);
+      }
+    } catch { /* silencia erros de rede no polling */ }
+  }
+
+  /* ── Copiar PIX ── */
+  function copiarPix() {
+    const val = document.getElementById('pixCopyInput').value;
+    navigator.clipboard.writeText(val).then(() => {
+      const btn = document.getElementById('btnCopy');
+      btn.textContent = '✓ Copiado';
+      btn.classList.add('copied');
+      setTimeout(() => { btn.textContent = 'Copiar'; btn.classList.remove('copied'); }, 2500);
+    }).catch(() => {
+      document.getElementById('pixCopyInput').select();
+      document.execCommand('copy');
+    });
+  }
+
+  /* ── Countdown de expiração ── */
+  function startExpiry(seconds) {
+    const el = document.getElementById('expiryText');
+    (function tick() {
+      if (seconds <= 0) {
+        clearInterval(pollInterval);
+        el.textContent = 'PIX expirado — recarregue a página para tentar novamente.';
+        return;
+      }
+      const m = Math.floor(seconds / 60);
+      const s = seconds % 60;
+      el.textContent = `Expira em ${m}:${String(s).padStart(2, '0')}`;
+      seconds--;
+      expiryTimer = setTimeout(tick, 1000);
+    })();
+  }
+
+  /* ── Helpers ── */
+  function showScreen(id) {
+    document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+    document.getElementById('screen-' + id).classList.add('active');
+  }
+
+  function showLoading(text) {
+    document.getElementById('loadingText').textContent = text;
+    document.getElementById('loadingOverlay').classList.add('show');
+  }
+
+  function hideLoading() {
+    document.getElementById('loadingOverlay').classList.remove('show');
+  }
+</script>
+</body>
+</html>

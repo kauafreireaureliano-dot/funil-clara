@@ -450,6 +450,7 @@
       <button class="nav-item" onclick="goTo('audios')"><span class="ni">🎙️</span> Áudios</button>
       <button class="nav-item" onclick="goTo('pdfs')"><span class="ni">📄</span> PDFs</button>
       <button class="nav-item" onclick="goTo('pagamento')"><span class="ni">💳</span> Pagamento</button>
+      <button class="nav-item" onclick="goTo('integracoes')"><span class="ni">🔌</span> Integrações</button>
     </nav>
 
     <div class="sidebar-footer">
@@ -473,6 +474,7 @@
     <button class="nav-item" onclick="goTo('audios')"><span class="ni">🎙️</span> Áudios</button>
     <button class="nav-item" onclick="goTo('pdfs')"><span class="ni">📄</span> PDFs</button>
     <button class="nav-item" onclick="goTo('pagamento')"><span class="ni">💳</span> Pgto</button>
+    <button class="nav-item" onclick="goTo('integracoes')"><span class="ni">🔌</span> API</button>
     <button class="nav-item" style="background:var(--green);color:white" onclick="deploy()"><span class="ni">🚀</span> Publicar</button>
   </div>
 
@@ -650,25 +652,95 @@
 
     <!-- ══ PAGAMENTO ══ -->
     <div class="section" id="sec-pagamento">
-      <div class="section-title">💳 Links de pagamento</div>
-      <div class="section-desc">Cole os links do PIX, Hotmart, Kiwify ou onde quiser. Cada botão leva para um link diferente.</div>
+      <div class="section-title">💳 Checkout e produtos</div>
+      <div class="section-desc">O checkout próprio já está ativo — os botões do funil levam para a sua página de PIX. Configure os nomes dos produtos abaixo.</div>
 
       <div class="card">
+        <div class="card-title">📦 Nome dos produtos por preço</div>
+        <div class="field" style="margin-bottom:10px">
+          <label>R$ 1,99</label>
+          <input type="text" id="prod199" value="Receitas de Recheios — Apostila Básica">
+        </div>
+        <div class="field" style="margin-bottom:10px">
+          <label>R$ 5,90</label>
+          <input type="text" id="prod590" value="Kit 3 Apostilas de Receitas">
+        </div>
+        <div class="field" style="margin-bottom:10px">
+          <label>R$ 7,90</label>
+          <input type="text" id="prod790" value="Kit Premium da Clara">
+        </div>
+        <div class="field">
+          <label>R$ 14,90</label>
+          <input type="text" id="prod1490" value="Kit VIP Completo">
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="card-title">🔗 Links dos botões (opcional)</div>
+        <p style="font-size:13px;color:var(--muted);margin-bottom:12px">Por padrão os botões já usam o checkout próprio. Preencha aqui só se quiser redirecionar para outro sistema (Hotmart, Kiwify, etc.)</p>
         <div class="pay-row">
           <div class="pay-label">R$ 1,99</div>
-          <input type="url" id="pay199" placeholder="https://..." value="#">
+          <input type="url" id="pay199" placeholder="Deixe vazio para usar checkout próprio">
         </div>
         <div class="pay-row">
           <div class="pay-label">R$ 5,90</div>
-          <input type="url" id="pay590" placeholder="https://..." value="#">
+          <input type="url" id="pay590" placeholder="Deixe vazio para usar checkout próprio">
         </div>
         <div class="pay-row">
           <div class="pay-label">R$ 7,90</div>
-          <input type="url" id="pay790" placeholder="https://..." value="#">
+          <input type="url" id="pay790" placeholder="Deixe vazio para usar checkout próprio">
         </div>
         <div class="pay-row">
           <div class="pay-label">R$ 14,90</div>
-          <input type="url" id="pay1490" placeholder="https://..." value="#">
+          <input type="url" id="pay1490" placeholder="Deixe vazio para usar checkout próprio">
+        </div>
+      </div>
+    </div>
+
+    <!-- ══ INTEGRAÇÕES ══ -->
+    <div class="section" id="sec-integracoes">
+      <div class="section-title">🔌 Integrações — MP + Resend</div>
+      <div class="section-desc">Configure as chaves de API para ativar o checkout com PIX e o envio automático de email após o pagamento.</div>
+
+      <div class="card">
+        <div class="card-title">1️⃣ Mercado Pago — Access Token</div>
+        <p style="font-size:13px;color:var(--muted);margin-bottom:14px;line-height:1.6">
+          1. Acesse <a href="https://www.mercadopago.com.br/developers/panel" target="_blank" style="color:var(--green);font-weight:600">mercadopago.com.br/developers/panel</a><br>
+          2. Clique em <strong>Suas integrações → Criar aplicação</strong><br>
+          3. Vá em <strong>Credenciais de produção</strong> e copie o <strong>Access Token</strong><br>
+          4. No Cloudflare: Pages → funil-clara → Settings → Environment variables<br>
+          5. Adicione: <code style="background:#f0f2f5;padding:2px 6px;border-radius:4px">MP_ACCESS_TOKEN</code> = (seu token)
+        </p>
+        <div style="background:#e8f5e9;border-radius:8px;padding:10px 12px;font-size:12px;color:#1b5e20">
+          ✅ Feito isso, os botões de pagamento no funil já geram PIX automaticamente.
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="card-title">2️⃣ Resend — Envio de email</div>
+        <p style="font-size:13px;color:var(--muted);margin-bottom:14px;line-height:1.6">
+          1. Crie conta grátis em <a href="https://resend.com" target="_blank" style="color:var(--green);font-weight:600">resend.com</a> (3.000 emails/mês grátis)<br>
+          2. Vá em <strong>API Keys → Create API Key</strong> e copie a chave<br>
+          3. Vá em <strong>Domains → Add Domain</strong> e verifique seu domínio<br>
+          4. No Cloudflare: adicione mais 2 variáveis de ambiente:<br>
+          &nbsp;&nbsp;• <code style="background:#f0f2f5;padding:2px 6px;border-radius:4px">RESEND_API_KEY</code> = (sua chave re_xxxxx)<br>
+          &nbsp;&nbsp;• <code style="background:#f0f2f5;padding:2px 6px;border-radius:4px">RESEND_FROM</code> = <code style="background:#f0f2f5;padding:2px 6px;border-radius:4px">Clara Aureliano &lt;receitas@seudominio.com&gt;</code>
+        </p>
+        <div style="background:#e8f5e9;border-radius:8px;padding:10px 12px;font-size:12px;color:#1b5e20">
+          ✅ Depois disso, todo cliente que pagar via PIX recebe os PDFs automaticamente no email.
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="card-title">3️⃣ Webhook do Mercado Pago</div>
+        <p style="font-size:13px;color:var(--muted);margin-bottom:14px;line-height:1.6">
+          O webhook já é configurado automaticamente a cada pagamento. Mas você pode registrar também manualmente:<br><br>
+          1. No painel MP: <strong>Webhooks → Adicionar</strong><br>
+          2. URL: <code style="background:#f0f2f5;padding:2px 6px;border-radius:4px;word-break:break-all">https://funil-clara.pages.dev/api/webhook</code><br>
+          3. Eventos: marque <strong>Pagamentos</strong>
+        </p>
+        <div style="background:#fff8e1;border-radius:8px;padding:10px 12px;font-size:12px;color:#7c4d00">
+          ⚡ O email é enviado em segundos após o PIX ser confirmado.
         </div>
       </div>
     </div>
@@ -770,10 +842,20 @@ function applyConfigToUI(c) {
     if (c.pdfNames[2]) document.getElementById('pdfName2').value = c.pdfNames[2];
   }
   if (c.paymentLinks) {
-    if (c.paymentLinks['1,99'])  document.getElementById('pay199').value  = c.paymentLinks['1,99'];
-    if (c.paymentLinks['5,90'])  document.getElementById('pay590').value  = c.paymentLinks['5,90'];
-    if (c.paymentLinks['7,90'])  document.getElementById('pay790').value  = c.paymentLinks['7,90'];
-    if (c.paymentLinks['14,90']) document.getElementById('pay1490').value = c.paymentLinks['14,90'];
+    const autoLinks = ['checkout.html?valor=1,99', 'checkout.html?valor=5,90', 'checkout.html?valor=7,90', 'checkout.html?valor=14,90'];
+    const keys = ['1,99','5,90','7,90','14,90'];
+    const ids  = ['pay199','pay590','pay790','pay1490'];
+    keys.forEach((k, i) => {
+      const v = c.paymentLinks[k];
+      // Só preenche se for link externo (não o checkout próprio)
+      if (v && !v.startsWith('checkout.html')) document.getElementById(ids[i]).value = v;
+    });
+  }
+  if (c.produtos) {
+    if (c.produtos['1,99'])  document.getElementById('prod199').value  = c.produtos['1,99'];
+    if (c.produtos['5,90'])  document.getElementById('prod590').value  = c.produtos['5,90'];
+    if (c.produtos['7,90'])  document.getElementById('prod790').value  = c.produtos['7,90'];
+    if (c.produtos['14,90']) document.getElementById('prod1490').value = c.produtos['14,90'];
   }
   if (c.theme) {
     document.getElementById('themeSelect').value = c.theme;
@@ -1012,11 +1094,25 @@ async function deploy() {
       document.getElementById('pdfName1').value || 'Receitas de Recheios Vol. 2',
       document.getElementById('pdfName2').value || 'Sobremesas Sem Fogo',
     ];
+    // Produtos
+    config.produtos = {
+      '1,99':  document.getElementById('prod199').value  || 'Receitas de Recheios',
+      '5,90':  document.getElementById('prod590').value  || 'Kit 3 Apostilas',
+      '7,90':  document.getElementById('prod790').value  || 'Kit Premium',
+      '14,90': document.getElementById('prod1490').value || 'Kit VIP Completo',
+    };
+    // Links: usa externo se preenchido, senão aponta pro checkout próprio
+    const extLinks = {
+      '1,99':  document.getElementById('pay199').value.trim(),
+      '5,90':  document.getElementById('pay590').value.trim(),
+      '7,90':  document.getElementById('pay790').value.trim(),
+      '14,90': document.getElementById('pay1490').value.trim(),
+    };
     config.paymentLinks = {
-      '1,99':  document.getElementById('pay199').value  || '#',
-      '5,90':  document.getElementById('pay590').value  || '#',
-      '7,90':  document.getElementById('pay790').value  || '#',
-      '14,90': document.getElementById('pay1490').value || '#',
+      '1,99':  extLinks['1,99']  || `checkout.html?valor=1,99&produto=${encodeURIComponent(config.produtos['1,99'])}`,
+      '5,90':  extLinks['5,90']  || `checkout.html?valor=5,90&produto=${encodeURIComponent(config.produtos['5,90'])}`,
+      '7,90':  extLinks['7,90']  || `checkout.html?valor=7,90&produto=${encodeURIComponent(config.produtos['7,90'])}`,
+      '14,90': extLinks['14,90'] || `checkout.html?valor=14,90&produto=${encodeURIComponent(config.produtos['14,90'])}`,
     };
     config.theme = document.getElementById('themeSelect').value || 'dark';
 

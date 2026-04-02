@@ -20,10 +20,16 @@
     "1.6 MB",
     "6.6 MB"
   ],
+  "produtos": {
+    "1,99": "Receitas de Recheios — Apostila Básica",
+    "5,90": "Kit 3 Apostilas de Receitas",
+    "7,90": "Kit Premium da Clara",
+    "14,90": "Kit VIP Completo"
+  },
   "paymentLinks": {
-    "1,99": "#",
-    "5,90": "#",
-    "7,90": "#",
-    "14,90": "#"
+    "1,99": "checkout.html?valor=1,99&produto=Receitas+de+Recheios",
+    "5,90": "checkout.html?valor=5,90&produto=Kit+3+Apostilas",
+    "7,90": "checkout.html?valor=7,90&produto=Kit+Premium",
+    "14,90": "checkout.html?valor=14,90&produto=Kit+VIP+Completo"
   }
 }
