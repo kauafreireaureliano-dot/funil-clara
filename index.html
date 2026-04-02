@@ -1,0 +1,1126 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>Clara Aureliano</title>
+  <style>
+    *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Helvetica, Arial, sans-serif;
+      background: #111b21;
+      min-height: 100vh;
+      display: flex;
+      justify-content: center;
+    }
+
+    /* ── CONTAINER ── */
+    .wa {
+      width: 100%;
+      max-width: 480px;
+      height: 100vh;
+      height: 100dvh;
+      display: flex;
+      flex-direction: column;
+      overflow: hidden;
+      position: relative;
+    }
+
+    /* ── HEADER ── */
+    .wa-header {
+      background: #202c33;
+      display: flex;
+      align-items: center;
+      padding: 6px 12px 6px 6px;
+      gap: 8px;
+      min-height: 58px;
+      flex-shrink: 0;
+      z-index: 10;
+    }
+
+    .wa-back {
+      color: #aebac1;
+      font-size: 22px;
+      padding: 4px 8px;
+      cursor: pointer;
+      line-height: 1;
+      user-select: none;
+    }
+
+    .wa-avatar {
+      width: 40px;
+      height: 40px;
+      border-radius: 50%;
+      object-fit: cover;
+      background: #2a3942;
+      flex-shrink: 0;
+    }
+
+    .wa-info { flex: 1; min-width: 0; }
+
+    .wa-name {
+      color: #e9edef;
+      font-size: 16px;
+      font-weight: 600;
+      line-height: 1.2;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    .wa-status {
+      color: #8696a0;
+      font-size: 12.5px;
+      line-height: 1.3;
+    }
+
+    .wa-icons {
+      display: flex;
+      gap: 18px;
+      align-items: center;
+      color: #aebac1;
+      flex-shrink: 0;
+    }
+
+    .wa-icons svg { width: 22px; height: 22px; cursor: pointer; fill: currentColor; }
+
+    /* ── COMMERCIAL BANNER ── */
+    .wa-banner {
+      background: #182229;
+      color: #8696a0;
+      font-size: 12px;
+      text-align: center;
+      padding: 7px 16px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 6px;
+      flex-shrink: 0;
+    }
+
+    .wa-banner svg { width: 14px; height: 14px; fill: currentColor; flex-shrink: 0; }
+
+    /* ── CHAT AREA ── */
+    .wa-chat {
+      flex: 1;
+      overflow-y: auto;
+      overflow-x: hidden;
+      padding: 8px 6px 12px;
+      display: flex;
+      flex-direction: column;
+      gap: 3px;
+      background-color: #0b141a;
+    }
+
+    .wa-chat::-webkit-scrollbar { width: 5px; }
+    .wa-chat::-webkit-scrollbar-track { background: transparent; }
+    .wa-chat::-webkit-scrollbar-thumb { background: #374045; border-radius: 3px; }
+
+    /* ── DATE PILL ── */
+    .date-pill {
+      align-self: center;
+      background: #182229;
+      color: #8696a0;
+      font-size: 12px;
+      padding: 5px 12px;
+      border-radius: 8px;
+      margin: 6px 0 10px;
+      flex-shrink: 0;
+    }
+
+    /* ── MSG WRAPPER ── */
+    .mw {
+      display: flex;
+      flex-direction: column;
+      flex-shrink: 0;
+    }
+
+    .mw.r { align-items: flex-start; padding-left: 4px; }
+    .mw.s { align-items: flex-end; padding-right: 4px; }
+
+    @keyframes msgIn {
+      from { opacity: 0; transform: translateY(6px); }
+      to   { opacity: 1; transform: translateY(0); }
+    }
+    .mw { animation: msgIn 0.22s ease forwards; }
+
+    /* ── TEXT BUBBLE ── */
+    .bubble {
+      max-width: 78%;
+      padding: 7px 10px 5px;
+      border-radius: 7.5px;
+      word-wrap: break-word;
+      font-size: 14.5px;
+      line-height: 1.45;
+      position: relative;
+    }
+
+    .bubble.r {
+      background: #202c33;
+      color: #e9edef;
+      border-top-left-radius: 0;
+    }
+
+    .bubble.s {
+      background: #005c4b;
+      color: #e9edef;
+      border-top-right-radius: 0;
+    }
+
+    .meta {
+      display: flex;
+      align-items: center;
+      justify-content: flex-end;
+      gap: 3px;
+      margin-top: 3px;
+    }
+
+    .ts { font-size: 11px; color: #8696a0; }
+    .ticks { font-size: 13px; color: #53bdeb; }
+
+    /* ── TYPING / RECORDING INDICATOR ── */
+    .indicator-wrap {
+      display: flex;
+      align-items: flex-end;
+      padding-left: 4px;
+      flex-shrink: 0;
+    }
+
+    .indicator-bubble {
+      background: #202c33;
+      border-radius: 7.5px;
+      border-top-left-radius: 0;
+      padding: 11px 14px;
+      display: flex;
+      align-items: center;
+      gap: 5px;
+    }
+
+    .i-dot {
+      width: 8px; height: 8px;
+      background: #8696a0;
+      border-radius: 50%;
+      animation: iDot 1.4s ease-in-out infinite;
+    }
+
+    .i-dot:nth-child(1) { animation-delay: 0s; }
+    .i-dot:nth-child(2) { animation-delay: 0.2s; }
+    .i-dot:nth-child(3) { animation-delay: 0.4s; }
+
+    @keyframes iDot {
+      0%, 60%, 100% { transform: translateY(0); opacity: 0.45; }
+      30% { transform: translateY(-5px); opacity: 1; }
+    }
+
+    .rec-label { color: #8696a0; font-size: 13px; }
+
+    .rec-mic {
+      animation: recPulse 0.9s ease-in-out infinite;
+      display: flex;
+    }
+
+    @keyframes recPulse {
+      0%, 100% { opacity: 1; }
+      50% { opacity: 0.25; }
+    }
+
+    /* ── AUDIO BUBBLE ── */
+    .audio-bubble {
+      background: #202c33;
+      border-radius: 7.5px;
+      border-top-left-radius: 0;
+      padding: 9px 10px;
+      display: flex;
+      align-items: center;
+      gap: 9px;
+      min-width: 220px;
+      max-width: 280px;
+    }
+
+    .play-btn {
+      width: 42px; height: 42px;
+      border-radius: 50%;
+      background: #00a884;
+      border: none;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      flex-shrink: 0;
+      transition: background 0.15s;
+    }
+
+    .play-btn:hover { background: #008f71; }
+    .play-btn svg { fill: white; pointer-events: none; }
+
+    .audio-body { flex: 1; min-width: 0; }
+
+    .waveform {
+      display: flex;
+      align-items: center;
+      gap: 2px;
+      height: 30px;
+      margin-bottom: 5px;
+    }
+
+    .wbar {
+      width: 3px;
+      border-radius: 2px;
+      background: #8696a0;
+      flex-shrink: 0;
+      transform-origin: center;
+    }
+
+    .wbar.playing {
+      background: #00a884;
+      animation: wavePlay 0.5s ease-in-out infinite alternate;
+    }
+
+    @keyframes wavePlay {
+      from { transform: scaleY(0.4); }
+      to   { transform: scaleY(1); }
+    }
+
+    .audio-foot {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+
+    .audio-dur { color: #8696a0; font-size: 11.5px; }
+
+    .audio-av {
+      width: 30px; height: 30px;
+      border-radius: 50%;
+      object-fit: cover;
+      background: #2a3942;
+    }
+
+    /* ── PDF BUBBLE ── */
+    .pdf-outer {
+      background: #202c33;
+      border-radius: 7.5px;
+      border-top-left-radius: 0;
+      overflow: hidden;
+      max-width: 275px;
+    }
+
+    .pdf-head {
+      padding: 12px 10px;
+      display: flex;
+      align-items: center;
+      gap: 11px;
+    }
+
+    .pdf-icon-box {
+      width: 46px; height: 56px;
+      background: #1a2530;
+      border-radius: 5px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+      gap: 3px;
+    }
+
+    .pdf-icon-box svg { fill: #e74c3c; }
+    .pdf-badge-text { font-size: 9px; font-weight: 700; color: #e74c3c; letter-spacing: 0.5px; }
+
+    .pdf-info { flex: 1; min-width: 0; }
+
+    .pdf-name {
+      color: #e9edef;
+      font-size: 13px;
+      font-weight: 500;
+      margin-bottom: 3px;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    .pdf-size { color: #8696a0; font-size: 11.5px; }
+
+    .pdf-btn {
+      width: 100%;
+      background: #00a884;
+      color: white;
+      border: none;
+      border-top: 1px solid #2a3942;
+      padding: 10px 14px;
+      font-size: 14px;
+      font-weight: 600;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 7px;
+      transition: background 0.15s;
+    }
+
+    .pdf-btn:hover { background: #008f71; }
+    .pdf-btn svg { fill: white; flex-shrink: 0; }
+    .pdf-foot { padding: 4px 10px 8px; }
+
+    /* ── RESPONSE BUTTON ── */
+    .response-btn {
+      background: #005c4b;
+      color: #e9edef;
+      border: none;
+      border-radius: 7.5px;
+      border-top-right-radius: 0;
+      padding: 9px 14px;
+      font-size: 14.5px;
+      font-weight: 500;
+      cursor: pointer;
+      max-width: 78%;
+      display: flex;
+      align-items: center;
+      gap: 7px;
+      transition: background 0.15s;
+    }
+
+    .response-btn:hover:not(:disabled) { background: #004a3c; }
+    .response-btn:disabled { background: #374045; cursor: default; }
+
+    /* ── PAYMENT BUTTONS ── */
+    .pay-btn {
+      background: #25d366;
+      color: white;
+      border: none;
+      border-radius: 8px;
+      padding: 12px 18px;
+      font-size: 14px;
+      font-weight: 600;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      transition: background 0.15s, transform 0.1s;
+      text-decoration: none;
+      max-width: 78%;
+    }
+
+    .pay-btn:hover { background: #1db954; transform: scale(1.02); }
+    .pay-btn:active { transform: scale(0.97); }
+    .pay-btn svg { fill: white; flex-shrink: 0; }
+
+    /* ── INPUT BAR ── */
+    .wa-input {
+      background: #202c33;
+      padding: 8px 10px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      flex-shrink: 0;
+    }
+
+    .wa-input-inner {
+      flex: 1;
+      background: #2a3942;
+      border: none;
+      border-radius: 22px;
+      padding: 10px 16px;
+      color: #e9edef;
+      font-size: 15px;
+      outline: none;
+    }
+
+    .wa-input-inner::placeholder { color: #8696a0; }
+    .wa-input-inner:disabled { pointer-events: none; opacity: 0.5; }
+
+    .wa-ico-btn {
+      background: none;
+      border: none;
+      cursor: pointer;
+      padding: 4px;
+      display: flex;
+      align-items: center;
+      flex-shrink: 0;
+    }
+
+    .wa-ico-btn svg { fill: #8696a0; }
+
+    #sendBtn {
+      display: none;
+      background: #00a884;
+      border-radius: 50%;
+      width: 40px;
+      height: 40px;
+      padding: 0;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+      transition: background 0.15s;
+    }
+
+    #sendBtn:hover { background: #008f71; }
+    #sendBtn svg { fill: white; }
+
+    /* ── PDF MODAL ── */
+    .pdf-modal {
+      display: none;
+      position: fixed;
+      inset: 0;
+      z-index: 2000;
+      justify-content: center;
+      align-items: stretch;
+    }
+
+    .pdf-modal.open { display: flex; }
+
+    .pdf-modal-overlay {
+      position: absolute;
+      inset: 0;
+      background: rgba(0,0,0,0.85);
+    }
+
+    .pdf-modal-box {
+      position: relative;
+      z-index: 1;
+      width: 100%;
+      max-width: 480px;
+      height: 100%;
+      height: 100dvh;
+      display: flex;
+      flex-direction: column;
+      background: #111b21;
+    }
+
+    .pdf-modal-header {
+      background: #202c33;
+      display: flex;
+      align-items: center;
+      padding: 8px 12px;
+      gap: 12px;
+      min-height: 56px;
+      flex-shrink: 0;
+    }
+
+    .pdf-modal-close {
+      background: none;
+      border: none;
+      cursor: pointer;
+      color: #aebac1;
+      padding: 6px;
+      display: flex;
+      align-items: center;
+      font-size: 20px;
+      line-height: 1;
+    }
+
+    .pdf-modal-title {
+      flex: 1;
+      color: #e9edef;
+      font-size: 16px;
+      font-weight: 600;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    .pdf-modal-dl {
+      background: none;
+      border: none;
+      cursor: pointer;
+      color: #aebac1;
+      padding: 6px;
+      display: flex;
+      align-items: center;
+    }
+
+    .pdf-modal-dl svg { fill: currentColor; }
+
+    .pdf-frame-wrap {
+      flex: 1;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .pdf-frame-wrap iframe {
+      width: 100%;
+      height: 100%;
+      border: none;
+      background: #fff;
+    }
+
+    .pdf-no-url {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 16px;
+      color: #8696a0;
+      padding: 32px;
+      text-align: center;
+    }
+
+    .pdf-no-url svg { fill: #8696a0; opacity: 0.5; }
+    .pdf-no-url p { font-size: 15px; line-height: 1.5; }
+  </style>
+</head>
+<body>
+
+<!-- PDF MODAL (fora do .wa para ficar fullscreen) -->
+<div class="pdf-modal" id="pdfModal">
+  <div class="pdf-modal-overlay" id="pdfOverlay"></div>
+  <div class="pdf-modal-box">
+    <div class="pdf-modal-header">
+      <button class="pdf-modal-close" id="pdfClose">&#8592;</button>
+      <span class="pdf-modal-title" id="pdfTitle">Apostila</span>
+      <a class="pdf-modal-dl" id="pdfDownload" href="#" download target="_blank">
+        <svg width="22" height="22" viewBox="0 0 24 24"><path d="M19 9h-4V3H9v6H5l7 7 7-7zM5 18v2h14v-2H5z"/></svg>
+      </a>
+    </div>
+    <div class="pdf-frame-wrap" id="pdfFrameWrap">
+      <!-- iframe ou mensagem injetado por JS -->
+    </div>
+  </div>
+</div>
+
+<!-- MAIN -->
+<div class="wa">
+
+  <!-- HEADER -->
+  <div class="wa-header">
+    <span class="wa-back">&#8592;</span>
+    <img class="wa-avatar" id="avatar" src="" alt="C">
+    <div class="wa-info">
+      <div class="wa-name">Clara Aureliano</div>
+      <div class="wa-status" id="statusLine">online</div>
+    </div>
+    <div class="wa-icons">
+      <svg viewBox="0 0 24 24"><path d="M17 10.5V7c0-.55-.45-1-1-1H4c-.55 0-1 .45-1 1v10c0 .55.45 1 1 1h12c.55 0 1-.45 1-1v-3.5l4 4v-11l-4 4z"/></svg>
+      <svg viewBox="0 0 24 24"><path d="M6.62 10.79c1.44 2.83 3.76 5.14 6.59 6.59l2.2-2.2c.27-.27.67-.36 1.02-.24 1.12.37 2.33.57 3.57.57.55 0 1 .45 1 1V20c0 .55-.45 1-1 1-9.39 0-17-7.61-17-17 0-.55.45-1 1-1h3.5c.55 0 1 .45 1 1 0 1.25.2 2.45.57 3.57.11.35.03.74-.25 1.02l-2.2 2.2z"/></svg>
+      <svg viewBox="0 0 24 24"><path d="M12 8c1.1 0 2-.9 2-2s-.9-2-2-2-2 .9-2 2 .9 2 2 2zm0 2c-1.1 0-2 .9-2 2s.9 2 2 2 2-.9 2-2-.9-2-2-2zm0 6c-1.1 0-2 .9-2 2s.9 2 2 2 2-.9 2-2-.9-2-2-2z"/></svg>
+    </div>
+  </div>
+
+  <!-- COMMERCIAL BANNER -->
+  <div class="wa-banner">
+    <svg viewBox="0 0 24 24"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 15h-2v-6h2v6zm0-8h-2V7h2v2z"/></svg>
+    Esta é uma conta comercial
+  </div>
+
+  <!-- CHAT -->
+  <div class="wa-chat" id="chat">
+    <div class="date-pill">Hoje</div>
+  </div>
+
+  <!-- INPUT BAR -->
+  <div class="wa-input">
+    <button class="wa-ico-btn" id="emojiBtn">
+      <svg width="24" height="24" viewBox="0 0 24 24"><path d="M11.99 2C6.47 2 2 6.48 2 12s4.47 10 9.99 10C17.52 22 22 17.52 22 12S17.52 2 11.99 2zM12 20c-4.42 0-8-3.58-8-8s3.58-8 8-8 8 3.58 8 8-3.58 8-8 8zm3.5-9c.83 0 1.5-.67 1.5-1.5S16.33 8 15.5 8 14 8.67 14 9.5s.67 1.5 1.5 1.5zm-7 0c.83 0 1.5-.67 1.5-1.5S9.33 8 8.5 8 7 8.67 7 9.5 7.67 11 8.5 11zm3.5 6.5c2.33 0 4.31-1.46 5.11-3.5H6.89c.8 2.04 2.78 3.5 5.11 3.5z"/></svg>
+    </button>
+    <input class="wa-input-inner" id="msgInput" placeholder="Mensagem" disabled>
+    <button class="wa-ico-btn" id="micBtn">
+      <svg width="24" height="24" viewBox="0 0 24 24"><path d="M12 14c1.66 0 2.99-1.34 2.99-3L15 5c0-1.66-1.34-3-3-3S9 3.34 9 5v6c0 1.66 1.34 3 3 3zm5.3-3c0 3-2.54 5.1-5.3 5.1S6.7 14 6.7 11H5c0 3.41 2.72 6.23 6 6.72V21h2v-3.28c3.28-.48 6-3.3 6-6.72h-1.7z"/></svg>
+    </button>
+    <button class="wa-ico-btn" id="sendBtn">
+      <svg width="22" height="22" viewBox="0 0 24 24"><path d="M2.01 21L23 12 2.01 3 2 10l15 2-15 2z"/></svg>
+    </button>
+  </div>
+</div>
+
+<script>
+(function () {
+
+  /* ════════════════════════════════════════════════
+     ▌ CONFIG — edite aqui
+  ════════════════════════════════════════════════ */
+  const CONFIG = {
+    // URL da foto de perfil da Clara
+    AVATAR_URL: 'https://ui-avatars.com/api/?name=Clara+Aureliano&background=2a3942&color=e9edef&size=80&bold=true',
+
+    // URLs dos áudios (pode ser caminho local ou URL hospedada)
+    AUDIO_URLS: [
+      '',   // Áudio 1 (0:03) — ex: './audio1.mp3'
+      '',   // Áudio 2 (0:11) — ex: './audio2.mp3'
+    ],
+
+    // URLs dos PDFs
+    PDF_URLS: [
+      '',   // PDF 1 — Receitas de Recheios (2.5 MB)
+      '',   // PDF 2 — Receitas de Recheios Vol.2 (1.6 MB)
+      '',   // PDF 3 — Sobremesas Sem Fogo, BÔNUS (6.6 MB)
+    ],
+
+    PDF_NAMES: [
+      'Receitas de Recheios',
+      'Receitas de Recheios Vol. 2',
+      'Sobremesas Sem Fogo',
+    ],
+
+    // Links dos botões de pagamento
+    PAYMENT_LINKS: {
+      '1,99':  '#',
+      '5,90':  '#',
+      '7,90':  '#',
+      '14,90': '#',
+    },
+  };
+
+  /* ════════════════════════════════════════════════
+     ▌ WALLPAPER — fundo com ícones estilo WhatsApp
+  ════════════════════════════════════════════════ */
+  const WP_SVG = `<svg xmlns='http://www.w3.org/2000/svg' width='300' height='300'>
+<rect fill='#0b141a' width='300' height='300'/>
+<g fill='#182a33'>
+<!-- chat bubbles -->
+<path opacity='.55' transform='translate(8,10) scale(.9)' d='M20 2H4c-1.1 0-2 .9-2 2v18l4-4h14c1.1 0 2-.9 2-2V4c0-1.1-.9-2-2-2z'/>
+<path opacity='.45' transform='translate(210,18) scale(.7)' d='M20 2H4c-1.1 0-2 .9-2 2v18l4-4h14c1.1 0 2-.9 2-2V4c0-1.1-.9-2-2-2z'/>
+<path opacity='.5' transform='translate(100,220) scale(.8)' d='M20 2H4c-1.1 0-2 .9-2 2v18l4-4h14c1.1 0 2-.9 2-2V4c0-1.1-.9-2-2-2z'/>
+<!-- hearts -->
+<path opacity='.5' transform='translate(120,40) scale(.85)' d='M12 21.6C6.4 16 1 11.3 1 7.2 1 3.4 4.1 2 6.3 2c1.3 0 4.2.5 5.7 4.5C13.6 2.5 16.4 2 17.7 2 20.2 2 23 3.6 23 7.2c0 4.1-5.1 8.6-11 14.4z'/>
+<path opacity='.4' transform='translate(250,90) scale(.65)' d='M12 21.6C6.4 16 1 11.3 1 7.2 1 3.4 4.1 2 6.3 2c1.3 0 4.2.5 5.7 4.5C13.6 2.5 16.4 2 17.7 2 20.2 2 23 3.6 23 7.2c0 4.1-5.1 8.6-11 14.4z'/>
+<path opacity='.45' transform='translate(40,190) scale(.7)' d='M12 21.6C6.4 16 1 11.3 1 7.2 1 3.4 4.1 2 6.3 2c1.3 0 4.2.5 5.7 4.5C13.6 2.5 16.4 2 17.7 2 20.2 2 23 3.6 23 7.2c0 4.1-5.1 8.6-11 14.4z'/>
+<!-- phone -->
+<path opacity='.5' transform='translate(200,130) scale(.85)' d='M6.6 10.8c1.4 2.8 3.8 5.1 6.6 6.6l2.2-2.2c.3-.3.7-.4 1-.2 1.1.4 2.3.6 3.6.6.6 0 1 .4 1 1V20c0 .6-.4 1-1 1C9.6 21 3 14.4 3 6c0-.6.4-1 1-1h3.5c.6 0 1 .4 1 1 0 1.3.2 2.5.6 3.6.1.3 0 .7-.5 1.2z'/>
+<path opacity='.4' transform='translate(55,75) scale(.7)' d='M6.6 10.8c1.4 2.8 3.8 5.1 6.6 6.6l2.2-2.2c.3-.3.7-.4 1-.2 1.1.4 2.3.6 3.6.6.6 0 1 .4 1 1V20c0 .6-.4 1-1 1C9.6 21 3 14.4 3 6c0-.6.4-1 1-1h3.5c.6 0 1 .4 1 1 0 1.3.2 2.5.6 3.6.1.3 0 .7-.5 1.2z'/>
+<!-- stars -->
+<path opacity='.45' transform='translate(160,80) scale(.8)' d='M12 17.3l6.2 3.7-1.6-7 5.5-4.7-7.2-.6L12 2 9.1 8.7l-7.2.6 5.5 4.7-1.6 7z'/>
+<path opacity='.4' transform='translate(5,130) scale(.65)' d='M12 17.3l6.2 3.7-1.6-7 5.5-4.7-7.2-.6L12 2 9.1 8.7l-7.2.6 5.5 4.7-1.6 7z'/>
+<path opacity='.5' transform='translate(235,200) scale(.75)' d='M12 17.3l6.2 3.7-1.6-7 5.5-4.7-7.2-.6L12 2 9.1 8.7l-7.2.6 5.5 4.7-1.6 7z'/>
+<!-- music notes -->
+<path opacity='.45' transform='translate(90,150) scale(.85)' d='M12 3v10.6c-.6-.3-1.3-.6-2-.6-2.2 0-4 1.8-4 4s1.8 4 4 4 4-1.8 4-4V7h4V3h-6z'/>
+<path opacity='.4' transform='translate(260,150) scale(.7)' d='M12 3v10.6c-.6-.3-1.3-.6-2-.6-2.2 0-4 1.8-4 4s1.8 4 4 4 4-1.8 4-4V7h4V3h-6z'/>
+<!-- headphones -->
+<path opacity='.45' transform='translate(155,225) scale(.85)' d='M12 1C7 1 3 5 3 10v7c0 .6.4 1 1 1h1v-8H4v-1c0-4.4 3.6-8 8-8s8 3.6 8 8v1h-1v8h1c.6 0 1-.4 1-1v-7c0-5-4-9-9-9z'/>
+<!-- smiley -->
+<path opacity='.45' transform='translate(20,245) scale(.8)' d='M12 2C6.5 2 2 6.5 2 12s4.5 10 10 10 10-4.5 10-10S17.5 2 12 2zm0 18c-4.4 0-8-3.6-8-8s3.6-8 8-8 8 3.6 8 8-3.6 8-8 8zm3.5-9c.8 0 1.5-.7 1.5-1.5S16.3 8 15.5 8 14 8.7 14 9.5s.7 1.5 1.5 1.5zm-7 0c.8 0 1.5-.7 1.5-1.5S9.3 8 8.5 8 7 8.7 7 9.5 7.7 11 8.5 11zm3.5 6.5c2.3 0 4.3-1.5 5.1-3.5H6.9c.8 2 2.8 3.5 5.1 3.5z'/>
+<!-- camera -->
+<path opacity='.4' transform='translate(255,45) scale(.75)' d='M12 15.2c-1.8 0-3.2-1.4-3.2-3.2S10.2 8.8 12 8.8s3.2 1.4 3.2 3.2-1.4 3.2-3.2 3.2zM9 2L7.2 4H4C2.9 4 2 4.9 2 6v12c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V6c0-1.1-.9-2-2-2h-3.2L15 2H9z'/>
+</g></svg>`;
+
+  document.getElementById('chat').style.backgroundImage =
+    'url("data:image/svg+xml,' + encodeURIComponent(WP_SVG) + '")';
+
+  /* ════════════════════════════════════════════════
+     ▌ DOM refs
+  ════════════════════════════════════════════════ */
+  const chat       = document.getElementById('chat');
+  const statusLine = document.getElementById('statusLine');
+  const msgInput   = document.getElementById('msgInput');
+  const sendBtn    = document.getElementById('sendBtn');
+  const micBtn     = document.getElementById('micBtn');
+  const emojiBtn   = document.getElementById('emojiBtn');
+
+  document.getElementById('avatar').src = CONFIG.AVATAR_URL;
+
+  /* ════════════════════════════════════════════════
+     ▌ HELPERS
+  ════════════════════════════════════════════════ */
+  const sleep = ms => new Promise(r => setTimeout(r, ms));
+
+  function getTime() {
+    return new Date().toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' });
+  }
+
+  function scroll() {
+    requestAnimationFrame(() => { chat.scrollTop = chat.scrollHeight; });
+  }
+
+  /* ── Indicadores ── */
+  let indicatorEl = null;
+
+  function showTyping() {
+    removeIndicator();
+    indicatorEl = document.createElement('div');
+    indicatorEl.className = 'indicator-wrap';
+    indicatorEl.innerHTML = `<div class="indicator-bubble"><div class="i-dot"></div><div class="i-dot"></div><div class="i-dot"></div></div>`;
+    chat.appendChild(indicatorEl);
+    statusLine.textContent = 'digitando...';
+    scroll();
+  }
+
+  function showRecording() {
+    removeIndicator();
+    indicatorEl = document.createElement('div');
+    indicatorEl.className = 'indicator-wrap';
+    indicatorEl.innerHTML = `
+      <div class="indicator-bubble">
+        <span class="rec-mic">
+          <svg width="15" height="15" viewBox="0 0 24 24" fill="#e74c3c">
+            <path d="M12 14c1.66 0 3-1.34 3-3V5c0-1.66-1.34-3-3-3S9 3.34 9 5v6c0 1.66 1.34 3 3 3zm5.3-3c0 3-2.54 5.1-5.3 5.1S6.7 14 6.7 11H5c0 3.41 2.72 6.23 6 6.72V21h2v-3.28c3.28-.48 6-3.3 6-6.72h-1.7z"/>
+          </svg>
+        </span>
+        <span class="rec-label">gravando áudio...</span>
+        <div class="i-dot"></div><div class="i-dot"></div><div class="i-dot"></div>
+      </div>`;
+    chat.appendChild(indicatorEl);
+    statusLine.textContent = 'gravando áudio...';
+    scroll();
+  }
+
+  function removeIndicator() {
+    if (indicatorEl) { indicatorEl.remove(); indicatorEl = null; }
+    statusLine.textContent = 'online';
+  }
+
+  /* ════════════════════════════════════════════════
+     ▌ MENSAGEM DE TEXTO
+  ════════════════════════════════════════════════ */
+  function addText(html, side, time) {
+    time = time || getTime();
+    const w = document.createElement('div');
+    w.className = `mw ${side}`;
+    const b = document.createElement('div');
+    b.className = `bubble ${side}`;
+    b.innerHTML = `${html}<div class="meta"><span class="ts">${time}</span>${side === 's' ? '<span class="ticks">✓✓</span>' : ''}</div>`;
+    w.appendChild(b);
+    chat.appendChild(w);
+    scroll();
+    return w;
+  }
+
+  /* ════════════════════════════════════════════════
+     ▌ MENSAGEM DE ÁUDIO (com reprodução real)
+  ════════════════════════════════════════════════ */
+  let activeAudio = null;
+  let activePlayBtn = null;
+  let activeWbars = null;
+
+  const PLAY_ICON  = `<svg width="18" height="18" viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg>`;
+  const PAUSE_ICON = `<svg width="18" height="18" viewBox="0 0 24 24"><path d="M6 19h4V5H6v14zm8-14v14h4V5h-4z"/></svg>`;
+
+  function resetActiveAudio() {
+    if (activeAudio) {
+      activeAudio.pause();
+      activeAudio.currentTime = 0;
+    }
+    if (activePlayBtn) activePlayBtn.innerHTML = PLAY_ICON;
+    if (activeWbars)   activeWbars.forEach(b => b.classList.remove('playing'));
+    activeAudio = activePlayBtn = activeWbars = null;
+  }
+
+  function addAudio(audioIndex, defaultDuration, side) {
+    side = side || 'r';
+    const time = getTime();
+    const url  = CONFIG.AUDIO_URLS[audioIndex] || '';
+
+    const w = document.createElement('div');
+    w.className = `mw ${side}`;
+
+    const heights = Array.from({ length: 30 }, () => (4 + Math.random() * 22).toFixed(0));
+    const bars = heights.map((h, i) =>
+      `<div class="wbar" style="height:${h}px;animation-delay:${(i * 0.04).toFixed(2)}s"></div>`
+    ).join('');
+
+    w.innerHTML = `
+      <div class="audio-bubble">
+        <button class="play-btn" title="Reproduzir">${PLAY_ICON}</button>
+        <div class="audio-body">
+          <div class="waveform">${bars}</div>
+          <div class="audio-foot">
+            <span class="audio-dur">${defaultDuration}</span>
+            <img class="audio-av" src="${CONFIG.AVATAR_URL}" alt="Clara">
+          </div>
+        </div>
+      </div>
+      <div style="font-size:11px;color:#8696a0;margin-top:2px;padding-left:4px">${time}</div>`;
+
+    chat.appendChild(w);
+    scroll();
+
+    const playBtn = w.querySelector('.play-btn');
+    const durEl   = w.querySelector('.audio-dur');
+    const wbars   = Array.from(w.querySelectorAll('.wbar'));
+
+    if (!url) {
+      playBtn.title = 'Áudio não configurado';
+      return w;
+    }
+
+    const audio = new Audio(url);
+
+    audio.addEventListener('loadedmetadata', () => {
+      const t = Math.round(audio.duration);
+      durEl.textContent = `${Math.floor(t/60)}:${String(t%60).padStart(2,'0')}`;
+    });
+
+    audio.addEventListener('timeupdate', () => {
+      const t = Math.floor(audio.currentTime);
+      durEl.textContent = `${Math.floor(t/60)}:${String(t%60).padStart(2,'0')}`;
+    });
+
+    audio.addEventListener('ended', () => {
+      playBtn.innerHTML = PLAY_ICON;
+      wbars.forEach(b => b.classList.remove('playing'));
+      const total = Math.round(audio.duration);
+      durEl.textContent = `${Math.floor(total/60)}:${String(total%60).padStart(2,'0')}`;
+      if (activeAudio === audio) { activeAudio = activePlayBtn = activeWbars = null; }
+    });
+
+    playBtn.addEventListener('click', () => {
+      if (activeAudio && activeAudio !== audio) resetActiveAudio();
+
+      if (audio.paused) {
+        audio.play().catch(() => {});
+        playBtn.innerHTML = PAUSE_ICON;
+        wbars.forEach(b => b.classList.add('playing'));
+        activeAudio = audio;
+        activePlayBtn = playBtn;
+        activeWbars = wbars;
+      } else {
+        audio.pause();
+        playBtn.innerHTML = PLAY_ICON;
+        wbars.forEach(b => b.classList.remove('playing'));
+        activeAudio = activePlayBtn = activeWbars = null;
+      }
+    });
+
+    return w;
+  }
+
+  /* ════════════════════════════════════════════════
+     ▌ MENSAGEM DE PDF (abre modal ao clicar)
+  ════════════════════════════════════════════════ */
+  function addPdf(pdfIndex, size) {
+    const time  = getTime();
+    const name  = CONFIG.PDF_NAMES[pdfIndex]  || 'Apostila';
+    const url   = CONFIG.PDF_URLS[pdfIndex]   || '';
+
+    const w = document.createElement('div');
+    w.className = 'mw r';
+    w.innerHTML = `
+      <div class="pdf-outer">
+        <div class="pdf-head">
+          <div class="pdf-icon-box">
+            <svg width="26" height="26" viewBox="0 0 24 24">
+              <path d="M20 2H8c-1.1 0-2 .9-2 2v12c0 1.1.9 2 2 2h12c1.1 0 2-.9 2-2V4c0-1.1-.9-2-2-2zM11.5 9.5c0 .83-.67 1.5-1.5 1.5H9v2H7.5V7H10c.83 0 1.5.67 1.5 1.5v1zm5 2c0 .83-.67 1.5-1.5 1.5h-2.5V7H15c.83 0 1.5.67 1.5 1.5v3zm4-3H19v1h1.5V11H19v2h-1.5V7H20.5v1.5zM9 9.5h1v-1H9v1zM4 6H2v14c0 1.1.9 2 2 2h14v-2H4V6zm10 5.5h1v-3h-1v3z"/>
+            </svg>
+            <span class="pdf-badge-text">PDF</span>
+          </div>
+          <div class="pdf-info">
+            <div class="pdf-name">${name}</div>
+            <div class="pdf-size">${size} · PDF</div>
+          </div>
+        </div>
+        <button class="pdf-btn">
+          <svg width="16" height="16" viewBox="0 0 24 24"><path d="M12 4.5C7 4.5 2.73 7.61 1 12c1.73 4.39 6 7.5 11 7.5s9.27-3.11 11-7.5c-1.73-4.39-6-7.5-11-7.5zM12 17c-2.76 0-5-2.24-5-5s2.24-5 5-5 5 2.24 5 5-2.24 5-5 5zm0-8c-1.66 0-3 1.34-3 3s1.34 3 3 3 3-1.34 3-3-1.34-3-3-3z"/></svg>
+          Ver apostila
+        </button>
+        <div class="pdf-foot"><span class="ts">${time}</span></div>
+      </div>`;
+
+    w.querySelector('.pdf-btn').addEventListener('click', () => openPdf(url, name));
+    chat.appendChild(w);
+    scroll();
+    return w;
+  }
+
+  /* ════════════════════════════════════════════════
+     ▌ PDF MODAL
+  ════════════════════════════════════════════════ */
+  const pdfModal     = document.getElementById('pdfModal');
+  const pdfTitle     = document.getElementById('pdfTitle');
+  const pdfFrameWrap = document.getElementById('pdfFrameWrap');
+  const pdfDownload  = document.getElementById('pdfDownload');
+
+  function openPdf(url, name) {
+    pdfTitle.textContent = name;
+    pdfFrameWrap.innerHTML = '';
+
+    if (!url) {
+      pdfFrameWrap.innerHTML = `
+        <div class="pdf-no-url">
+          <svg width="64" height="64" viewBox="0 0 24 24"><path d="M20 2H8c-1.1 0-2 .9-2 2v12c0 1.1.9 2 2 2h12c1.1 0 2-.9 2-2V4c0-1.1-.9-2-2-2zM4 6H2v14c0 1.1.9 2 2 2h14v-2H4V6z"/></svg>
+          <p>Apostila disponível após o pagamento! 📩<br>Você receberá o acesso no seu e-mail.</p>
+        </div>`;
+      pdfDownload.style.display = 'none';
+    } else {
+      // Usa Google Docs viewer para compatibilidade mobile
+      const viewerUrl = url.startsWith('http')
+        ? `https://docs.google.com/viewer?url=${encodeURIComponent(url)}&embedded=true`
+        : url;
+      const iframe = document.createElement('iframe');
+      iframe.src = viewerUrl;
+      iframe.setAttribute('allowfullscreen', '');
+      pdfFrameWrap.appendChild(iframe);
+      pdfDownload.href = url;
+      pdfDownload.style.display = 'flex';
+    }
+
+    pdfModal.classList.add('open');
+  }
+
+  function closePdf() {
+    pdfModal.classList.remove('open');
+    pdfFrameWrap.innerHTML = '';
+  }
+
+  document.getElementById('pdfClose').addEventListener('click', closePdf);
+  document.getElementById('pdfOverlay').addEventListener('click', closePdf);
+  document.addEventListener('keydown', e => { if (e.key === 'Escape') closePdf(); });
+
+  /* ════════════════════════════════════════════════
+     ▌ INPUT DO CLIENTE (digitação real)
+  ════════════════════════════════════════════════ */
+  function waitForInput(placeholder) {
+    return new Promise(resolve => {
+      placeholder = placeholder || 'Digite uma mensagem...';
+      msgInput.disabled    = false;
+      msgInput.placeholder = placeholder;
+      micBtn.style.display  = 'none';
+      sendBtn.style.display = 'flex';
+      emojiBtn.style.cursor = 'pointer';
+
+      setTimeout(() => msgInput.focus(), 100);
+
+      function doSend() {
+        const text = msgInput.value.trim();
+        if (!text) return;
+
+        msgInput.value        = '';
+        msgInput.disabled     = true;
+        msgInput.placeholder  = 'Mensagem';
+        micBtn.style.display  = '';
+        sendBtn.style.display = 'none';
+        sendBtn.onclick       = null;
+        msgInput.onkeydown    = null;
+
+        const sentTime = getTime();
+        addText(text, 's', sentTime);
+        resolve(text);
+      }
+
+      sendBtn.onclick    = doSend;
+      msgInput.onkeydown = e => { if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); doSend(); } };
+    });
+  }
+
+  /* ════════════════════════════════════════════════
+     ▌ BOTÕES DE PAGAMENTO
+  ════════════════════════════════════════════════ */
+  function addPaymentButtons() {
+    const opts = [
+      ['1,99',  'Contribuir com R$ 1,99'],
+      ['5,90',  'Contribuir com R$ 5,90'],
+      ['7,90',  'Contribuir com R$ 7,90'],
+      ['14,90', 'Contribuir com R$ 14,90'],
+    ];
+    for (const [key, label] of opts) {
+      const w   = document.createElement('div');
+      w.className = 'mw s';
+      const btn = document.createElement('a');
+      btn.className = 'pay-btn';
+      btn.href      = CONFIG.PAYMENT_LINKS[key] || '#';
+      btn.target    = '_blank';
+      btn.rel       = 'noopener';
+      btn.innerHTML = `<svg width="15" height="15" viewBox="0 0 24 24"><path d="M19 19H5V5h7V3H5c-1.11 0-2 .9-2 2v14c0 1.1.89 2 2 2h14c1.1 0 2-.9 2-2v-7h-2v7zM14 3v2h3.59l-9.83 9.83 1.41 1.41L19 6.41V10h2V3h-7z"/></svg>${label}`;
+      w.appendChild(btn);
+      chat.appendChild(w);
+      scroll();
+    }
+  }
+
+  /* ════════════════════════════════════════════════
+     ▌ FLUXO PRINCIPAL
+  ════════════════════════════════════════════════ */
+  async function runFunnel() {
+    await sleep(900);
+
+    showTyping();
+    await sleep(1800);
+    removeIndicator();
+    addText('Oiie minha benção, tudo bem? 😊', 'r');
+
+    await sleep(1000);
+
+    showTyping();
+    await sleep(2400);
+    removeIndicator();
+    addText('Prazer aqui é a Clara! Vou te ensinar todas as minhas receitas de recheios ❤️', 'r');
+
+    await sleep(1000);
+
+    showTyping();
+    await sleep(2800);
+    removeIndicator();
+    addText('Para mostrar nossa confiança e compromisso, eu envio todas as apostilas antes de você fazer o pagamento.', 'r');
+
+    await sleep(900);
+
+    showTyping();
+    await sleep(1400);
+    removeIndicator();
+    addText('Pode ser? ❤️', 'r');
+
+    await sleep(600);
+
+    // ── Cliente digita no chat ──
+    await waitForInput('Digite sua resposta...');
+
+    await sleep(700);
+
+    showRecording();
+    await sleep(3000);
+    removeIndicator();
+    addAudio(0, '0:03');
+
+    await sleep(900);
+
+    addPdf(0, '2.5 MB');
+
+    await sleep(700);
+
+    addPdf(1, '1.6 MB');
+
+    await sleep(1100);
+
+    showTyping();
+    await sleep(2000);
+    removeIndicator();
+    addText('E de bônus vou te mandar nossas <strong>receitas de Sobremesas sem fogo</strong> 😍👇', 'r');
+
+    await sleep(700);
+
+    addPdf(2, '6.6 MB');
+
+    await sleep(1100);
+
+    showTyping();
+    await sleep(1900);
+    removeIndicator();
+    addText('Agora eu conto com a <strong>sua honestidade!</strong>', 'r');
+
+    await sleep(1000);
+
+    showTyping();
+    await sleep(2700);
+    removeIndicator();
+    addText('Contribua com o Valor que sentir no coração:<br><br><strong>R$1,99, R$5,90, R$ 9,90, R$14,90</strong><br><br>Conto com você 🙏❤️', 'r');
+
+    await sleep(1100);
+
+    showTyping();
+    await sleep(3000);
+    removeIndicator();
+    addText('LEMBRANDO! 🚨 Assim que você faz o pagamento, eu te mando o acesso novamente no seu e-mail (pra ficar salvo) e mando + 3 presentes ❤️😍', 'r');
+
+    await sleep(900);
+
+    addPaymentButtons();
+
+    await sleep(2000);
+
+    showRecording();
+    await sleep(3300);
+    removeIndicator();
+    addAudio(1, '0:11');
+
+    await sleep(900);
+
+    showTyping();
+    await sleep(1000);
+    removeIndicator();
+    addText('❤️🧡', 'r');
+  }
+
+  runFunnel();
+})();
+</script>
+</body>
+</html>
