@@ -415,6 +415,23 @@
 </head>
 <body>
 
+<!-- ── TELA DE SENHA ── -->
+<div id="gate" style="display:none;position:fixed;inset:0;background:#111b21;z-index:9999;display:flex;align-items:center;justify-content:center;">
+  <div style="background:#202c33;border-radius:16px;padding:36px 28px;width:320px;text-align:center;box-shadow:0 8px 32px rgba(0,0,0,.5)">
+    <div style="font-size:40px;margin-bottom:12px">🔒</div>
+    <div style="color:#e9edef;font-size:18px;font-weight:700;margin-bottom:6px">Dashboard Privado</div>
+    <div style="color:#8696a0;font-size:13px;margin-bottom:20px">Clara Aureliano</div>
+    <input id="gateInput" type="password" placeholder="Digite a senha"
+      style="width:100%;background:#2a3942;border:1.5px solid #374045;border-radius:10px;padding:12px 16px;color:#e9edef;font-size:15px;outline:none;margin-bottom:10px;text-align:center"
+      onkeydown="if(event.key==='Enter') gateCheck()">
+    <div id="gateErr" style="color:#e74c3c;font-size:12px;min-height:18px;margin-bottom:10px"></div>
+    <button onclick="gateCheck()"
+      style="width:100%;background:#25d366;color:white;border:none;border-radius:10px;padding:13px;font-size:15px;font-weight:700;cursor:pointer">
+      Entrar
+    </button>
+  </div>
+</div>
+
 <div class="app">
 
   <!-- ── SIDEBAR ── -->
@@ -489,6 +506,17 @@
         <p style="font-size:12px;color:var(--muted);margin-top:10px">
           O token fica salvo só no seu navegador (localStorage). Ninguém mais tem acesso.
         </p>
+      </div>
+
+      <div class="card">
+        <div class="card-title">🔐 Alterar senha do dashboard</div>
+        <div class="field">
+          <label>Nova senha</label>
+          <div class="token-row">
+            <input type="password" id="newPwd" placeholder="Digite a nova senha">
+            <button class="btn-sm" onclick="changePwd()">Salvar senha</button>
+          </div>
+        </div>
       </div>
 
       <div class="card">
@@ -642,6 +670,30 @@
 
 <script>
 /* ════════════════════════════════════════════════
+   ▌ SENHA
+════════════════════════════════════════════════ */
+const SENHA_HASH = localStorage.getItem('dash_pwd') || btoa('clara2024');
+
+function gateCheck() {
+  const val = document.getElementById('gateInput').value;
+  if (btoa(val) === SENHA_HASH) {
+    sessionStorage.setItem('dash_auth', '1');
+    document.getElementById('gate').style.display = 'none';
+  } else {
+    document.getElementById('gateErr').textContent = 'Senha incorreta';
+    document.getElementById('gateInput').value = '';
+    document.getElementById('gateInput').focus();
+  }
+}
+
+(function checkGate() {
+  if (sessionStorage.getItem('dash_auth') !== '1') {
+    document.getElementById('gate').style.display = 'flex';
+    setTimeout(() => document.getElementById('gateInput').focus(), 100);
+  }
+})();
+
+/* ════════════════════════════════════════════════
    ▌ CONFIG
 ════════════════════════════════════════════════ */
 const OWNER  = 'kauafreireaureliano-dot';
@@ -676,6 +728,14 @@ let currentConfig = null;
   }
   await loadCurrentConfig();
 })();
+
+function changePwd() {
+  const val = document.getElementById('newPwd').value.trim();
+  if (!val || val.length < 4) { toast('Senha muito curta (mín. 4 caracteres)', 'red'); return; }
+  localStorage.setItem('dash_pwd', btoa(val));
+  document.getElementById('newPwd').value = '';
+  toast('Senha alterada com sucesso!', 'green');
+}
 
 async function loadCurrentConfig() {
   try {

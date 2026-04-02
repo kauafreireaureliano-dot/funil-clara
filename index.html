@@ -570,9 +570,6 @@
     <div class="pdf-modal-header">
       <button class="pdf-modal-close" id="pdfClose">&#8592;</button>
       <span class="pdf-modal-title" id="pdfTitle">Apostila</span>
-      <a class="pdf-modal-dl" id="pdfDownload" href="#" download target="_blank">
-        <svg width="22" height="22" viewBox="0 0 24 24"><path d="M19 9h-4V3H9v6H5l7 7 7-7zM5 18v2h14v-2H5z"/></svg>
-      </a>
     </div>
     <div class="pdf-frame-wrap" id="pdfFrameWrap">
       <!-- iframe ou mensagem injetado por JS -->
@@ -703,6 +700,75 @@
   let CONFIG = DEFAULT_CONFIG;
 
   /* ════════════════════════════════════════════════
+     ▌ SONS DO WHATSAPP (Web Audio API)
+  ════════════════════════════════════════════════ */
+  let _actx = null;
+  let soundUnlocked = false;
+  document.addEventListener('touchstart', unlockSound, { once: true });
+  document.addEventListener('click',      unlockSound, { once: true });
+
+  function unlockSound() {
+    soundUnlocked = true;
+    if (!_actx) _actx = new (window.AudioContext || window.webkitAudioContext)();
+    if (_actx.state === 'suspended') _actx.resume();
+  }
+
+  function actx() {
+    if (!_actx) _actx = new (window.AudioContext || window.webkitAudioContext)();
+    return _actx;
+  }
+
+  // Som de mensagem recebida — dois tons rápidos (estilo WhatsApp)
+  function sndReceive() {
+    if (!soundUnlocked) return;
+    try {
+      const ctx = actx();
+      [[0, 784, 0.18], [0.13, 1047, 0.22]].forEach(([t, hz, dur]) => {
+        const o = ctx.createOscillator(), g = ctx.createGain();
+        o.connect(g); g.connect(ctx.destination);
+        o.type = 'sine'; o.frequency.value = hz;
+        const s = ctx.currentTime + t;
+        g.gain.setValueAtTime(0, s);
+        g.gain.linearRampToValueAtTime(0.22, s + 0.012);
+        g.gain.exponentialRampToValueAtTime(0.001, s + dur);
+        o.start(s); o.stop(s + dur);
+      });
+    } catch {}
+  }
+
+  // Som de mensagem enviada — clique suave
+  function sndSend() {
+    if (!soundUnlocked) return;
+    try {
+      const ctx = actx();
+      const o = ctx.createOscillator(), g = ctx.createGain();
+      o.connect(g); g.connect(ctx.destination);
+      o.type = 'sine'; o.frequency.value = 1200;
+      const s = ctx.currentTime;
+      g.gain.setValueAtTime(0.15, s);
+      g.gain.exponentialRampToValueAtTime(0.001, s + 0.09);
+      o.start(s); o.stop(s + 0.09);
+    } catch {}
+  }
+
+  // Som de início de gravação — bip curto
+  function sndRecord() {
+    if (!soundUnlocked) return;
+    try {
+      const ctx = actx();
+      const o = ctx.createOscillator(), g = ctx.createGain();
+      o.connect(g); g.connect(ctx.destination);
+      o.type = 'sine'; o.frequency.value = 660;
+      const s = ctx.currentTime;
+      g.gain.setValueAtTime(0, s);
+      g.gain.linearRampToValueAtTime(0.18, s + 0.01);
+      g.gain.setValueAtTime(0.18, s + 0.08);
+      g.gain.exponentialRampToValueAtTime(0.001, s + 0.22);
+      o.start(s); o.stop(s + 0.22);
+    } catch {}
+  }
+
+  /* ════════════════════════════════════════════════
      ▌ HELPERS
   ════════════════════════════════════════════════ */
   const sleep = ms => new Promise(r => setTimeout(r, ms));
@@ -711,7 +777,10 @@
     return new Date().toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' });
   }
 
+  // Não rola se o PDF estiver aberto
+  let pdfIsOpen = false;
   function scroll() {
+    if (pdfIsOpen) return;
     requestAnimationFrame(() => { chat.scrollTop = chat.scrollHeight; });
   }
 
@@ -728,7 +797,7 @@
     scroll();
   }
 
-  function showRecording() {
+  function showRecording() { sndRecord();
     removeIndicator();
     indicatorEl = document.createElement('div');
     indicatorEl.className = 'indicator-wrap';
@@ -763,6 +832,7 @@
     b.className = `bubble ${side}`;
     b.innerHTML = `${html}<div class="meta"><span class="ts">${time}</span>${side === 's' ? '<span class="ticks">✓✓</span>' : ''}</div>`;
     w.appendChild(b);
+    if (side === 'r') sndReceive();
     chat.appendChild(w);
     scroll();
     return w;
@@ -898,7 +968,7 @@
         <div class="pdf-foot"><span class="ts">${time}</span></div>
       </div>`;
 
-    w.querySelector('.pdf-btn').addEventListener('click', () => openPdf(url, name));
+    w.querySelector('.pdf-btn').addEventListener('click', () => openPdf(url, name, w));
     chat.appendChild(w);
     scroll();
     return w;
@@ -910,9 +980,12 @@
   const pdfModal     = document.getElementById('pdfModal');
   const pdfTitle     = document.getElementById('pdfTitle');
   const pdfFrameWrap = document.getElementById('pdfFrameWrap');
-  const pdfDownload  = document.getElementById('pdfDownload');
 
-  function openPdf(url, name) {
+  let pdfTriggerEl = null; // elemento que abriu o PDF
+
+  function openPdf(url, name, triggerEl) {
+    pdfTriggerEl = triggerEl || null;
+    pdfIsOpen    = true;
     pdfTitle.textContent = name;
     pdfFrameWrap.innerHTML = '';
 
@@ -922,18 +995,13 @@
           <svg width="64" height="64" viewBox="0 0 24 24"><path d="M20 2H8c-1.1 0-2 .9-2 2v12c0 1.1.9 2 2 2h12c1.1 0 2-.9 2-2V4c0-1.1-.9-2-2-2zM4 6H2v14c0 1.1.9 2 2 2h14v-2H4V6z"/></svg>
           <p>Apostila disponível após o pagamento! 📩<br>Você receberá o acesso no seu e-mail.</p>
         </div>`;
-      pdfDownload.style.display = 'none';
     } else {
-      // Usa Google Docs viewer para compatibilidade mobile
       const viewerUrl = url.startsWith('http')
         ? `https://docs.google.com/viewer?url=${encodeURIComponent(url)}&embedded=true`
         : url;
       const iframe = document.createElement('iframe');
       iframe.src = viewerUrl;
-      iframe.setAttribute('allowfullscreen', '');
       pdfFrameWrap.appendChild(iframe);
-      pdfDownload.href = url;
-      pdfDownload.style.display = 'flex';
     }
 
     pdfModal.classList.add('open');
@@ -942,6 +1010,15 @@
   function closePdf() {
     pdfModal.classList.remove('open');
     pdfFrameWrap.innerHTML = '';
+    pdfIsOpen = false;
+
+    // Volta exatamente pro PDF que foi aberto
+    if (pdfTriggerEl) {
+      setTimeout(() => {
+        pdfTriggerEl.scrollIntoView({ behavior: 'smooth', block: 'center' });
+        pdfTriggerEl = null;
+      }, 80);
+    }
   }
 
   document.getElementById('pdfClose').addEventListener('click', closePdf);
@@ -974,6 +1051,7 @@
         sendBtn.onclick       = null;
         msgInput.onkeydown    = null;
 
+        sndSend();
         const sentTime = getTime();
         addText(text, 's', sentTime);
         resolve(text);
