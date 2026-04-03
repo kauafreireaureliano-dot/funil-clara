@@ -27,7 +27,7 @@
     "14,90": "Receitas de Recheios "
   },
   "notifyWebhookUrl": "https://phyznlckywngdgphlyho.supabase.co/functions/v1/gg-webhook",
-  "metaPixelId": "1058788355816913",
+  "metaPixelId": "",
   "paymentLinks": {
     "1,99": "checkout.html?valor=1,99&produto=Receitas%20de%20Recheios%20",
     "5,90": "checkout.html?valor=5,90&produto=Receitas%20de%20Recheios%20",
