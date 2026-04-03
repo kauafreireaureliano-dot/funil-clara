@@ -28,8 +28,9 @@ export async function onRequestPost(context) {
 
     if (payment.status !== 'approved') return new Response('ok', { status: 200 });
 
-    const email = payment.payer?.email;
-    if (!email) return new Response('ok', { status: 200 });
+    // MP mascara o email do pagador — recupera do metadata que salvamos na criação
+    const email = payment.metadata?.buyer_email || payment.payer?.email;
+    if (!email || email === 'XXXXXXXXXX') return new Response('ok', { status: 200 });
 
     // Busca config para pegar links dos PDFs
     const origin = url.origin;

@@ -28,6 +28,7 @@ export async function onRequestPost(context) {
         description: produto || 'Apostilas Clara Aureliano',
         payment_method_id: 'pix',
         payer: { email },
+        metadata: { buyer_email: email },
         notification_url: `${origin}/api/webhook`,
         date_of_expiration: new Date(Date.now() + 30 * 60 * 1000).toISOString(),
       }),
