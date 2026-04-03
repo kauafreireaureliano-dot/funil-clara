@@ -1174,11 +1174,21 @@ async function deploy() {
     config.notifyWebhookUrl = document.getElementById('notifyWebhookUrl').value.trim() || '';
     config.metaPixelId = document.getElementById('metaPixelId').value.trim() || '';
 
-    setProgress(88);
+    setProgress(85);
     toast('Salvando configurações...', '');
 
     const cfgJson = JSON.stringify(config, null, 2);
     await ghPut('config.json', strToBase64(cfgJson), 'config: atualizar config.json', cfgSha);
+
+    // ── Atualizar pixel.js ──
+    const pixelId = config.metaPixelId || '';
+    const pixelJs = pixelId
+      ? `(function(){var PIXEL_ID='${pixelId}';!function(f,b,e,v,n,t,s){if(f.fbq)return;n=f.fbq=function(){n.callMethod?n.callMethod.apply(n,arguments):n.queue.push(arguments)};if(!f._fbq)f._fbq=n;n.push=n;n.loaded=!0;n.version='2.0';n.queue=[];t=b.createElement(e);t.async=!0;t.src=v;s=b.getElementsByTagName(e)[0];s.parentNode.insertBefore(t,s)}(window,document,'script','https://connect.facebook.net/en_US/fbevents.js');fbq('init',PIXEL_ID);fbq('track','PageView');window._metaPixelReady=true;})();`
+      : `/* pixel id not configured */`;
+    const pixelFile = await ghGet('pixel.js');
+    await ghPut('pixel.js', strToBase64(pixelJs), 'config: atualizar pixel.js', pixelFile?.sha);
+
+    setProgress(95);
 
     currentConfig = config;
     setProgress(100);

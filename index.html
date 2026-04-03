@@ -677,16 +677,7 @@
     .pdf-no-url svg { fill: var(--color-muted); opacity: .5; }
     .pdf-no-url p   { font-size: 15px; line-height: 1.5; }
   </style>
-<script>
-  window._metaPixelReady = false;
-  function initMetaPixel(pixelId) {
-    if (!pixelId || window._metaPixelReady) return;
-    window._metaPixelReady = true;
-    !function(f,b,e,v,n,t,s){if(f.fbq)return;n=f.fbq=function(){n.callMethod?n.callMethod.apply(n,arguments):n.queue.push(arguments)};if(!f._fbq)f._fbq=n;n.push=n;n.loaded=!0;n.version='2.0';n.queue=[];t=b.createElement(e);t.async=!0;t.src=v;s=b.getElementsByTagName(e)[0];s.parentNode.insertBefore(t,s)}(window,document,'script','https://connect.facebook.net/en_US/fbevents.js');
-    fbq('init', pixelId);
-    fbq('track', 'PageView');
-  }
-</script>
+<script src="/pixel.js"></script>
 </head>
 <body>
 
@@ -849,7 +840,6 @@
       const res = await fetch('./config.json?v=' + Date.now());
       if (!res.ok) return DEFAULT_CONFIG;
       const c = await res.json();
-      if (c.metaPixelId) initMetaPixel(c.metaPixelId);
       return {
         AVATAR_URL:    c.avatarUrl    || DEFAULT_CONFIG.AVATAR_URL,
         AUDIO_URLS:    c.audioUrls    || DEFAULT_CONFIG.AUDIO_URLS,

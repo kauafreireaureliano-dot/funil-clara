@@ -302,16 +302,8 @@
     .loading-text { color: #667781; font-size: 14px; }
   </style>
 </head>
+<script src="/pixel.js"></script>
 <script>
-  // Meta Pixel — inicializado dinamicamente após carregar config
-  window._metaPixelReady = false;
-  function initMetaPixel(pixelId) {
-    if (!pixelId || window._metaPixelReady) return;
-    window._metaPixelReady = true;
-    !function(f,b,e,v,n,t,s){if(f.fbq)return;n=f.fbq=function(){n.callMethod?n.callMethod.apply(n,arguments):n.queue.push(arguments)};if(!f._fbq)f._fbq=n;n.push=n;n.loaded=!0;n.version='2.0';n.queue=[];t=b.createElement(e);t.async=!0;t.src=v;s=b.getElementsByTagName(e)[0];s.parentNode.insertBefore(t,s)}(window,document,'script','https://connect.facebook.net/en_US/fbevents.js');
-    fbq('init', pixelId);
-    fbq('track', 'PageView');
-  }
   function trackMetaEvent(eventName, params) {
     if (typeof fbq !== 'undefined') fbq('track', eventName, params || {});
   }
@@ -432,7 +424,6 @@
       if (cfg.avatarUrl) document.getElementById('headerAvatar').src = cfg.avatarUrl;
       const nome = cfg.produtos?.[VALOR] || decodeURIComponent(PRODUTO.replace(/\+/g, ' '));
       document.getElementById('productName').textContent = nome;
-      if (cfg.metaPixelId) initMetaPixel(cfg.metaPixelId);
     } catch {
       document.getElementById('productName').textContent = decodeURIComponent(PRODUTO.replace(/\+/g, ' '));
     }
