@@ -853,6 +853,14 @@
     } catch { return DEFAULT_CONFIG; }
   }
 
+  async function loadFunnel() {
+    try {
+      const res = await fetch('./funnel.json?v=' + Date.now());
+      if (!res.ok) return null;
+      return await res.json();
+    } catch { return null; }
+  }
+
   /* ════════════════════════════════════════════════
      ▌ DOM refs
   ════════════════════════════════════════════════ */
@@ -1287,109 +1295,181 @@
   }
 
   /* ════════════════════════════════════════════════
+     ▌ IMAGEM
+  ════════════════════════════════════════════════ */
+  function addImage(url, caption) {
+    const w = document.createElement('div');
+    w.className = 'mw r';
+    const time = getTime();
+    w.innerHTML = `<div class="bubble r" style="padding:4px 4px 0;max-width:240px">
+      <img src="${url}" style="width:100%;border-radius:8px;display:block;cursor:pointer" onclick="window.open('${url}','_blank')">
+      ${caption ? `<div style="padding:4px 8px 0;font-size:14px">${caption}</div>` : ''}
+      <div class="meta"><span class="ts">${time}</span></div>
+    </div>`;
+    sndReceive();
+    chat.appendChild(w);
+    scroll();
+    return w;
+  }
+
+  /* ════════════════════════════════════════════════
+     ▌ VÍDEO
+  ════════════════════════════════════════════════ */
+  function addVideo(url, thumbnail) {
+    const w = document.createElement('div');
+    w.className = 'mw r';
+    const time = getTime();
+    const thumb = thumbnail || '';
+    w.innerHTML = `<div class="bubble r" style="padding:4px 4px 0;max-width:240px">
+      <div style="position:relative;cursor:pointer;border-radius:8px;overflow:hidden" onclick="window.open('${url}','_blank')">
+        ${thumb
+          ? `<img src="${thumb}" style="width:100%;display:block">`
+          : `<div style="width:100%;height:140px;background:#111;display:flex;align-items:center;justify-content:center"></div>`}
+        <div style="position:absolute;inset:0;display:flex;align-items:center;justify-content:center;background:rgba(0,0,0,.3)">
+          <div style="width:48px;height:48px;background:rgba(0,0,0,.65);border-radius:50%;display:flex;align-items:center;justify-content:center">
+            <svg width="22" height="22" viewBox="0 0 24 24" fill="white"><path d="M8 5v14l11-7z"/></svg>
+          </div>
+        </div>
+      </div>
+      <div class="meta"><span class="ts">${time}</span></div>
+    </div>`;
+    sndReceive();
+    chat.appendChild(w);
+    scroll();
+    return w;
+  }
+
+  /* ════════════════════════════════════════════════
+     ▌ BOTÃO ÚNICO / CHECKOUT
+  ════════════════════════════════════════════════ */
+  function addSingleButton(label, url) {
+    const w = document.createElement('div');
+    w.className = 'mw s';
+    const btn = document.createElement('a');
+    btn.className = 'pay-btn';
+    btn.href = url || '#';
+    btn.target = '_blank';
+    btn.rel = 'noopener';
+    btn.textContent = label;
+    w.appendChild(btn);
+    chat.appendChild(w);
+    scroll();
+    return w;
+  }
+
+  /* ════════════════════════════════════════════════
+     ▌ MÚLTIPLA ESCOLHA
+  ════════════════════════════════════════════════ */
+  function addMultipleChoice(options) {
+    return new Promise(resolve => {
+      const wrap = document.createElement('div');
+      wrap.style.cssText = 'display:flex;flex-direction:column;gap:8px;padding:4px 16px 12px;align-items:flex-end';
+      options.forEach(opt => {
+        const btn = document.createElement('button');
+        btn.textContent = opt;
+        btn.style.cssText = 'background:transparent;border:1.5px solid var(--color-sent);color:var(--color-sent);border-radius:18px;padding:9px 20px;font-size:14px;cursor:pointer;font-family:inherit;transition:background .15s';
+        btn.onmouseover = () => btn.style.background = 'rgba(0,92,75,.1)';
+        btn.onmouseout  = () => btn.style.background = 'transparent';
+        btn.onclick = () => {
+          wrap.remove();
+          addText(opt, 's', getTime());
+          sndSend();
+          resolve(opt);
+        };
+        wrap.appendChild(btn);
+      });
+      chat.appendChild(wrap);
+      scroll();
+    });
+  }
+
+  /* ════════════════════════════════════════════════
+     ▌ RENDERIZADOR DE STEP (JSON)
+  ════════════════════════════════════════════════ */
+  async function renderStep(step) {
+    const delay = step.delay ?? 3000;
+    switch (step.type) {
+      case 'text': {
+        showTyping();
+        await sleep(step.typing_duration ?? 2000);
+        removeIndicator();
+        addText(step.content || '', 'r');
+        await sleep(delay);
+        break;
+      }
+      case 'audio': {
+        showRecording();
+        await sleep(step.recording_duration ?? 3000);
+        removeIndicator();
+        addAudio(step.index ?? 0, step.duration ?? '0:10');
+        await sleep(delay);
+        break;
+      }
+      case 'pdf': {
+        addPdf(step.index ?? 0, step.size || CONFIG.PDF_SIZES[step.index ?? 0] || '');
+        await sleep(delay);
+        break;
+      }
+      case 'image': {
+        addImage(step.url || '', step.caption || '');
+        await sleep(delay);
+        break;
+      }
+      case 'video': {
+        addVideo(step.url || '', step.thumbnail || '');
+        await sleep(delay);
+        break;
+      }
+      case 'button': {
+        addSingleButton(step.label || 'Clique aqui', step.url || '#');
+        await sleep(delay);
+        break;
+      }
+      case 'checkout': {
+        const valor = step.valor || '1,99';
+        const prod  = encodeURIComponent(step.produto || 'Apostilas Clara Aureliano');
+        addSingleButton(
+          step.label || `Contribuir com R$ ${valor}`,
+          `checkout.html?valor=${encodeURIComponent(valor)}&produto=${prod}`
+        );
+        await sleep(delay);
+        break;
+      }
+      case 'multiple_choice': {
+        await addMultipleChoice(step.options || []);
+        await sleep(delay);
+        break;
+      }
+      case 'capture': {
+        await waitForInput(step.placeholder || 'Digite aqui...');
+        await sleep(delay);
+        break;
+      }
+      case 'delay': {
+        await sleep(step.duration ?? 3000);
+        break;
+      }
+      case 'payment_buttons': {
+        addPaymentButtons();
+        await sleep(delay);
+        break;
+      }
+    }
+  }
+
+  /* ════════════════════════════════════════════════
      ▌ FLUXO PRINCIPAL
   ════════════════════════════════════════════════ */
   async function runFunnel() {
     CONFIG = await loadConfig();
     document.getElementById('avatar').src = CONFIG.AVATAR_URL;
     applyTheme(CONFIG.THEME);
-
+    const funnel = await loadFunnel();
+    const steps = funnel?.steps || [];
     await sleep(900);
-
-    showTyping();
-    await sleep(1800);
-    removeIndicator();
-    addText('Oiie minha benção, tudo bem? 😊', 'r');
-
-    await sleep(3000);
-
-    showTyping();
-    await sleep(2400);
-    removeIndicator();
-    addText('Prazer aqui é a Clara! Vou te ensinar todas as minhas receitas de recheios ❤️', 'r');
-
-    await sleep(3000);
-
-    showTyping();
-    await sleep(2800);
-    removeIndicator();
-    addText('Para mostrar nossa confiança e compromisso, eu envio todas as apostilas antes de você fazer o pagamento.', 'r');
-
-    await sleep(3000);
-
-    showTyping();
-    await sleep(1400);
-    removeIndicator();
-    addText('Pode ser? ❤️', 'r');
-
-    await sleep(800);
-
-    await waitForInput('Digite sua resposta...');
-
-    await sleep(1000);
-
-    showRecording();
-    await sleep(3000);
-    removeIndicator();
-    addAudio(0, '0:03');
-
-    await sleep(3000);
-
-    addPdf(0, '2.5 MB');
-
-    await sleep(3000);
-
-    addPdf(1, '1.6 MB');
-
-    await sleep(3000);
-
-    showTyping();
-    await sleep(2000);
-    removeIndicator();
-    addText('E de bônus vou te mandar nossas <strong>receitas de Sobremesas sem fogo</strong> 😍👇', 'r');
-
-    await sleep(3000);
-
-    addPdf(2, '6.6 MB');
-
-    await sleep(3000);
-
-    showTyping();
-    await sleep(1900);
-    removeIndicator();
-    addText('Agora eu conto com a <strong>sua honestidade!</strong>', 'r');
-
-    await sleep(3000);
-
-    showTyping();
-    await sleep(2700);
-    removeIndicator();
-    addText('Contribua com o Valor que sentir no coração:<br><br><strong>R$1,99, R$5,90, R$ 9,90, R$14,90</strong><br><br>Conto com você 🙏❤️', 'r');
-
-    await sleep(3000);
-
-    showTyping();
-    await sleep(3000);
-    removeIndicator();
-    addText('LEMBRANDO! 🚨 Assim que você faz o pagamento, eu te mando o acesso novamente no seu e-mail (pra ficar salvo) e mando + 3 presentes ❤️😍', 'r');
-
-    await sleep(3000);
-
-    addPaymentButtons();
-
-    await sleep(3000);
-
-    showRecording();
-    await sleep(3300);
-    removeIndicator();
-    addAudio(1, '0:11');
-
-    await sleep(3000);
-
-    showTyping();
-    await sleep(1000);
-    removeIndicator();
-    addText('❤️🧡', 'r');
+    for (const step of steps) {
+      await renderStep(step);
+    }
   }
 
   runFunnel();

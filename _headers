@@ -1,6 +1,9 @@
 /config.json
   Cache-Control: no-store, no-cache, must-revalidate
 
+/funnel.json
+  Cache-Control: no-store, no-cache, must-revalidate
+
 /pixel.js
   Cache-Control: no-store, no-cache, must-revalidate
 
