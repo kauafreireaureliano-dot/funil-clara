@@ -743,6 +743,30 @@
           ⚡ O email é enviado em segundos após o PIX ser confirmado.
         </div>
       </div>
+
+      <div class="card">
+        <div class="card-title">🔔 Notificações de venda</div>
+        <p style="font-size:13px;color:var(--muted);margin-bottom:12px;line-height:1.6">URL do seu webhook de notificações. Disparado ao gerar PIX e ao confirmar pagamento.</p>
+        <div class="field" style="margin-bottom:10px">
+          <label>URL do webhook</label>
+          <input type="url" id="notifyWebhookUrl" placeholder="https://...">
+        </div>
+        <button class="btn-sm" onclick="testNotification()" style="margin-top:4px">🧪 Testar notificação</button>
+        <div id="notifyTestResult" style="font-size:12px;margin-top:8px;color:var(--muted)"></div>
+      </div>
+
+      <div class="card">
+        <div class="card-title">📊 Meta Pixel (Facebook/Instagram Ads)</div>
+        <p style="font-size:13px;color:var(--muted);margin-bottom:12px;line-height:1.6">Rastreia visualizações, início de checkout e compras. O Pixel ID fica no config e o Token de acesso no Cloudflare.</p>
+        <div class="field" style="margin-bottom:12px">
+          <label>Pixel ID</label>
+          <input type="text" id="metaPixelId" placeholder="Ex: 1234567890123456">
+        </div>
+        <div style="background:#f0f2f5;border-radius:8px;padding:12px;font-size:12px;color:var(--muted);line-height:1.7">
+          Para eventos server-side (mais precisos), adicione no Cloudflare:<br>
+          <strong>META_PIXEL_TOKEN</strong> = (seu token de acesso do Gerenciador de Eventos)
+        </div>
+      </div>
     </div>
 
   </main>
@@ -859,6 +883,38 @@ function applyConfigToUI(c) {
   }
   if (c.theme) {
     document.getElementById('themeSelect').value = c.theme;
+  }
+  if (c.notifyWebhookUrl) {
+    document.getElementById('notifyWebhookUrl').value = c.notifyWebhookUrl;
+  }
+  if (c.metaPixelId) {
+    document.getElementById('metaPixelId').value = c.metaPixelId;
+  }
+}
+
+async function testNotification() {
+  const url = document.getElementById('notifyWebhookUrl').value.trim();
+  const resultEl = document.getElementById('notifyTestResult');
+  if (!url) { resultEl.textContent = '⚠️ Coloque a URL primeiro.'; return; }
+  resultEl.textContent = 'Enviando...';
+  try {
+    await fetch(url, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        event: 'teste',
+        email: 'teste@claraureliano.com',
+        valor: '1,99',
+        produto: 'Teste de notificação',
+        payment_id: 'TEST_' + Date.now(),
+        timestamp: new Date().toISOString(),
+      }),
+    });
+    resultEl.style.color = 'var(--green)';
+    resultEl.textContent = '✅ Notificação enviada!';
+  } catch (err) {
+    resultEl.style.color = 'var(--danger)';
+    resultEl.textContent = '❌ Erro: ' + err.message;
   }
 }
 
@@ -1115,6 +1171,8 @@ async function deploy() {
       '14,90': extLinks['14,90'] || `checkout.html?valor=14,90&produto=${encodeURIComponent(config.produtos['14,90'])}`,
     };
     config.theme = document.getElementById('themeSelect').value || 'dark';
+    config.notifyWebhookUrl = document.getElementById('notifyWebhookUrl').value.trim() || '';
+    config.metaPixelId = document.getElementById('metaPixelId').value.trim() || '';
 
     setProgress(88);
     toast('Salvando configurações...', '');

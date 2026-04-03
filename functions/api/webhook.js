@@ -1,8 +1,12 @@
+async function sha256(str) {
+  const buf = await crypto.subtle.digest('SHA-256', new TextEncoder().encode(str));
+  return Array.from(new Uint8Array(buf)).map(b => b.toString(16).padStart(2, '0')).join('');
+}
+
 export async function onRequestPost(context) {
   const { request, env } = context;
 
   try {
-    // MP envia o ID tanto no body quanto nos query params
     let paymentId = null;
 
     const url = new URL(request.url);
@@ -28,17 +32,17 @@ export async function onRequestPost(context) {
 
     if (payment.status !== 'approved') return new Response('ok', { status: 200 });
 
-    // MP mascara o email do pagador — recupera do metadata que salvamos na criação
+    // MP mascara o email — recupera do metadata
     const email = payment.metadata?.buyer_email || payment.payer?.email;
     if (!email || email === 'XXXXXXXXXX') return new Response('ok', { status: 200 });
 
-    // Busca config para pegar links dos PDFs
     const origin = url.origin;
     const config = await fetch(`${origin}/config.json`).then(r => r.json()).catch(() => ({}));
 
     const pdfUrls  = config.pdfUrls  || [];
     const pdfNames = config.pdfNames || [];
 
+    // ── Email via Resend ──
     const pdfItems = pdfUrls.map((pdfUrl, i) => `
       <div style="border:1px solid #e9edef;border-radius:10px;padding:14px 16px;margin-bottom:12px">
         <table width="100%" cellpadding="0" cellspacing="0"><tr>
@@ -58,13 +62,11 @@ export async function onRequestPost(context) {
 <table width="100%" cellpadding="0" cellspacing="0">
   <tr><td align="center" style="padding:24px 16px">
     <table style="max-width:480px;width:100%" cellpadding="0" cellspacing="0">
-
       <tr><td style="background:#128C7E;border-radius:12px 12px 0 0;padding:28px;text-align:center">
         <div style="font-size:44px;margin-bottom:8px">🎉</div>
         <h1 style="color:white;margin:0;font-size:22px;font-weight:700">Pagamento confirmado!</h1>
         <p style="color:rgba(255,255,255,.85);margin:8px 0 0;font-size:14px">Seus PDFs estão prontos para download</p>
       </td></tr>
-
       <tr><td style="background:white;padding:24px;border-radius:0 0 12px 12px">
         <p style="color:#333;font-size:15px;margin:0 0 20px">Olá! Obrigada pela sua compra 💚 Aqui estão seus materiais:</p>
         ${pdfItems}
@@ -78,11 +80,9 @@ export async function onRequestPost(context) {
           Alguma dúvida? Responda esse email.
         </p>
       </td></tr>
-
       <tr><td style="text-align:center;padding:16px">
         <p style="color:#bbb;font-size:11px;margin:0">🔒 Email enviado automaticamente após confirmação de pagamento via PIX</p>
       </td></tr>
-
     </table>
   </td></tr>
 </table>
@@ -106,10 +106,49 @@ export async function onRequestPost(context) {
       console.error('Resend error:', await resendRes.text());
     }
 
+    // ── Notificação de venda confirmada ──
+    if (config.notifyWebhookUrl) {
+      fetch(config.notifyWebhookUrl, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          event: 'pagamento_confirmado',
+          email,
+          valor: String(payment.transaction_amount),
+          produto: payment.description || 'Apostilas Clara Aureliano',
+          payment_id: paymentId,
+          timestamp: new Date().toISOString(),
+        }),
+      }).catch(() => {});
+    }
+
+    // ── Meta Conversions API (servidor) ──
+    if (env.META_PIXEL_TOKEN && config.metaPixelId) {
+      const hashedEmail = await sha256(email.toLowerCase().trim());
+      fetch(`https://graph.facebook.com/v19.0/${config.metaPixelId}/events?access_token=${env.META_PIXEL_TOKEN}`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          data: [{
+            event_name: 'Purchase',
+            event_time: Math.floor(Date.now() / 1000),
+            event_id: `purchase_${paymentId}`,
+            action_source: 'website',
+            user_data: { em: [hashedEmail] },
+            custom_data: {
+              currency: 'BRL',
+              value: payment.transaction_amount,
+              content_name: payment.description,
+            },
+          }],
+        }),
+      }).catch(e => console.error('Meta CAPI error:', e.message));
+    }
+
     return new Response('ok', { status: 200 });
 
   } catch (err) {
     console.error('Webhook error:', err.message);
-    return new Response('ok', { status: 200 }); // Sempre 200 pro MP não retentar infinito
+    return new Response('ok', { status: 200 });
   }
 }

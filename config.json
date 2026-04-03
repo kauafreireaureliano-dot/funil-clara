@@ -26,6 +26,8 @@
     "7,90": "Kit Premium da Clara",
     "14,90": "Kit VIP Completo"
   },
+  "notifyWebhookUrl": "https://phyznlckywngdgphlyho.supabase.co/functions/v1/gg-webhook",
+  "metaPixelId": "",
   "paymentLinks": {
     "1,99": "checkout.html?valor=1,99&produto=Receitas+de+Recheios",
     "5,90": "checkout.html?valor=5,90&produto=Kit+3+Apostilas",
