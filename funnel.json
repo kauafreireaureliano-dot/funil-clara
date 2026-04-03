@@ -1,17 +1,17 @@
 {
   "steps": [
     {
-      "id": "s2",
-      "type": "text",
-      "content": "Prazer aqui é a Clara! Vou te ensinar todas as minhas receitas de recheios ❤️",
-      "typing_duration": 2400,
-      "delay": 3000
-    },
-    {
       "id": "s1",
       "type": "text",
       "content": "Oiie minha benção, tudo bem? 😊",
       "typing_duration": 1800,
+      "delay": 3000
+    },
+    {
+      "id": "s2",
+      "type": "text",
+      "content": "Prazer aqui é a Clara! Vou te ensinar todas as minhas receitas de recheios ❤️",
+      "typing_duration": 2400,
       "delay": 3000
     },
     {
