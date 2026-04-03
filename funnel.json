@@ -1,68 +1,113 @@
 {
   "steps": [
     {
-      "id": "s1", "type": "text",
+      "id": "s1",
+      "type": "text",
       "content": "Oiie minha benção, tudo bem? 😊",
-      "typing_duration": 1800, "delay": 3000
+      "typing_duration": 1800,
+      "delay": 3000
     },
     {
-      "id": "s2", "type": "text",
+      "id": "s2",
+      "type": "text",
       "content": "Prazer aqui é a Clara! Vou te ensinar todas as minhas receitas de recheios ❤️",
-      "typing_duration": 2400, "delay": 3000
+      "typing_duration": 2400,
+      "delay": 3000
     },
     {
-      "id": "s3", "type": "text",
+      "id": "s3",
+      "type": "text",
       "content": "Para mostrar nossa confiança e compromisso, eu envio todas as apostilas antes de você fazer o pagamento.",
-      "typing_duration": 2800, "delay": 3000
+      "typing_duration": 2800,
+      "delay": 3000
     },
     {
-      "id": "s4", "type": "text",
+      "id": "s4",
+      "type": "text",
       "content": "Pode ser? ❤️",
-      "typing_duration": 1400, "delay": 800
+      "typing_duration": 1400,
+      "delay": 800
     },
     {
-      "id": "s5", "type": "capture",
+      "id": "s5",
+      "type": "capture",
       "placeholder": "Digite sua resposta...",
-      "field": "text", "delay": 1000
+      "field": "text",
+      "delay": 1000
     },
     {
-      "id": "s6", "type": "audio",
-      "index": 0, "duration": "0:03",
-      "recording_duration": 3000, "delay": 3000
+      "id": "s6",
+      "type": "audio",
+      "index": 0,
+      "duration": "0:03",
+      "recording_duration": 3000,
+      "delay": 3000
     },
-    { "id": "s7", "type": "pdf", "index": 0, "delay": 3000 },
-    { "id": "s8", "type": "pdf", "index": 1, "delay": 3000 },
     {
-      "id": "s9", "type": "text",
+      "id": "s7",
+      "type": "pdf",
+      "index": 0,
+      "delay": 3000
+    },
+    {
+      "id": "s8",
+      "type": "pdf",
+      "index": 1,
+      "delay": 3000
+    },
+    {
+      "id": "s9",
+      "type": "text",
       "content": "E de bônus vou te mandar nossas <strong>receitas de Sobremesas sem fogo</strong> 😍👇",
-      "typing_duration": 2000, "delay": 3000
+      "typing_duration": 2000,
+      "delay": 3000
     },
-    { "id": "s10", "type": "pdf", "index": 2, "delay": 3000 },
     {
-      "id": "s11", "type": "text",
+      "id": "s10",
+      "type": "pdf",
+      "index": 2,
+      "delay": 3000
+    },
+    {
+      "id": "s11",
+      "type": "text",
       "content": "Agora eu conto com a <strong>sua honestidade!</strong>",
-      "typing_duration": 1900, "delay": 3000
+      "typing_duration": 1900,
+      "delay": 3000
     },
     {
-      "id": "s12", "type": "text",
+      "id": "s12",
+      "type": "text",
       "content": "Contribua com o Valor que sentir no coração:<br><br><strong>R$1,99, R$5,90, R$7,90, R$14,90</strong><br><br>Conto com você 🙏❤️",
-      "typing_duration": 2700, "delay": 3000
+      "typing_duration": 2700,
+      "delay": 3000
     },
     {
-      "id": "s13", "type": "text",
+      "id": "s13",
+      "type": "text",
       "content": "LEMBRANDO! 🚨 Assim que você faz o pagamento, eu te mando o acesso novamente no seu e-mail (pra ficar salvo) e mando + 3 presentes ❤️😍",
-      "typing_duration": 3000, "delay": 3000
-    },
-    { "id": "s14", "type": "payment_buttons", "delay": 3000 },
-    {
-      "id": "s15", "type": "audio",
-      "index": 1, "duration": "0:11",
-      "recording_duration": 3300, "delay": 3000
+      "typing_duration": 3000,
+      "delay": 3000
     },
     {
-      "id": "s16", "type": "text",
-      "content": "❤️🧡",
-      "typing_duration": 1000, "delay": 3000
+      "id": "s14",
+      "type": "payment_buttons",
+      "delay": 3000
+    },
+    {
+      "id": "s15",
+      "type": "audio",
+      "index": 1,
+      "duration": "0:11",
+      "recording_duration": 3300,
+      "delay": 3000
+    },
+    {
+      "id": "s16",
+      "type": "text",
+      "content": "❤️👆🏼",
+      "typing_duration": 1000,
+      "delay": 3000
     }
   ]
 }
