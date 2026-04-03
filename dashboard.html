@@ -895,23 +895,23 @@ function applyConfigToUI(c) {
 async function testNotification() {
   const url = document.getElementById('notifyWebhookUrl').value.trim();
   const resultEl = document.getElementById('notifyTestResult');
-  if (!url) { resultEl.textContent = '⚠️ Coloque a URL primeiro.'; return; }
+  if (!url) { resultEl.textContent = '⚠️ Coloque a URL primeiro.'; resultEl.style.color = 'var(--danger)'; return; }
+  resultEl.style.color = 'var(--muted)';
   resultEl.textContent = 'Enviando...';
   try {
-    await fetch(url, {
+    const res = await fetch('/api/notify-test', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({
-        event: 'teste',
-        email: 'teste@claraureliano.com',
-        valor: '1,99',
-        produto: 'Teste de notificação',
-        payment_id: 'TEST_' + Date.now(),
-        timestamp: new Date().toISOString(),
-      }),
+      body: JSON.stringify({ url }),
     });
-    resultEl.style.color = 'var(--green)';
-    resultEl.textContent = '✅ Notificação enviada!';
+    const data = await res.json();
+    if (data.ok) {
+      resultEl.style.color = 'var(--green)';
+      resultEl.textContent = '✅ Notificação enviada com sucesso!';
+    } else {
+      resultEl.style.color = 'var(--danger)';
+      resultEl.textContent = '❌ Webhook retornou status ' + data.status;
+    }
   } catch (err) {
     resultEl.style.color = 'var(--danger)';
     resultEl.textContent = '❌ Erro: ' + err.message;
