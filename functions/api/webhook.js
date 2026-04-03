@@ -23,7 +23,6 @@ export async function onRequestPost(context) {
 
     if (!paymentId) return new Response('ok', { status: 200 });
 
-    // Busca detalhes do pagamento no MP
     const mpRes = await fetch(`https://api.mercadopago.com/v1/payments/${paymentId}`, {
       headers: { 'Authorization': `Bearer ${env.MP_ACCESS_TOKEN}` },
     });
@@ -32,13 +31,11 @@ export async function onRequestPost(context) {
 
     if (payment.status !== 'approved') return new Response('ok', { status: 200 });
 
-    // MP mascara o email — recupera do metadata
     const email = payment.metadata?.buyer_email || payment.payer?.email;
     if (!email || email === 'XXXXXXXXXX') return new Response('ok', { status: 200 });
 
     const origin = url.origin;
     const config = await fetch(`${origin}/config.json`).then(r => r.json()).catch(() => ({}));
-
     const pdfUrls  = config.pdfUrls  || [];
     const pdfNames = config.pdfNames || [];
 
@@ -88,7 +85,7 @@ export async function onRequestPost(context) {
 </table>
 </body></html>`;
 
-    const resendRes = await fetch('https://api.resend.com/emails', {
+    await fetch('https://api.resend.com/emails', {
       method: 'POST',
       headers: {
         'Authorization': `Bearer ${env.RESEND_API_KEY}`,
@@ -102,13 +99,11 @@ export async function onRequestPost(context) {
       }),
     });
 
-    if (!resendRes.ok) {
-      console.error('Resend error:', await resendRes.text());
-    }
+    // ── Notificação + Meta CAPI — waitUntil garante execução ──
+    const sideEffects = Promise.all([
 
-    // ── Notificação de venda confirmada ──
-    if (config.notifyWebhookUrl) {
-      fetch(config.notifyWebhookUrl, {
+      // Notificação Supabase
+      config.notifyWebhookUrl ? fetch(config.notifyWebhookUrl, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
@@ -119,31 +114,34 @@ export async function onRequestPost(context) {
           payment_id: paymentId,
           timestamp: new Date().toISOString(),
         }),
-      }).catch(() => {});
-    }
+      }).catch(() => {}) : Promise.resolve(),
 
-    // ── Meta Conversions API (servidor) ──
-    if (env.META_PIXEL_TOKEN && config.metaPixelId) {
-      const hashedEmail = await sha256(email.toLowerCase().trim());
-      fetch(`https://graph.facebook.com/v19.0/${config.metaPixelId}/events?access_token=${env.META_PIXEL_TOKEN}`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          data: [{
-            event_name: 'Purchase',
-            event_time: Math.floor(Date.now() / 1000),
-            event_id: `purchase_${paymentId}`,
-            action_source: 'website',
-            user_data: { em: [hashedEmail] },
-            custom_data: {
-              currency: 'BRL',
-              value: payment.transaction_amount,
-              content_name: payment.description,
-            },
-          }],
-        }),
-      }).catch(e => console.error('Meta CAPI error:', e.message));
-    }
+      // Meta Conversions API
+      (env.META_PIXEL_TOKEN && config.metaPixelId) ? (async () => {
+        const hashedEmail = await sha256(email.toLowerCase().trim());
+        return fetch(`https://graph.facebook.com/v19.0/${config.metaPixelId}/events?access_token=${env.META_PIXEL_TOKEN}`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            data: [{
+              event_name: 'Purchase',
+              event_time: Math.floor(Date.now() / 1000),
+              event_id: `purchase_${paymentId}`,
+              action_source: 'website',
+              user_data: { em: [hashedEmail] },
+              custom_data: {
+                currency: 'BRL',
+                value: payment.transaction_amount,
+                content_name: payment.description,
+              },
+            }],
+          }),
+        }).catch(() => {});
+      })() : Promise.resolve(),
+
+    ]);
+
+    context.waitUntil(sideEffects);
 
     return new Response('ok', { status: 200 });
 

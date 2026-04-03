@@ -43,22 +43,27 @@ export async function onRequestPost(context) {
 
     const txData = data.point_of_interaction?.transaction_data;
 
-    // Notificação de PIX gerado — fire and forget
-    const config = await fetch(`${origin}/config.json`).then(r => r.json()).catch(() => ({}));
-    if (config.notifyWebhookUrl) {
-      fetch(config.notifyWebhookUrl, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          event: 'pix_gerado',
-          email,
-          valor,
-          produto: produto || 'Apostilas Clara Aureliano',
-          payment_id: data.id,
-          timestamp: new Date().toISOString(),
-        }),
-      }).catch(() => {});
-    }
+    // Notificação de PIX gerado — waitUntil garante execução após o response
+    const notifyTask = fetch(`${origin}/config.json`)
+      .then(r => r.json())
+      .then(config => {
+        if (!config.notifyWebhookUrl) return;
+        return fetch(config.notifyWebhookUrl, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            event: 'pix_gerado',
+            email,
+            valor,
+            produto: produto || 'Apostilas Clara Aureliano',
+            payment_id: data.id,
+            timestamp: new Date().toISOString(),
+          }),
+        });
+      })
+      .catch(() => {});
+
+    context.waitUntil(notifyTask);
 
     return new Response(JSON.stringify({
       id: data.id,
