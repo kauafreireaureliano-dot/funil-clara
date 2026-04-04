@@ -99,6 +99,26 @@ export async function onRequestPost(context) {
       }),
     });
 
+    // ── Registrar venda no Supabase ──
+    const supaUrl = 'https://badgaqasjnosakzducjc.supabase.co';
+    const supaKey = 'sb_publishable_-QVzljjE1sOYbO_ioSjYOA_1VaakZ5c';
+    await fetch(`${supaUrl}/rest/v1/funnel_events`, {
+      method: 'POST',
+      headers: {
+        'Authorization': `Bearer ${supaKey}`,
+        'apikey': supaKey,
+        'Content-Type': 'application/json',
+        'Prefer': 'return=minimal',
+      },
+      body: JSON.stringify({
+        session_id: `payment_${paymentId}`,
+        step_id: null,
+        step_type: null,
+        event_type: 'sale_confirmed',
+        value: String(payment.transaction_amount),
+      }),
+    }).catch(() => {});
+
     // ── Notificação + Meta CAPI — waitUntil garante execução ──
     const sideEffects = Promise.all([
 

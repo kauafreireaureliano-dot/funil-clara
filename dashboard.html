@@ -715,15 +715,41 @@
         <button class="btn-sm" onclick="loadAnalytics()">↻ Atualizar</button>
       </div>
 
+      <!-- Meta rumo aos R$10k -->
+      <div class="card" style="padding:18px">
+        <div style="display:flex;justify-content:space-between;align-items:baseline;margin-bottom:10px">
+          <div>
+            <div style="font-size:13px;color:var(--muted);margin-bottom:2px">🏆 Meta — R$ 10.000</div>
+            <div style="font-size:26px;font-weight:700;color:var(--green)" id="goalTotal">R$ 0,00</div>
+            <div style="font-size:12px;color:var(--muted)" id="goalSales">0 vendas acumuladas</div>
+          </div>
+          <div style="text-align:right">
+            <div style="font-size:12px;color:var(--muted);margin-bottom:2px">Hoje</div>
+            <div style="font-size:20px;font-weight:700;color:var(--text)" id="goalToday">R$ 0,00</div>
+          </div>
+        </div>
+        <div style="height:12px;background:var(--border);border-radius:6px;overflow:hidden;margin-bottom:6px">
+          <div id="goalBar" style="height:100%;width:0%;background:linear-gradient(90deg,var(--green-dark),var(--green));border-radius:6px;transition:width .6s"></div>
+        </div>
+        <div style="display:flex;justify-content:space-between;font-size:11px;color:var(--muted)">
+          <span id="goalPct">0%</span>
+          <span>Meta: R$ 10.000</span>
+        </div>
+        <div style="margin-top:10px;font-size:11px;color:var(--muted)">
+          💾 Total acumulado salvo localmente — dados do Supabase são mantidos por 30 dias.
+          <button onclick="resetGoal()" style="background:none;border:none;color:var(--danger);cursor:pointer;font-size:11px;margin-left:8px">Zerar meta</button>
+        </div>
+      </div>
+
       <!-- Stat cards -->
       <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin-bottom:4px">
         <div class="card" style="text-align:center;padding:16px 12px">
           <div style="font-size:28px;font-weight:700;color:var(--text)" id="statSessions">—</div>
-          <div style="font-size:12px;color:var(--muted);margin-top:2px">Total de acessos</div>
+          <div style="font-size:12px;color:var(--muted);margin-top:2px">Acessos</div>
         </div>
         <div class="card" style="text-align:center;padding:16px 12px">
-          <div style="font-size:28px;font-weight:700;color:var(--green)" id="statConversions">—</div>
-          <div style="font-size:12px;color:var(--muted);margin-top:2px">Cliques em pagamento</div>
+          <div style="font-size:24px;font-weight:700;color:var(--green)" id="statRevenue">—</div>
+          <div style="font-size:12px;color:var(--muted);margin-top:2px">Faturamento (período)</div>
         </div>
         <div class="card" style="text-align:center;padding:16px 12px">
           <div style="font-size:28px;font-weight:700;color:#f59e0b" id="statRate">—</div>
@@ -1384,11 +1410,47 @@ const STEP_TYPE_LABELS = {
   delay:'⏱️ Delay', payment_buttons:'💰 Pagamentos',
 };
 
+function fmtBRL(v) {
+  return 'R$ ' + Number(v).toFixed(2).replace('.', ',').replace(/\B(?=(\d{3})+(?!\d))/g, '.');
+}
+
+function getRevenueLog() {
+  try { return JSON.parse(localStorage.getItem('_revenue_log') || '{}'); } catch { return {}; }
+}
+
+function saveRevenueLog(log) {
+  localStorage.setItem('_revenue_log', JSON.stringify(log));
+}
+
+function renderGoal() {
+  const log = getRevenueLog();
+  const total = Object.values(log).reduce((a, b) => a + b, 0);
+  const sales = Object.values(log).reduce((a, b) => a + (b > 0 ? 1 : 0), 0);
+  const today = new Date().toISOString().slice(0, 10);
+  const todayRev = log[today] || 0;
+  const pct = Math.min(Math.round(total / 10000 * 100), 100);
+
+  document.getElementById('goalTotal').textContent  = fmtBRL(total);
+  document.getElementById('goalSales').textContent  = Object.keys(log).length + ' dias com vendas registradas';
+  document.getElementById('goalToday').textContent  = fmtBRL(todayRev);
+  document.getElementById('goalBar').style.width    = pct + '%';
+  document.getElementById('goalPct').textContent    = pct + '% da meta';
+}
+
+function resetGoal() {
+  if (!confirm('Tem certeza? Isso vai zerar o total acumulado da meta.')) return;
+  localStorage.removeItem('_revenue_log');
+  renderGoal();
+  toast('Meta zerada.', '');
+}
+
+renderGoal();
+
 async function loadAnalytics() {
   const days = document.getElementById('analyticsDays').value;
   document.getElementById('statSessions').textContent = '…';
-  document.getElementById('statConversions').textContent = '…';
-  document.getElementById('statRate').textContent = '…';
+  document.getElementById('statRevenue').textContent  = '…';
+  document.getElementById('statRate').textContent     = '…';
   document.getElementById('analyticsFunnel').innerHTML = '<div style="color:var(--muted);font-size:13px;text-align:center;padding:16px">Carregando...</div>';
   document.getElementById('analyticsCaptures').innerHTML = '<div style="color:var(--muted);font-size:13px;text-align:center;padding:16px">Carregando...</div>';
 
@@ -1397,9 +1459,19 @@ async function loadAnalytics() {
     const data = await res.json();
     if (data.error) { throw new Error(data.error + (data.detail ? ': ' + JSON.stringify(data.detail) : '')); }
 
-    document.getElementById('statSessions').textContent    = data.total_sessions;
-    document.getElementById('statConversions').textContent = data.total_conversions;
-    document.getElementById('statRate').textContent        = data.conversion_rate + '%';
+    document.getElementById('statSessions').textContent = data.total_sessions;
+    document.getElementById('statRevenue').textContent  = fmtBRL(data.total_revenue || 0);
+    document.getElementById('statRate').textContent     = data.conversion_rate + '%';
+
+    // ── Salva snapshot diário no localStorage ──
+    if (data.sales_by_day && Object.keys(data.sales_by_day).length > 0) {
+      const log = getRevenueLog();
+      for (const [day, rev] of Object.entries(data.sales_by_day)) {
+        log[day] = rev; // atualiza com valor mais recente do Supabase
+      }
+      saveRevenueLog(log);
+      renderGoal();
+    }
 
     // Funnel
     const funnelEl = document.getElementById('analyticsFunnel');
