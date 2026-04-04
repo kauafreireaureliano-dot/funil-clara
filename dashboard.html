@@ -450,6 +450,7 @@
       <button class="nav-item" onclick="goTo('audios')"><span class="ni">🎙️</span> Áudios</button>
       <button class="nav-item" onclick="goTo('pdfs')"><span class="ni">📄</span> PDFs</button>
       <button class="nav-item" onclick="goTo('pagamento')"><span class="ni">💳</span> Pagamento</button>
+      <button class="nav-item" onclick="goTo('analytics')"><span class="ni">📊</span> Análises</button>
       <button class="nav-item" onclick="goTo('funil')"><span class="ni">💬</span> Funil</button>
       <button class="nav-item" onclick="goTo('integracoes')"><span class="ni">🔌</span> Integrações</button>
     </nav>
@@ -475,6 +476,7 @@
     <button class="nav-item" onclick="goTo('audios')"><span class="ni">🎙️</span> Áudios</button>
     <button class="nav-item" onclick="goTo('pdfs')"><span class="ni">📄</span> PDFs</button>
     <button class="nav-item" onclick="goTo('pagamento')"><span class="ni">💳</span> Pgto</button>
+    <button class="nav-item" onclick="goTo('analytics')"><span class="ni">📊</span> Análises</button>
     <button class="nav-item" onclick="goTo('funil')"><span class="ni">💬</span> Funil</button>
     <button class="nav-item" onclick="goTo('integracoes')"><span class="ni">🔌</span> API</button>
     <button class="nav-item" style="background:var(--green);color:white" onclick="deploy()"><span class="ni">🚀</span> Publicar</button>
@@ -695,6 +697,63 @@
         <div class="pay-row">
           <div class="pay-label">R$ 14,90</div>
           <input type="url" id="pay1490" placeholder="Deixe vazio para usar checkout próprio">
+        </div>
+      </div>
+    </div>
+
+    <!-- ══ ANALYTICS ══ -->
+    <div class="section" id="sec-analytics">
+      <div class="section-title">📊 Análise do Funil</div>
+      <div class="section-desc">Dados em tempo real de acessos, conversões e comportamento dos usuários no funil.</div>
+
+      <div style="display:flex;gap:10px;margin-bottom:4px;flex-wrap:wrap">
+        <select id="analyticsDays" onchange="loadAnalytics()" style="border:1px solid var(--border);border-radius:8px;padding:6px 12px;font-size:13px;color:var(--text);background:var(--card)">
+          <option value="1">Hoje</option>
+          <option value="7" selected>7 dias</option>
+          <option value="30">30 dias</option>
+        </select>
+        <button class="btn-sm" onclick="loadAnalytics()">↻ Atualizar</button>
+      </div>
+
+      <!-- Stat cards -->
+      <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin-bottom:4px">
+        <div class="card" style="text-align:center;padding:16px 12px">
+          <div style="font-size:28px;font-weight:700;color:var(--text)" id="statSessions">—</div>
+          <div style="font-size:12px;color:var(--muted);margin-top:2px">Total de acessos</div>
+        </div>
+        <div class="card" style="text-align:center;padding:16px 12px">
+          <div style="font-size:28px;font-weight:700;color:var(--green)" id="statConversions">—</div>
+          <div style="font-size:12px;color:var(--muted);margin-top:2px">Cliques em pagamento</div>
+        </div>
+        <div class="card" style="text-align:center;padding:16px 12px">
+          <div style="font-size:28px;font-weight:700;color:#f59e0b" id="statRate">—</div>
+          <div style="font-size:12px;color:var(--muted);margin-top:2px">Taxa de conversão</div>
+        </div>
+      </div>
+
+      <!-- Funnel steps -->
+      <div class="card">
+        <div class="card-title">Funil por etapa</div>
+        <div id="analyticsFunnel" style="display:flex;flex-direction:column;gap:10px">
+          <div style="color:var(--muted);font-size:13px;text-align:center;padding:16px">Carregando...</div>
+        </div>
+      </div>
+
+      <!-- Hour chart -->
+      <div class="card">
+        <div class="card-title">Atividade por horário</div>
+        <div style="display:flex;align-items:flex-end;gap:3px;height:60px;padding:4px 0" id="analyticsHours"></div>
+        <div style="display:flex;justify-content:space-between;font-size:10px;color:var(--muted);margin-top:4px">
+          <span>0h</span><span>6h</span><span>12h</span><span>18h</span><span>23h</span>
+        </div>
+        <div style="font-size:12px;color:var(--muted);margin-top:8px" id="analyticsPeakHour"></div>
+      </div>
+
+      <!-- Captures -->
+      <div class="card">
+        <div class="card-title">Respostas capturadas</div>
+        <div id="analyticsCaptures" style="max-height:320px;overflow-y:auto">
+          <div style="color:var(--muted);font-size:13px;text-align:center;padding:16px">Carregando...</div>
         </div>
       </div>
     </div>
@@ -1025,6 +1084,7 @@ function goTo(id) {
   document.querySelectorAll('.nav-item').forEach(b => b.classList.remove('active'));
   document.getElementById('sec-' + id).classList.add('active');
   document.querySelectorAll(`[onclick="goTo('${id}')"]`).forEach(b => b.classList.add('active'));
+  if (id === 'analytics') loadAnalytics();
 }
 
 /* ════════════════════════════════════════════════
@@ -1312,6 +1372,80 @@ async function deploy() {
 
   btn.disabled = false;
   btn.textContent = '🚀 Publicar mudanças';
+}
+
+/* ════════════════════════════════════════════════
+   ▌ ANALYTICS
+════════════════════════════════════════════════ */
+const STEP_TYPE_LABELS = {
+  text:'💬 Texto', audio:'🎙️ Áudio', pdf:'📄 PDF', image:'🖼️ Imagem',
+  video:'🎬 Vídeo', button:'🔘 Botão', checkout:'💳 Checkout',
+  multiple_choice:'🔤 Múltipla escolha', capture:'✏️ Captura',
+  delay:'⏱️ Delay', payment_buttons:'💰 Pagamentos',
+};
+
+async function loadAnalytics() {
+  const days = document.getElementById('analyticsDays').value;
+  document.getElementById('statSessions').textContent = '…';
+  document.getElementById('statConversions').textContent = '…';
+  document.getElementById('statRate').textContent = '…';
+  document.getElementById('analyticsFunnel').innerHTML = '<div style="color:var(--muted);font-size:13px;text-align:center;padding:16px">Carregando...</div>';
+  document.getElementById('analyticsCaptures').innerHTML = '<div style="color:var(--muted);font-size:13px;text-align:center;padding:16px">Carregando...</div>';
+
+  try {
+    const res = await fetch(`/api/analytics?days=${days}&v=${Date.now()}`);
+    const data = await res.json();
+    if (data.error) { throw new Error(data.error + (data.detail ? ': ' + JSON.stringify(data.detail) : '')); }
+
+    document.getElementById('statSessions').textContent    = data.total_sessions;
+    document.getElementById('statConversions').textContent = data.total_conversions;
+    document.getElementById('statRate').textContent        = data.conversion_rate + '%';
+
+    // Funnel
+    const funnelEl = document.getElementById('analyticsFunnel');
+    if (!data.steps.length) {
+      funnelEl.innerHTML = '<div style="color:var(--muted);font-size:13px;text-align:center;padding:16px">Nenhum dado ainda. Acesse o funil para começar a registrar.</div>';
+    } else {
+      const maxCount = Math.max(...data.steps.map(s => s.count), 1);
+      funnelEl.innerHTML = data.steps.map((s, i) => `
+        <div>
+          <div style="display:flex;justify-content:space-between;font-size:12px;margin-bottom:3px">
+            <span style="color:var(--muted)">${i+1}. ${STEP_TYPE_LABELS[s.step_type] || s.step_type || s.step_id}</span>
+            <span style="font-weight:600">${s.count} <span style="color:var(--muted);font-weight:400">(${s.pct}%)</span></span>
+          </div>
+          <div style="height:8px;background:var(--border);border-radius:4px;overflow:hidden">
+            <div style="height:100%;width:${Math.round(s.count/maxCount*100)}%;background:var(--green);border-radius:4px;transition:width .4s"></div>
+          </div>
+        </div>
+      `).join('');
+    }
+
+    // Hours
+    const hoursEl = document.getElementById('analyticsHours');
+    const maxH = Math.max(...data.hours, 1);
+    hoursEl.innerHTML = data.hours.map((v, h) => `
+      <div title="${h}h: ${v} acessos" style="flex:1;background:${v===data.hours[data.peak_hour]?'var(--green)':'var(--border)'};border-radius:2px 2px 0 0;height:${Math.round(v/maxH*100)}%;min-height:2px"></div>
+    `).join('');
+    document.getElementById('analyticsPeakHour').textContent = data.hours[data.peak_hour] > 0
+      ? `⚡ Pico de atividade às ${data.peak_hour}h (${data.hours[data.peak_hour]} acessos)`
+      : '';
+
+    // Captures
+    const captEl = document.getElementById('analyticsCaptures');
+    if (!data.captures.length) {
+      captEl.innerHTML = '<div style="color:var(--muted);font-size:13px;text-align:center;padding:16px">Nenhuma resposta ainda.</div>';
+    } else {
+      captEl.innerHTML = data.captures.map(c => `
+        <div style="display:flex;justify-content:space-between;align-items:center;padding:9px 0;border-bottom:1px solid var(--border)">
+          <span style="font-size:14px">${c.value || '—'}</span>
+          <span style="font-size:11px;color:var(--muted);flex-shrink:0;margin-left:12px">${new Date(c.created_at).toLocaleDateString('pt-BR',{day:'2-digit',month:'2-digit',hour:'2-digit',minute:'2-digit'})}</span>
+        </div>
+      `).join('');
+    }
+
+  } catch (err) {
+    document.getElementById('analyticsFunnel').innerHTML = `<div style="color:var(--danger);font-size:13px;padding:8px">Erro: ${err.message}</div>`;
+  }
 }
 
 /* ════════════════════════════════════════════════

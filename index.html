@@ -1268,6 +1268,7 @@
 
         sndSend();
         addText(text, 's', getTime());
+        track('capture_response', null, null, text);
         resolve(text);
       }
 
@@ -1294,6 +1295,7 @@
       btn.href      = CONFIG.PAYMENT_LINKS[key] || '#';
       btn.target    = '_blank';
       btn.rel       = 'noopener';
+      btn.addEventListener('click', () => track('payment_click', null, null, key));
       btn.innerHTML = `<svg width="15" height="15" viewBox="0 0 24 24"><path d="M19 19H5V5h7V3H5c-1.11 0-2 .9-2 2v14c0 1.1.89 2 2 2h14c1.1 0 2-.9 2-2v-7h-2v7zM14 3v2h3.59l-9.83 9.83 1.41 1.41L19 6.41V10h2V3h-7z"/></svg>${label}`;
       w.appendChild(btn);
       chat.appendChild(w);
@@ -1394,6 +1396,7 @@
      ▌ RENDERIZADOR DE STEP (JSON)
   ════════════════════════════════════════════════ */
   async function renderStep(step) {
+    track('step_reached', step.id, step.type);
     const delay = step.delay ?? 3000;
     switch (step.type) {
       case 'text': {
@@ -1465,6 +1468,23 @@
   }
 
   /* ════════════════════════════════════════════════
+     ▌ ANALYTICS
+  ════════════════════════════════════════════════ */
+  const SESSION_ID = (() => {
+    let id = sessionStorage.getItem('_fsid');
+    if (!id) { id = ([1e7]+-1e3+-4e3+-8e3+-1e11).replace(/[018]/g,c=>(c^crypto.getRandomValues(new Uint8Array(1))[0]&15>>c/4).toString(16)); sessionStorage.setItem('_fsid', id); }
+    return id;
+  })();
+
+  function track(eventType, stepId, stepType, value) {
+    fetch('/api/track', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ session_id: SESSION_ID, step_id: stepId || null, step_type: stepType || null, event_type: eventType, value: value || null }),
+    }).catch(() => {});
+  }
+
+  /* ════════════════════════════════════════════════
      ▌ FLUXO PRINCIPAL
   ════════════════════════════════════════════════ */
   async function runFunnel() {
@@ -1473,6 +1493,7 @@
     applyTheme(CONFIG.THEME);
     const funnel = await loadFunnel();
     const steps = funnel?.steps || [];
+    track('page_view');
     await sleep(900);
     for (const step of steps) {
       await renderStep(step);
