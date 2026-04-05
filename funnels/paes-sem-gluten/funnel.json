@@ -3,23 +3,8 @@
     {
       "id": "s1",
       "type": "text",
-      "content": "Oiie minha benção, tudo bem? 😊\n",
+      "content": "Olá! Bem-vindo ao funil Pães Sem Glúten 😊",
       "typing_duration": 2000,
-      "delay": 2000
-    },
-    {
-      "id": "s1775360521448",
-      "type": "image",
-      "url": "https://jngxhwxomnfahhfygnag.supabase.co/storage/v1/object/public/nebula-media/765a8ddc-67e5-4823-b61a-cfdc52d0da21/11982b61-0d0d-4230-b7a3-8d7940422c4c/1775063825474.webp",
-      "caption": "",
-      "delay": 3000
-    },
-    {
-      "id": "s1775360635762",
-      "type": "audio",
-      "index": 0,
-      "duration": "15",
-      "recording_duration": 3000,
       "delay": 3000
     }
   ]
