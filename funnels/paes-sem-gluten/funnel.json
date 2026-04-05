@@ -63,6 +63,14 @@
       "name": "Apostila de Pães Sem Glúten",
       "size": "3.07",
       "delay": 3000
+    },
+    {
+      "id": "s1775365341311",
+      "type": "pdf",
+      "url": "https://raw.githubusercontent.com/kauafreireaureliano-dot/funil-clara/master/funnels/paes-sem-gluten/assets/s1775365341311_1775365369723.pdf",
+      "name": "Dicas de pães sem Glúten",
+      "size": "1.89",
+      "delay": 3000
     }
   ]
 }
