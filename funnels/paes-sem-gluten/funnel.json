@@ -1,0 +1,11 @@
+{
+  "steps": [
+    {
+      "id": "s1",
+      "type": "text",
+      "content": "Olá! Bem-vindo ao funil Pães Sem Glúten 😊",
+      "typing_duration": 2000,
+      "delay": 3000
+    }
+  ]
+}
