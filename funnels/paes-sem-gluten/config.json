@@ -1,14 +1,14 @@
 {
   "theme": "dark",
-  "avatarUrl": "",
+  "avatarUrl": "https://raw.githubusercontent.com/kauafreireaureliano-dot/funil-clara/master/assets/avatar.png",
   "audioUrls": [
-    "",
-    ""
+    "https://raw.githubusercontent.com/kauafreireaureliano-dot/funil-clara/master/assets/audio1.mp3",
+    "https://raw.githubusercontent.com/kauafreireaureliano-dot/funil-clara/master/assets/audio2.mp3"
   ],
   "pdfUrls": [
-    "",
-    "",
-    ""
+    "https://raw.githubusercontent.com/kauafreireaureliano-dot/funil-clara/master/assets/pdf1.pdf",
+    "https://raw.githubusercontent.com/kauafreireaureliano-dot/funil-clara/master/assets/pdf2.pdf",
+    "https://raw.githubusercontent.com/kauafreireaureliano-dot/funil-clara/master/assets/pdf3.pdf"
   ],
   "pdfNames": [
     "PDF 1",
@@ -16,9 +16,9 @@
     "PDF 3"
   ],
   "pdfSizes": [
-    "",
-    "",
-    ""
+    "2.5 MB",
+    "1.6 MB",
+    "6.6 MB"
   ],
   "produtos": {
     "1,99": "Produto",
@@ -26,5 +26,12 @@
     "7,90": "Produto",
     "14,90": "Produto"
   },
-  "paymentLinks": {}
+  "notifyWebhookUrl": "https://phyznlckywngdgphlyho.supabase.co/functions/v1/gg-webhook",
+  "metaPixelId": "1058788355816913",
+  "paymentLinks": {
+    "1,99": "checkout.html?valor=1,99&produto=Produto",
+    "5,90": "checkout.html?valor=5,90&produto=Produto",
+    "7,90": "checkout.html?valor=7,90&produto=Produto",
+    "14,90": "checkout.html?valor=14,90&produto=Produto"
+  }
 }
