@@ -2047,7 +2047,9 @@ function updatePreview() {
     localStorage.setItem('_preview_config_' + activeFunnelId, JSON.stringify(currentConfig));
   }
   const frame = document.getElementById('previewFrame');
-  const previewUrl = (activeFunnelId === 'recheios' ? '/' : `/?f=${activeFunnelId}`) + '?preview=1&v=' + Date.now();
+  const previewUrl = activeFunnelId === 'recheios'
+    ? `/?preview=1&v=${Date.now()}`
+    : `/?f=${activeFunnelId}&preview=1&v=${Date.now()}`;
   frame.src = previewUrl;
 }
 
