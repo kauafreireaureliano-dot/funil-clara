@@ -11,7 +11,7 @@
       "id": "s1775360735156",
       "type": "text",
       "content": "Prazer aqui é a Clara! Vou te ensinar todas as minhas receitas de Pães Sem Glúten🥖❤️\n",
-      "typing_duration": 2000,
+      "typing_duration": 1000,
       "delay": 3000
     },
     {
@@ -43,14 +43,18 @@
       "delay": 2000
     },
     {
-      "id": "s1775361015214",
-      "type": "multiple_choice",
-      "options": [
-        "JURUBEBA",
-        "ESLOVAQUIA",
-        "KAUA É LINDO"
-      ],
-      "delay": 3000
+      "id": "s1775361251986",
+      "type": "capture",
+      "placeholder": "",
+      "delay": 2000
+    },
+    {
+      "id": "s1775361315091",
+      "type": "audio",
+      "index": 0,
+      "duration": "0:03",
+      "recording_duration": 3000,
+      "delay": 1
     }
   ]
 }
