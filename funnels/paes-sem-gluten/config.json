@@ -1,5 +1,5 @@
 {
-  "theme": "dark",
+  "theme": "light",
   "avatarUrl": "https://raw.githubusercontent.com/kauafreireaureliano-dot/funil-clara/master/assets/avatar.png",
   "audioUrls": [
     "https://raw.githubusercontent.com/kauafreireaureliano-dot/funil-clara/master/assets/audio1.mp3",
@@ -33,5 +33,6 @@
     "5,90": "checkout.html?valor=5,90&produto=Produto",
     "7,90": "checkout.html?valor=7,90&produto=Produto",
     "14,90": "checkout.html?valor=14,90&produto=Produto"
-  }
+  },
+  "metaPixelToken": ""
 }

@@ -115,6 +115,45 @@
       "produto": "Pães Sem Glúten",
       "label": "Contribuir com R$ 5,90",
       "delay": 1000
+    },
+    {
+      "id": "s1775417911145",
+      "type": "checkout",
+      "valor": "9,90",
+      "produto": "Apostila Pães Sem Glúten",
+      "label": "Contribuir com R$ 9,90",
+      "delay": 1000
+    },
+    {
+      "id": "s1775418745264",
+      "type": "checkout",
+      "valor": "14,90",
+      "produto": "Apostila Pães Sem Glúten",
+      "label": "Contribuir com R$ 14,90",
+      "delay": 1000
+    },
+    {
+      "id": "s1775418767995",
+      "type": "checkout",
+      "valor": "20,90",
+      "produto": "Apostila Pães Sem Glúten",
+      "label": "Contribuir com R$ 20,90",
+      "delay": 1000
+    },
+    {
+      "id": "s1775418788376",
+      "type": "audio",
+      "url": "https://raw.githubusercontent.com/kauafreireaureliano-dot/funil-clara/master/funnels/paes-sem-gluten/assets/s1775418788376_1775418824366.mp3",
+      "duration": "00:11",
+      "recording_duration": 7000,
+      "delay": 3000
+    },
+    {
+      "id": "s1775418828387",
+      "type": "text",
+      "content": "❤️👆🏼",
+      "typing_duration": 1000,
+      "delay": 3000
     }
   ]
 }
