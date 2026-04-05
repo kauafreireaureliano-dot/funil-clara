@@ -33,5 +33,6 @@
     "5,90": "checkout.html?valor=5,90&produto=Produto",
     "7,90": "checkout.html?valor=7,90&produto=Produto",
     "14,90": "checkout.html?valor=14,90&produto=Produto"
-  }
+  },
+  "metaPixelToken": ""
 }
