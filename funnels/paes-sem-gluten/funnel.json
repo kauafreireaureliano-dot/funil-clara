@@ -86,6 +86,35 @@
       "name": "Bolos.sem.gluten.pdf",
       "size": "3.82",
       "delay": 3000
+    },
+    {
+      "id": "s1775366197336",
+      "type": "text",
+      "content": "Agora eu conto com <strong>a sua honestidade! \n",
+      "typing_duration": 1000,
+      "delay": 2000
+    },
+    {
+      "id": "s1775366252681",
+      "type": "text",
+      "content": "Contribua com o Valor que sentir no coração:\n\n<strong> R$5,90, R$ 7,90, R$14,90 e R$ 19,90 <strong>\n\nConto com você 🙏🏼❤️",
+      "typing_duration": 2000,
+      "delay": 3000
+    },
+    {
+      "id": "s1775366298992",
+      "type": "text",
+      "content": "<strong>LEMBRANDO! 🚨<strong>\n Assim que você faz o pagamento, eu te mando o acesso novamente no seu e-mail (pra ficar salvo) e mando + 3 presentes ❤️🥰",
+      "typing_duration": 2000,
+      "delay": 3000
+    },
+    {
+      "id": "s1775367124318",
+      "type": "checkout",
+      "valor": "5,90",
+      "produto": "Pães Sem Glúten",
+      "label": "Contribuir com R$ 5,90",
+      "delay": 1000
     }
   ]
 }
