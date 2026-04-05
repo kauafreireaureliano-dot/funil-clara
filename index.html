@@ -2,9 +2,8 @@
 <html lang="pt-BR" data-theme="dark">
 <head>
   <meta charset="UTF-8">
-  <!-- Meta Pixel Code — PRIMEIRO script do head -->
-  <script>!function(f,b,e,v,n,t,s){if(f.fbq)return;n=f.fbq=function(){n.callMethod?n.callMethod.apply(n,arguments):n.queue.push(arguments)};if(!f._fbq)f._fbq=n;n.push=n;n.loaded=!0;n.version='2.0';n.queue=[];t=b.createElement(e);t.async=!0;t.src=v;s=b.getElementsByTagName(e)[0];s.parentNode.insertBefore(t,s)}(window,document,'script','https://connect.facebook.net/en_US/fbevents.js');fbq('init','1058788355816913');fbq('track','PageView');</script>
-  <noscript><img height="1" width="1" style="display:none" src="https://www.facebook.com/tr?id=1058788355816913&ev=PageView&noscript=1"/></noscript>
+  <!-- Meta Pixel Code — PRIMEIRO script do head (init por funil, via config.json) -->
+  <script data-cfasync="false">!function(f,b,e,v,n,t,s){if(f.fbq)return;n=f.fbq=function(){n.callMethod?n.callMethod.apply(n,arguments):n.queue.push(arguments)};if(!f._fbq)f._fbq=n;n.push=n;n.loaded=!0;n.version='2.0';n.queue=[];t=b.createElement(e);t.async=!0;t.src=v;s=b.getElementsByTagName(e)[0];s.parentNode.insertBefore(t,s)}(window,document,'script','https://connect.facebook.net/en_US/fbevents.js');</script>
   <link rel="preconnect" href="https://www.facebook.com">
   <link rel="dns-prefetch" href="https://www.facebook.com">
   <link rel="preconnect" href="https://connect.facebook.net">
@@ -860,6 +859,7 @@
           PDF_SIZES:     c.pdfSizes     || DEFAULT_CONFIG.PDF_SIZES,
           PAYMENT_LINKS: c.paymentLinks || DEFAULT_CONFIG.PAYMENT_LINKS,
           THEME:         c.theme        || DEFAULT_CONFIG.THEME,
+          PIXEL_ID:      c.metaPixelId  || '',
         };
       } catch {}
       return DEFAULT_CONFIG;
@@ -876,6 +876,7 @@
         PDF_SIZES:     c.pdfSizes     || DEFAULT_CONFIG.PDF_SIZES,
         PAYMENT_LINKS: c.paymentLinks || DEFAULT_CONFIG.PAYMENT_LINKS,
         THEME:         c.theme        || DEFAULT_CONFIG.THEME,
+        PIXEL_ID:      c.metaPixelId  || '',
       };
     } catch { return DEFAULT_CONFIG; }
   }
@@ -1573,6 +1574,10 @@
     CONFIG = await loadConfig();
     document.getElementById('avatar').src = CONFIG.AVATAR_URL;
     applyTheme(CONFIG.THEME);
+    if (CONFIG.PIXEL_ID && typeof fbq === 'function' && !PREVIEW_MODE) {
+      fbq('init', CONFIG.PIXEL_ID);
+      fbq('track', 'PageView');
+    }
     const funnel = await loadFunnel();
     const steps = funnel?.steps || [];
     track('page_view');
