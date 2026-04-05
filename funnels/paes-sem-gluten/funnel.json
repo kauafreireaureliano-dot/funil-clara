@@ -20,6 +20,13 @@
       "url": "https://jngxhwxomnfahhfygnag.supabase.co/storage/v1/object/public/nebula-media/765a8ddc-67e5-4823-b61a-cfdc52d0da21/11982b61-0d0d-4230-b7a3-8d7940422c4c/1775063825474.webp",
       "caption": "",
       "delay": 3000
+    },
+    {
+      "id": "s1775360838713",
+      "type": "text",
+      "content": "xuxu",
+      "typing_duration": 2000,
+      "delay": 3000
     }
   ]
 }
