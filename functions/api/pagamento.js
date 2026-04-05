@@ -7,7 +7,7 @@ export async function onRequestPost(context) {
   };
 
   try {
-    const { email, valor, produto } = await request.json();
+    const { email, valor, produto, bumps } = await request.json();
 
     if (!email || !valor) {
       return new Response(JSON.stringify({ erro: 'Email e valor são obrigatórios' }), { status: 400, headers });
@@ -28,7 +28,10 @@ export async function onRequestPost(context) {
         description: produto || 'Apostilas Clara Aureliano',
         payment_method_id: 'pix',
         payer: { email },
-        metadata: { buyer_email: email },
+        metadata: {
+          buyer_email: email,
+          ...(bumps && bumps.length ? { bumps: JSON.stringify(bumps) } : {}),
+        },
         notification_url: `${origin}/api/webhook`,
         date_of_expiration: new Date(Date.now() + 30 * 60 * 1000).toISOString(),
       }),

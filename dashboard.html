@@ -858,6 +858,33 @@
         <div style="font-size:11px;color:var(--muted);margin-top:8px">Salvo no Publicar. Cada funil pode ter um Pixel diferente.</div>
       </div>
 
+      <!-- Order Bumps do funil -->
+      <div class="card" style="margin-bottom:16px">
+        <div class="card-title" style="margin-bottom:10px">🛍️ Order Bumps deste funil</div>
+        <div id="obListDash" style="margin-bottom:10px"></div>
+
+        <!-- Formulário de novo bump (toggle) -->
+        <div id="obAddForm" style="display:none;background:var(--bg);border-radius:8px;padding:12px;margin-bottom:10px">
+          <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:8px">
+            <div class="field" style="margin-bottom:0"><label>Nome *</label><input type="text" id="obName" placeholder="Ex: Guia Bônus"></div>
+            <div class="field" style="margin-bottom:0"><label>Preço de venda (R$) *</label><input type="text" id="obSalePrice" placeholder="9,90"></div>
+          </div>
+          <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:8px">
+            <div class="field" style="margin-bottom:0"><label>Preço original (riscado)</label><input type="text" id="obOriginalPrice" placeholder="49,90"></div>
+            <div class="field" style="margin-bottom:0"><label>URL da imagem do produto</label><input type="url" id="obImageUrl" placeholder="https://..."></div>
+          </div>
+          <div class="field" style="margin-bottom:8px"><label>Descrição curta</label><input type="text" id="obDesc" placeholder="Descrição breve do produto..."></div>
+          <div class="field" style="margin-bottom:10px"><label>URL de entrega (acesso após compra) *</label><input type="url" id="obDeliveryUrl" placeholder="https://..."></div>
+          <div style="display:flex;gap:8px">
+            <button class="btn-sm" onclick="obSave()" style="background:var(--green);color:#fff">✓ Salvar bump</button>
+            <button class="btn-sm" onclick="obCancelForm()" style="background:var(--bg);color:var(--muted);border:1px solid var(--border)">Cancelar</button>
+          </div>
+        </div>
+
+        <button class="btn-sm" id="obAddBtn" onclick="obShowForm()">+ Adicionar order bump</button>
+        <div style="font-size:11px;color:var(--muted);margin-top:8px">Aparecem no checkout como ofertas opcionais. Preço somado ao total do PIX.</div>
+      </div>
+
       <div class="card" style="padding:0;overflow:hidden">
         <div id="funnelStepList" style="min-height:60px"></div>
         <div style="padding:10px 16px;border-top:1px solid var(--border)">
@@ -1195,6 +1222,7 @@ function applyConfigToUI(c) {
   }
   const ft = document.getElementById('funnelPixelToken');
   if (ft) ft.value = c.metaPixelToken || '';
+  renderObList();
 }
 
 async function testNotification() {
@@ -1483,6 +1511,7 @@ async function deploy() {
     config.notifyWebhookUrl = document.getElementById('notifyWebhookUrl').value.trim() || '';
     config.metaPixelId = (document.getElementById('funnelPixelId')?.value.trim() || document.getElementById('metaPixelId').value.trim()) || '';
     config.metaPixelToken = document.getElementById('funnelPixelToken')?.value.trim() || '';
+    config.orderBumps = currentConfig?.orderBumps || [];
 
     setProgress(85);
     toast('Salvando configurações...', '');
@@ -2126,6 +2155,95 @@ function handleFileDrop(event, mediaType) {
   const label = document.getElementById(`fe${mediaType.charAt(0).toUpperCase()+mediaType.slice(1)}DropLabel`);
   if (label) label.innerHTML = `<span style="color:var(--green);font-weight:600">✔ ${file.name}</span><br><span style="font-size:11px">${(file.size/1024/1024).toFixed(2)} MB — pronto para enviar</span>`;
   toast(`${file.name} selecionado. Clique em Salvar step para enviar.`, 'green');
+}
+
+/* ════════════════════════════════════════════════
+   ▌ ORDER BUMPS DO FUNIL
+════════════════════════════════════════════════ */
+let obEditIdx = null; // null = new, number = editing existing
+
+function renderObList() {
+  const bumps = currentConfig?.orderBumps || [];
+  const el = document.getElementById('obListDash');
+  if (!el) return;
+  if (!bumps.length) {
+    el.innerHTML = '<div style="color:var(--muted);font-size:13px;padding:4px 0">Nenhum order bump ainda.</div>';
+    return;
+  }
+  el.innerHTML = bumps.map((b, i) => `
+    <div style="display:flex;align-items:center;gap:10px;padding:9px 12px;background:var(--bg);border-radius:8px;margin-bottom:6px">
+      ${b.imageUrl ? `<img src="${b.imageUrl}" style="width:36px;height:36px;border-radius:6px;object-fit:cover;flex-shrink:0">` : '<div style="width:36px;height:36px;border-radius:6px;background:var(--border);display:flex;align-items:center;justify-content:center;font-size:18px;flex-shrink:0">🎁</div>'}
+      <div style="flex:1;min-width:0">
+        <div style="font-size:13px;font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${b.name}</div>
+        <div style="font-size:12px;color:var(--muted)">${b.originalPrice ? `<s>R$ ${b.originalPrice}</s> → ` : ''}R$ ${b.salePrice}</div>
+      </div>
+      <button onclick="obEdit(${i})" style="background:var(--bg);border:1px solid var(--border);border-radius:4px;padding:4px 8px;cursor:pointer;font-size:12px">✏️</button>
+      <button onclick="obDelete(${i})" style="background:#fef2f2;border:1px solid #fecaca;border-radius:4px;padding:4px 8px;cursor:pointer;font-size:12px;color:var(--danger)">🗑️</button>
+    </div>
+  `).join('');
+}
+
+function obShowForm(idx) {
+  obEditIdx = idx ?? null;
+  const form = document.getElementById('obAddForm');
+  if (obEditIdx !== null) {
+    const b = (currentConfig?.orderBumps || [])[obEditIdx];
+    document.getElementById('obName').value         = b.name || '';
+    document.getElementById('obSalePrice').value    = b.salePrice || '';
+    document.getElementById('obOriginalPrice').value= b.originalPrice || '';
+    document.getElementById('obImageUrl').value     = b.imageUrl || '';
+    document.getElementById('obDesc').value         = b.desc || '';
+    document.getElementById('obDeliveryUrl').value  = b.deliveryUrl || '';
+  } else {
+    ['obName','obSalePrice','obOriginalPrice','obImageUrl','obDesc','obDeliveryUrl'].forEach(id => document.getElementById(id).value = '');
+  }
+  form.style.display = '';
+  document.getElementById('obAddBtn').style.display = 'none';
+  document.getElementById('obName').focus();
+}
+
+function obEdit(i) { obShowForm(i); }
+
+function obCancelForm() {
+  document.getElementById('obAddForm').style.display = 'none';
+  document.getElementById('obAddBtn').style.display = '';
+  obEditIdx = null;
+}
+
+function obSave() {
+  const name        = document.getElementById('obName').value.trim();
+  const salePrice   = document.getElementById('obSalePrice').value.trim();
+  const deliveryUrl = document.getElementById('obDeliveryUrl').value.trim();
+  if (!name || !salePrice || !deliveryUrl) { toast('Preencha Nome, Preço e URL de entrega', 'red'); return; }
+
+  const bump = {
+    name,
+    salePrice,
+    originalPrice: document.getElementById('obOriginalPrice').value.trim(),
+    imageUrl:      document.getElementById('obImageUrl').value.trim(),
+    desc:          document.getElementById('obDesc').value.trim(),
+    deliveryUrl,
+  };
+
+  if (!currentConfig) currentConfig = {};
+  if (!currentConfig.orderBumps) currentConfig.orderBumps = [];
+
+  if (obEditIdx !== null) {
+    currentConfig.orderBumps[obEditIdx] = bump;
+  } else {
+    currentConfig.orderBumps.push(bump);
+  }
+
+  obCancelForm();
+  renderObList();
+  toast('Bump salvo! Clique em Publicar para enviar.', 'green');
+}
+
+function obDelete(i) {
+  if (!confirm('Apagar este order bump?')) return;
+  currentConfig.orderBumps.splice(i, 1);
+  renderObList();
+  toast('Bump removido. Clique em Publicar para aplicar.', 'green');
 }
 
 function funnelCancelEdit() {

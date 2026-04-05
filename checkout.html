@@ -276,6 +276,68 @@
 
     .info-pill.gold { background: #fff8e1; color: #7c4d00; }
 
+    /* ── ORDER BUMPS ── */
+    .ob-header {
+      background: linear-gradient(135deg, #128C7E, #25d366);
+      padding: 9px 16px;
+      text-align: center;
+      color: white;
+      font-size: 13px;
+      font-weight: 700;
+      letter-spacing: .3px;
+      border-radius: 12px 12px 0 0;
+    }
+
+    .ob-item {
+      display: flex;
+      align-items: flex-start;
+      gap: 11px;
+      padding: 13px 14px;
+      border-bottom: 1px solid #f0f2f5;
+      cursor: pointer;
+      transition: background .15s;
+      user-select: none;
+    }
+
+    .ob-item:last-child { border-bottom: none; border-radius: 0 0 12px 12px; }
+    .ob-item.selected { background: #f0faf4; }
+
+    .ob-checkbox {
+      width: 22px; height: 22px;
+      border: 2px solid #d0d7dc;
+      border-radius: 5px;
+      flex-shrink: 0;
+      margin-top: 1px;
+      display: flex; align-items: center; justify-content: center;
+      transition: all .15s;
+      background: white;
+    }
+
+    .ob-item.selected .ob-checkbox { background: #25d366; border-color: #25d366; }
+
+    .ob-img {
+      width: 62px; height: 62px;
+      border-radius: 8px;
+      object-fit: cover;
+      flex-shrink: 0;
+      background: #e9edef;
+    }
+
+    .ob-info { flex: 1; min-width: 0; }
+    .ob-name { font-size: 14px; font-weight: 700; color: #111; margin-bottom: 3px; line-height: 1.3; }
+    .ob-desc { font-size: 12px; color: #667781; line-height: 1.4; margin-bottom: 6px; }
+    .ob-prices { display: flex; align-items: center; gap: 8px; }
+    .ob-original { font-size: 12px; color: #aaa; text-decoration: line-through; }
+    .ob-sale { font-size: 15px; font-weight: 700; color: #25d366; }
+
+    .subtotal-card {
+      background: white;
+      border-radius: 12px;
+      padding: 14px 16px;
+      margin-bottom: 12px;
+      box-shadow: 0 1px 3px rgba(0,0,0,.08);
+    }
+
     /* ── FOOTER ── */
     .footer {
       text-align: center;
@@ -356,12 +418,34 @@
     <div class="card">
       <div class="card-title">Identificação</div>
       <div class="field">
-        <label>Email para receber os PDFs</label>
+        <label>Email para receber os materiais</label>
         <input type="email" id="emailInput" placeholder="seuemail@gmail.com" inputmode="email" autocomplete="email" autocorrect="off" autocapitalize="none">
       </div>
     </div>
-    <button class="btn-primary" onclick="gerarPix()">💲 Gerar PIX</button>
-    <div class="footer">🔒 Pagamento 100% seguro · Acesso vitalício após confirmação</div>
+
+    <!-- Order Bumps -->
+    <div id="obSection" style="display:none;margin-bottom:12px">
+      <div style="background:white;border-radius:12px;box-shadow:0 1px 3px rgba(0,0,0,.08);overflow:hidden">
+        <div class="ob-header">🎁 Oferta especial para você!</div>
+        <div id="obList"></div>
+      </div>
+    </div>
+
+    <!-- Subtotal (aparece quando há bumps) -->
+    <div id="subtotalSection" style="display:none" class="subtotal-card">
+      <div style="display:flex;justify-content:space-between;margin-bottom:8px">
+        <span style="font-size:13px;color:#667781">Produto principal</span>
+        <span style="font-size:13px;color:#111" id="subtotalBase"></span>
+      </div>
+      <div id="subtotalBumpLines"></div>
+      <div style="border-top:1.5px solid #f0f2f5;margin-top:10px;padding-top:10px;display:flex;justify-content:space-between;align-items:center">
+        <span style="font-size:15px;font-weight:700;color:#111">Total</span>
+        <span style="font-size:18px;font-weight:700;color:#25d366" id="subtotalTotal"></span>
+      </div>
+    </div>
+
+    <button class="btn-primary" id="gerarPixBtn" onclick="gerarPix()">$ Gerar PIX</button>
+    <div class="footer">🔒 Pagamento 100% seguro · Acesso imediato após confirmação</div>
   </div>
 
   <!-- ══ TELA 2: QR PIX ══ -->
@@ -396,18 +480,20 @@
         <div class="success-circle">✅</div>
         <div class="success-title">Pagamento confirmado!</div>
         <div class="success-sub">
-          Seus PDFs foram enviados para<br>
+          Seus materiais foram enviados para<br>
           <span class="success-email" id="successEmail"></span>
         </div>
       </div>
     </div>
+    <!-- Links de acesso imediato dos bumps comprados -->
+    <div id="bumpAccessLinks"></div>
     <div class="info-pill">
       <span>📬</span>
-      <span>Verifique sua caixa de entrada (e a pasta de spam, por garantia). Os links de download estão no email.</span>
+      <span>Verifique sua caixa de entrada (e a pasta de spam, por garantia). Os links de acesso estão no email.</span>
     </div>
     <div class="info-pill gold">
       <span>♾️</span>
-      <span><strong>Acesso vitalício</strong> — guarde esse email com carinho, os links não expiram nunca!</span>
+      <span><strong>Acesso vitalício</strong> — guarde esse email, os links não expiram nunca!</span>
     </div>
   </div>
 
@@ -417,27 +503,103 @@
   const params  = new URLSearchParams(location.search);
   const VALOR   = params.get('valor') || '1,99';
   const PRODUTO = params.get('produto') || 'Apostilas Clara Aureliano';
+  const FUNNEL_ID = params.get('f') || 'recheios';
 
   let paymentId    = null;
   let pollInterval = null;
   let expiryTimer  = null;
   let userEmail    = '';
+  let baseValor    = parseFloat(VALOR.replace(',', '.'));
+  let loadedBumps  = [];
+  let selectedBumps = [];
 
   /* ── Init ── */
   async function init() {
     document.getElementById('productPrice').textContent = 'R$ ' + VALOR;
+    document.getElementById('subtotalBase').textContent = 'R$ ' + VALOR;
+    updatePixBtn();
 
     try {
-      const cfg = await fetch('/config.json?v=' + Date.now()).then(r => r.json());
+      const cfgPath = FUNNEL_ID === 'recheios' ? '/config.json' : `/funnels/${FUNNEL_ID}/config.json`;
+      const cfg = await fetch(cfgPath + '?v=' + Date.now()).then(r => r.json());
       if (cfg.avatarUrl) document.getElementById('headerAvatar').src = cfg.avatarUrl;
       const nome = cfg.produtos?.[VALOR] || decodeURIComponent(PRODUTO.replace(/\+/g, ' '));
       document.getElementById('productName').textContent = nome;
+
+      if (cfg.orderBumps && cfg.orderBumps.length > 0) {
+        loadedBumps = cfg.orderBumps;
+        renderBumps();
+      }
     } catch {
       document.getElementById('productName').textContent = decodeURIComponent(PRODUTO.replace(/\+/g, ' '));
     }
   }
 
-  init();
+  /* ── Render order bumps ── */
+  function renderBumps() {
+    const list = document.getElementById('obList');
+    list.innerHTML = loadedBumps.map((b, i) => `
+      <div class="ob-item" id="ob-${i}" onclick="toggleBump(${i})">
+        <div class="ob-checkbox" id="ob-chk-${i}">
+          <svg width="13" height="13" viewBox="0 0 24 24" fill="white" style="display:none" id="ob-chk-icon-${i}"><path d="M9 16.2l-4.2-4.2-1.4 1.4L9 19 21 7l-1.4-1.4L9 16.2z"/></svg>
+        </div>
+        ${b.imageUrl
+          ? `<img class="ob-img" src="${b.imageUrl}" alt="${b.name}" onerror="this.style.display='none'">`
+          : `<div class="ob-img" style="display:flex;align-items:center;justify-content:center;font-size:28px">🎁</div>`}
+        <div class="ob-info">
+          <div class="ob-name">${b.name}</div>
+          ${b.desc ? `<div class="ob-desc">${b.desc}</div>` : ''}
+          <div class="ob-prices">
+            ${b.originalPrice ? `<span class="ob-original">R$ ${b.originalPrice}</span>` : ''}
+            <span class="ob-sale">+ R$ ${b.salePrice}</span>
+          </div>
+        </div>
+      </div>
+    `).join('');
+    document.getElementById('obSection').style.display = '';
+    document.getElementById('subtotalSection').style.display = '';
+    updateTotal();
+  }
+
+  /* ── Toggle bump selection ── */
+  function toggleBump(i) {
+    const bump = loadedBumps[i];
+    const item = document.getElementById('ob-' + i);
+    const icon = document.getElementById('ob-chk-icon-' + i);
+    const idx  = selectedBumps.indexOf(bump);
+    if (idx === -1) {
+      selectedBumps.push(bump);
+      item.classList.add('selected');
+      icon.style.display = '';
+    } else {
+      selectedBumps.splice(idx, 1);
+      item.classList.remove('selected');
+      icon.style.display = 'none';
+    }
+    updateTotal();
+  }
+
+  /* ── Update total + button ── */
+  function updateTotal() {
+    const bumpsSum = selectedBumps.reduce((s, b) => s + parseFloat(b.salePrice.replace(',', '.')), 0);
+    const total    = baseValor + bumpsSum;
+    const totalStr = total.toFixed(2).replace('.', ',');
+
+    document.getElementById('subtotalBumpLines').innerHTML = selectedBumps.map(b =>
+      `<div style="display:flex;justify-content:space-between;margin-bottom:6px">
+        <span style="font-size:12px;color:#667781">${b.name}</span>
+        <span style="font-size:12px;color:#25d366;font-weight:600">+ R$ ${b.salePrice}</span>
+      </div>`
+    ).join('');
+
+    document.getElementById('subtotalTotal').textContent = 'R$ ' + totalStr;
+    updatePixBtn(totalStr);
+  }
+
+  function updatePixBtn(totalStr) {
+    const s = totalStr || VALOR;
+    document.getElementById('gerarPixBtn').textContent = `$ Gerar PIX — R$ ${s}`;
+  }
 
   /* ── Gerar PIX ── */
   async function gerarPix() {
@@ -451,9 +613,15 @@
       return;
     }
 
+    const bumpsSum  = selectedBumps.reduce((s, b) => s + parseFloat(b.salePrice.replace(',', '.')), 0);
+    const totalValor = (baseValor + bumpsSum).toFixed(2).replace('.', ',');
+
     userEmail = email;
     document.getElementById('successEmail').textContent = email;
-    trackMetaEvent('InitiateCheckout', { currency: 'BRL', value: parseFloat(VALOR.replace(',', '.')) });
+    // Salva bumps selecionados para exibir na tela de sucesso
+    sessionStorage.setItem('_co_bumps', JSON.stringify(selectedBumps));
+
+    trackMetaEvent('InitiateCheckout', { currency: 'BRL', value: parseFloat(totalValor.replace(',', '.')) });
     showLoading('Gerando seu PIX...');
 
     try {
@@ -462,8 +630,9 @@
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           email,
-          valor: VALOR,
+          valor: totalValor,
           produto: document.getElementById('productName').textContent,
+          bumps: selectedBumps.map(b => ({ name: b.name, deliveryUrl: b.deliveryUrl || '' })),
         }),
       });
 
@@ -471,7 +640,7 @@
       if (data.erro) throw new Error(data.erro);
 
       paymentId = data.id;
-      document.getElementById('qrImg').src       = 'data:image/png;base64,' + data.qr_code_base64;
+      document.getElementById('qrImg').src         = 'data:image/png;base64,' + data.qr_code_base64;
       document.getElementById('pixCopyInput').value = data.qr_code;
 
       hideLoading();
@@ -498,6 +667,26 @@
         document.getElementById('qrSpinner').style.display = 'none';
         document.getElementById('qrStatusText').textContent = '✅ Pago!';
         trackMetaEvent('Purchase', { currency: 'BRL', value: parseFloat(VALOR.replace(',', '.')) });
+        // Exibe links de acesso dos bumps comprados
+        try {
+          const bumps = JSON.parse(sessionStorage.getItem('_co_bumps') || '[]');
+          const withUrl = bumps.filter(b => b.deliveryUrl);
+          if (withUrl.length > 0) {
+            document.getElementById('bumpAccessLinks').innerHTML =
+              '<div style="background:white;border-radius:12px;padding:16px;margin-bottom:12px;box-shadow:0 1px 3px rgba(0,0,0,.08)">' +
+              '<p style="font-size:12px;font-weight:700;color:#667781;text-transform:uppercase;letter-spacing:.5px;margin-bottom:12px">Seu acesso imediato</p>' +
+              withUrl.map(b => `
+                <a href="${b.deliveryUrl}" target="_blank" style="display:flex;align-items:center;gap:10px;background:#e8f5e9;border-radius:10px;padding:12px 14px;margin-bottom:8px;text-decoration:none;color:#1b5e20">
+                  <span style="font-size:20px">📦</span>
+                  <div style="flex:1">
+                    <div style="font-size:14px;font-weight:700">${b.name}</div>
+                    <div style="font-size:12px;opacity:.8">Toque para acessar →</div>
+                  </div>
+                </a>
+              `).join('') +
+              '</div>';
+          }
+        } catch {}
         setTimeout(() => showScreen('ok'), 900);
       }
     } catch { /* silencia erros de rede no polling */ }

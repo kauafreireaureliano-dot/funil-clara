@@ -38,6 +38,9 @@ export async function onRequestPost(context) {
     const config = await fetch(`${origin}/config.json`).then(r => r.json()).catch(() => ({}));
     const pdfUrls  = config.pdfUrls  || [];
     const pdfNames = config.pdfNames || [];
+    const bumpsData = (() => {
+      try { return JSON.parse(payment.metadata?.bumps || '[]'); } catch { return []; }
+    })();
 
     // ── Email via Resend ──
     const pdfItems = pdfUrls.map((pdfUrl, i) => `
@@ -47,6 +50,18 @@ export async function onRequestPost(context) {
           <td style="vertical-align:middle;padding-left:12px">
             <p style="margin:0 0 8px;font-size:15px;font-weight:700;color:#111">${pdfNames[i] || 'PDF ' + (i + 1)}</p>
             <a href="${pdfUrl}" style="background:#25d366;color:white;text-decoration:none;padding:8px 20px;border-radius:20px;font-size:13px;font-weight:700;display:inline-block">⬇️ Baixar PDF</a>
+          </td>
+        </tr></table>
+      </div>
+    `).join('');
+
+    const bumpItems = bumpsData.filter(b => b.deliveryUrl).map(b => `
+      <div style="border:1px solid #e9edef;border-radius:10px;padding:14px 16px;margin-bottom:12px">
+        <table width="100%" cellpadding="0" cellspacing="0"><tr>
+          <td style="font-size:28px;width:44px;vertical-align:middle">📦</td>
+          <td style="vertical-align:middle;padding-left:12px">
+            <p style="margin:0 0 8px;font-size:15px;font-weight:700;color:#111">${b.name}</p>
+            <a href="${b.deliveryUrl}" style="background:#128C7E;color:white;text-decoration:none;padding:8px 20px;border-radius:20px;font-size:13px;font-weight:700;display:inline-block">🔗 Acessar agora</a>
           </td>
         </tr></table>
       </div>
@@ -66,7 +81,7 @@ export async function onRequestPost(context) {
       </td></tr>
       <tr><td style="background:white;padding:24px;border-radius:0 0 12px 12px">
         <p style="color:#333;font-size:15px;margin:0 0 20px">Olá! Obrigada pela sua compra 💚 Aqui estão seus materiais:</p>
-        ${pdfItems}
+        ${pdfItems}${bumpItems ? `<p style="margin:16px 0 10px;font-size:13px;font-weight:700;color:#667781;text-transform:uppercase;letter-spacing:.5px">Adicionais comprados</p>${bumpItems}` : ''}
         <div style="background:#e8f5e9;border-radius:8px;padding:14px 16px;margin-top:20px">
           <p style="margin:0;color:#1b5e20;font-size:13px;line-height:1.6">
             ♾️ <strong>Acesso vitalício</strong> — guarde esse email, os links não expiram nunca!
