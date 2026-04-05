@@ -1364,7 +1364,8 @@
       w.className = 'mw s';
       const btn = document.createElement('a');
       btn.className = 'pay-btn';
-      btn.href      = CONFIG.PAYMENT_LINKS[key] || '#';
+      const rawLink = CONFIG.PAYMENT_LINKS[key] || '#';
+      btn.href = rawLink.startsWith('checkout.html') ? rawLink + `&f=${FUNNEL_ID}` : rawLink;
       btn.target    = '_blank';
       btn.rel       = 'noopener';
       btn.addEventListener('click', () => track('payment_click', null, null, key));
@@ -1533,7 +1534,7 @@
         const prod  = encodeURIComponent(step.produto || 'Apostilas Clara Aureliano');
         addSingleButton(
           step.label || `Contribuir com R$ ${valor}`,
-          `checkout.html?valor=${encodeURIComponent(valor)}&produto=${prod}`
+          `checkout.html?valor=${encodeURIComponent(valor)}&produto=${prod}&f=${FUNNEL_ID}`
         );
         await sleep(delay);
         break;
