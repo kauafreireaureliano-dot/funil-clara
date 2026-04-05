@@ -55,6 +55,12 @@
       "duration": "0:03",
       "recording_duration": 3000,
       "delay": 1
+    },
+    {
+      "id": "s1775362121770",
+      "type": "pdf",
+      "index": 0,
+      "delay": 3000
     }
   ]
 }
