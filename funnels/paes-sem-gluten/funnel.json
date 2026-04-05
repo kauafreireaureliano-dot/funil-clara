@@ -71,6 +71,21 @@
       "name": "Dicas de pães sem Glúten",
       "size": "1.89",
       "delay": 3000
+    },
+    {
+      "id": "s1775366016110",
+      "type": "text",
+      "content": "E de bônus vou te mandar nossas <strong>receitas de Bolos sem Glúten 🥰👇🏼\n",
+      "typing_duration": 2000,
+      "delay": 3000
+    },
+    {
+      "id": "s1775366084495",
+      "type": "pdf",
+      "url": "https://raw.githubusercontent.com/kauafreireaureliano-dot/funil-clara/master/funnels/paes-sem-gluten/assets/s1775366084495_1775366117035.pdf",
+      "name": "Bolos.sem.gluten.pdf",
+      "size": "3.82",
+      "delay": 3000
     }
   ]
 }
