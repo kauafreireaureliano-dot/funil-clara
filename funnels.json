@@ -1,0 +1,10 @@
+{
+  "funnels": [
+    {
+      "id": "recheios",
+      "name": "Receitas de Recheios",
+      "root": true,
+      "created_at": "2026-04-05"
+    }
+  ]
+}

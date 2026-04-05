@@ -7,7 +7,7 @@ export async function onRequestPost(context) {
     'Access-Control-Allow-Origin': '*',
   };
   try {
-    const { session_id, step_id, step_type, event_type, value } = await context.request.json();
+    const { session_id, step_id, step_type, event_type, value, funnel_id } = await context.request.json();
     if (!session_id || !event_type) return new Response('ok', { headers });
     context.waitUntil(
       fetch(`${SUPA_URL}/rest/v1/funnel_events`, {
@@ -18,7 +18,7 @@ export async function onRequestPost(context) {
           'Content-Type': 'application/json',
           'Prefer': 'return=minimal',
         },
-        body: JSON.stringify({ session_id, step_id, step_type, event_type, value }),
+        body: JSON.stringify({ session_id, step_id, step_type, event_type, value, funnel_id: funnel_id || 'recheios' }),
       }).catch(() => {})
     );
     return new Response('ok', { headers });

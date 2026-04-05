@@ -445,6 +445,7 @@
     </div>
 
     <nav>
+      <button class="nav-item" onclick="goTo('meusfunis')"><span class="ni">🚀</span> Meus Funis</button>
       <button class="nav-item active" onclick="goTo('setup')"><span class="ni">⚙️</span> Configuração</button>
       <button class="nav-item" onclick="goTo('perfil')"><span class="ni">👤</span> Foto de perfil</button>
       <button class="nav-item" onclick="goTo('audios')"><span class="ni">🎙️</span> Áudios</button>
@@ -471,6 +472,7 @@
   <!-- ── MOBILE NAV ── -->
   <div style="flex:1;display:flex;flex-direction:column;">
   <div class="mobile-nav">
+    <button class="nav-item" onclick="goTo('meusfunis')"><span class="ni">🚀</span> Funis</button>
     <button class="nav-item active" onclick="goTo('setup')"><span class="ni">⚙️</span> Config</button>
     <button class="nav-item" onclick="goTo('perfil')"><span class="ni">👤</span> Foto</button>
     <button class="nav-item" onclick="goTo('audios')"><span class="ni">🎙️</span> Áudios</button>
@@ -484,6 +486,14 @@
 
   <!-- ── MAIN CONTENT ── -->
   <main class="main">
+    <!-- Funil ativo -->
+    <div style="background:var(--dark);padding:8px 20px;display:flex;align-items:center;gap:10px;font-size:13px;color:#aebac1;flex-shrink:0">
+      <span>Editando:</span>
+      <select id="activeFunnelSelect" onchange="switchActiveFunnel(this.value)" style="background:rgba(255,255,255,.08);border:none;color:white;padding:4px 10px;border-radius:6px;font-size:13px;cursor:pointer">
+        <option value="recheios">Receitas de Recheios</option>
+      </select>
+      <a id="activeFunnelLink" href="/?f=recheios" target="_blank" style="color:var(--green);font-size:12px;text-decoration:none">↗ Ver funil</a>
+    </div>
 
     <!-- ══ SETUP ══ -->
     <div class="section active" id="sec-setup">
@@ -698,6 +708,42 @@
           <div class="pay-label">R$ 14,90</div>
           <input type="url" id="pay1490" placeholder="Deixe vazio para usar checkout próprio">
         </div>
+      </div>
+    </div>
+
+    <!-- ══ MEUS FUNIS ══ -->
+    <div class="section" id="sec-meusfunis">
+      <div class="section-title">🚀 Meus Funis</div>
+      <div class="section-desc">Crie e gerencie múltiplos funis. Cada um tem seu próprio link, mensagens, avatar e configurações.</div>
+
+      <div style="margin-bottom:12px">
+        <button class="btn-sm" onclick="showCreateFunnel()">+ Criar novo funil</button>
+      </div>
+
+      <div id="funnelList">
+        <div style="color:var(--muted);font-size:13px;text-align:center;padding:24px">Carregando...</div>
+      </div>
+
+      <!-- Create form -->
+      <div class="card" id="createFunnelPanel" style="display:none">
+        <div class="card-title">Novo funil</div>
+        <div class="field">
+          <label>Nome do funil</label>
+          <input type="text" id="newFunnelName" placeholder="Ex: Pães Artesanais">
+        </div>
+        <div class="field">
+          <label>ID (slug — só letras minúsculas e hífens)</label>
+          <input type="text" id="newFunnelId" placeholder="Ex: paes" oninput="this.value=this.value.toLowerCase().replace(/[^a-z0-9-]/g,'')">
+        </div>
+        <div style="display:flex;gap:8px;margin-top:4px">
+          <button class="btn-sm" onclick="createFunnel()">✅ Criar funil</button>
+          <button class="btn-sm" style="background:var(--bg);color:var(--muted);border:1px solid var(--border)" onclick="document.getElementById('createFunnelPanel').style.display='none'">Cancelar</button>
+        </div>
+      </div>
+
+      <div style="background:#f0f2f5;border-radius:8px;padding:12px 14px;font-size:12px;color:var(--muted);line-height:1.7;margin-top:4px">
+        💡 Para editar um funil, clique em <strong>Editar</strong> — ele vai selecionar o funil ativo no editor de funil e configurações.<br>
+        O funil ativo aparece no topo: <strong id="activeFunnelLabel">Receitas de Recheios</strong>
       </div>
     </div>
 
@@ -1017,6 +1063,7 @@ let currentConfig = null;
     document.getElementById('setupAlert').style.display = 'none';
     await checkToken(token, false);
   }
+  await loadFunnelList();
   await loadCurrentConfig();
   await loadFunnelFromGH();
 })();
@@ -1031,7 +1078,7 @@ function changePwd() {
 
 async function loadCurrentConfig() {
   try {
-    const res = await fetch(`${RAW}/config.json?v=${Date.now()}`);
+    const res = await fetch(`${RAW}/${funnelConfigPath(activeFunnelId)}?v=${Date.now()}`);
     if (!res.ok) return;
     currentConfig = await res.json();
     applyConfigToUI(currentConfig);
@@ -1111,6 +1158,7 @@ function goTo(id) {
   document.getElementById('sec-' + id).classList.add('active');
   document.querySelectorAll(`[onclick="goTo('${id}')"]`).forEach(b => b.classList.add('active'));
   if (id === 'analytics') loadAnalytics();
+  if (id === 'meusfunis') loadFunnelList();
 }
 
 /* ════════════════════════════════════════════════
@@ -1267,8 +1315,9 @@ async function deploy() {
   const setProgress = (p) => { progress = p; fill.style.width = p + '%'; };
 
   try {
-    // Carregar config atual
-    const cfgFile = await ghGet('config.json');
+    // Carregar config atual (do funil ativo)
+    const cfgPath = funnelConfigPath(activeFunnelId);
+    const cfgFile = await ghGet(cfgPath);
     const cfgSha  = cfgFile ? cfgFile.sha : null;
     const config  = currentConfig ? { ...currentConfig } : {};
 
@@ -1363,7 +1412,7 @@ async function deploy() {
     toast('Salvando configurações...', '');
 
     const cfgJson = JSON.stringify(config, null, 2);
-    await ghPut('config.json', strToBase64(cfgJson), 'config: atualizar config.json', cfgSha);
+    await ghPut(cfgPath, strToBase64(cfgJson), `config: atualizar ${cfgPath}`, cfgSha);
 
     // ── Atualizar pixel.js ──
     const pixelId = config.metaPixelId || '';
@@ -1373,12 +1422,13 @@ async function deploy() {
     const pixelFile = await ghGet('pixel.js');
     await ghPut('pixel.js', strToBase64(pixelJs), 'config: atualizar pixel.js', pixelFile?.sha);
 
-    // ── Atualizar funnel.json ──
+    // ── Atualizar funnel.json (do funil ativo) ──
     if (funnelSteps.length > 0) {
       toast('Salvando funil...', '');
+      const stepsPath = funnelStepsPath(activeFunnelId);
       const funnelJson = JSON.stringify({ steps: funnelSteps }, null, 2);
-      const funnelFile = await ghGet('funnel.json');
-      await ghPut('funnel.json', strToBase64(funnelJson), 'funil: atualizar funnel.json', funnelFile?.sha);
+      const funnelFile = await ghGet(stepsPath);
+      await ghPut(stepsPath, strToBase64(funnelJson), `funil: atualizar ${stepsPath}`, funnelFile?.sha);
     }
 
     setProgress(95);
@@ -1398,6 +1448,167 @@ async function deploy() {
 
   btn.disabled = false;
   btn.textContent = '🚀 Publicar mudanças';
+}
+
+/* ════════════════════════════════════════════════
+   ▌ MULTI-FUNIL
+════════════════════════════════════════════════ */
+let allFunnels = [];
+let activeFunnelId = localStorage.getItem('_activeFunnel') || 'recheios';
+
+function funnelConfigPath(id) { return id === 'recheios' ? 'config.json' : `funnels/${id}/config.json`; }
+function funnelStepsPath(id)  { return id === 'recheios' ? 'funnel.json'  : `funnels/${id}/funnel.json`; }
+function funnelUrl(id)        { return id === 'recheios' ? '/'            : `/?f=${id}`; }
+
+async function loadFunnelList() {
+  try {
+    const res = await fetch(`${RAW}/funnels.json?v=${Date.now()}`);
+    if (!res.ok) { allFunnels = [{ id: 'recheios', name: 'Receitas de Recheios', root: true }]; }
+    else { const d = await res.json(); allFunnels = d.funnels || []; }
+  } catch { allFunnels = [{ id: 'recheios', name: 'Receitas de Recheios', root: true }]; }
+  renderFunnelList();
+  renderFunnelSelector();
+}
+
+function renderFunnelList() {
+  const el = document.getElementById('funnelList');
+  if (!allFunnels.length) { el.innerHTML = '<div style="color:var(--muted);font-size:13px;text-align:center;padding:24px">Nenhum funil criado.</div>'; return; }
+  el.innerHTML = allFunnels.map(f => `
+    <div class="card" style="display:flex;align-items:center;gap:12px;padding:14px 16px;margin-bottom:8px">
+      <div style="font-size:24px">🚀</div>
+      <div style="flex:1;min-width:0">
+        <div style="font-weight:600;font-size:14px">${f.name}</div>
+        <div style="font-size:12px;color:var(--muted);margin-top:1px">funil-clara.pages.dev${funnelUrl(f.id)}</div>
+      </div>
+      <div style="display:flex;gap:6px;flex-shrink:0">
+        <button onclick="copyFunnelLink('${f.id}')" style="background:var(--bg);border:1px solid var(--border);border-radius:6px;padding:5px 10px;cursor:pointer;font-size:12px">🔗 Link</button>
+        <button onclick="editFunnel('${f.id}')" style="background:var(--green);color:white;border:none;border-radius:6px;padding:5px 10px;cursor:pointer;font-size:12px;font-weight:600">✏️ Editar</button>
+        ${f.id !== 'recheios' ? `<button onclick="deleteFunnel('${f.id}')" style="background:#fef2f2;border:1px solid #fecaca;border-radius:6px;padding:5px 10px;cursor:pointer;font-size:12px;color:var(--danger)">🗑️</button>` : ''}
+      </div>
+    </div>
+  `).join('');
+}
+
+function renderFunnelSelector() {
+  const sel = document.getElementById('activeFunnelSelect');
+  sel.innerHTML = allFunnels.map(f => `<option value="${f.id}" ${f.id===activeFunnelId?'selected':''}>${f.name}</option>`).join('');
+  updateActiveFunnelUI();
+}
+
+function updateActiveFunnelUI() {
+  const f = allFunnels.find(x => x.id === activeFunnelId) || allFunnels[0];
+  if (!f) return;
+  document.getElementById('activeFunnelLink').href = funnelUrl(f.id);
+  const lbl = document.getElementById('activeFunnelLabel');
+  if (lbl) lbl.textContent = f.name;
+}
+
+function switchActiveFunnel(id) {
+  activeFunnelId = id;
+  localStorage.setItem('_activeFunnel', id);
+  updateActiveFunnelUI();
+  // Reload config into UI for selected funnel
+  loadActiveFunnelConfig();
+}
+
+async function loadActiveFunnelConfig() {
+  try {
+    const res = await fetch(`${RAW}/${funnelConfigPath(activeFunnelId)}?v=${Date.now()}`);
+    if (!res.ok) return;
+    const c = await res.json();
+    applyConfigToUI(c);
+  } catch {}
+  try {
+    const res2 = await fetch(`${RAW}/${funnelStepsPath(activeFunnelId)}?v=${Date.now()}`);
+    if (!res2.ok) return;
+    const d = await res2.json();
+    funnelSteps = d.steps || [];
+    renderFunnelList();
+    if (document.getElementById('sec-funil').classList.contains('active')) renderFunnelList();
+  } catch {}
+}
+
+function copyFunnelLink(id) {
+  const url = `https://funil-clara.pages.dev${funnelUrl(id)}`;
+  navigator.clipboard.writeText(url).then(() => toast('Link copiado!', 'green')).catch(() => {
+    prompt('Copie o link:', url);
+  });
+}
+
+function editFunnel(id) {
+  activeFunnelId = id;
+  localStorage.setItem('_activeFunnel', id);
+  document.getElementById('activeFunnelSelect').value = id;
+  updateActiveFunnelUI();
+  loadActiveFunnelConfig();
+  goTo('funil');
+}
+
+function showCreateFunnel() {
+  document.getElementById('createFunnelPanel').style.display = '';
+  document.getElementById('newFunnelName').focus();
+}
+
+async function createFunnel() {
+  const name = document.getElementById('newFunnelName').value.trim();
+  const id   = document.getElementById('newFunnelId').value.trim();
+  if (!name || !id) { toast('Preencha nome e ID', 'red'); return; }
+  if (allFunnels.find(f => f.id === id)) { toast('Já existe um funil com esse ID', 'red'); return; }
+
+  const token = getToken();
+  if (!token) { toast('Configure o token GitHub primeiro', 'red'); goTo('setup'); return; }
+
+  toast('Criando funil...', '');
+
+  const defaultConfig = { theme: 'dark', avatarUrl: '', audioUrls: ['',''], pdfUrls: ['','',''], pdfNames: ['PDF 1','PDF 2','PDF 3'], pdfSizes: ['','',''], produtos: {'1,99':'Produto','5,90':'Produto','7,90':'Produto','14,90':'Produto'}, paymentLinks: {} };
+  const defaultSteps  = { steps: [{ id: 's1', type: 'text', content: `Olá! Bem-vindo ao funil ${name} 😊`, typing_duration: 2000, delay: 3000 }] };
+
+  try {
+    await ghPut(`funnels/${id}/config.json`, strToBase64(JSON.stringify(defaultConfig, null, 2)), `funil: criar ${id}/config.json`);
+    await ghPut(`funnels/${id}/funnel.json`,  strToBase64(JSON.stringify(defaultSteps,  null, 2)), `funil: criar ${id}/funnel.json`);
+
+    allFunnels.push({ id, name, created_at: new Date().toISOString().slice(0,10) });
+    const funnelsFile = await ghGet('funnels.json');
+    await ghPut('funnels.json', strToBase64(JSON.stringify({ funnels: allFunnels }, null, 2)), 'funil: atualizar funnels.json', funnelsFile?.sha);
+
+    document.getElementById('createFunnelPanel').style.display = 'none';
+    document.getElementById('newFunnelName').value = '';
+    document.getElementById('newFunnelId').value = '';
+    renderFunnelList();
+    renderFunnelSelector();
+    toast(`Funil "${name}" criado! Clique em Editar para configurar.`, 'green');
+  } catch (err) {
+    toast('Erro: ' + err.message, 'red');
+  }
+}
+
+async function deleteFunnel(id) {
+  const f = allFunnels.find(x => x.id === id);
+  if (!confirm(`Apagar o funil "${f?.name}"? Os arquivos no GitHub serão removidos.`)) return;
+  const token = getToken();
+  if (!token) { toast('Configure o token GitHub primeiro', 'red'); return; }
+
+  try {
+    for (const path of [`funnels/${id}/config.json`, `funnels/${id}/funnel.json`]) {
+      const file = await ghGet(path);
+      if (file) {
+        await fetch(`${API}/repos/${OWNER}/${REPO}/contents/${path}`, {
+          method: 'DELETE',
+          headers: ghHeaders(),
+          body: JSON.stringify({ message: `funil: remover ${id}`, sha: file.sha, branch: BRANCH }),
+        });
+      }
+    }
+    allFunnels = allFunnels.filter(x => x.id !== id);
+    const funnelsFile = await ghGet('funnels.json');
+    await ghPut('funnels.json', strToBase64(JSON.stringify({ funnels: allFunnels }, null, 2)), 'funil: atualizar funnels.json', funnelsFile?.sha);
+    if (activeFunnelId === id) { activeFunnelId = 'recheios'; localStorage.setItem('_activeFunnel', 'recheios'); }
+    renderFunnelList();
+    renderFunnelSelector();
+    toast('Funil removido.', '');
+  } catch (err) {
+    toast('Erro: ' + err.message, 'red');
+  }
 }
 
 /* ════════════════════════════════════════════════
@@ -1528,7 +1739,7 @@ let funnelEditingIdx = null;
 
 async function loadFunnelFromGH() {
   try {
-    const res = await fetch(`${RAW}/funnel.json?v=${Date.now()}`);
+    const res = await fetch(`${RAW}/${funnelStepsPath(activeFunnelId)}?v=${Date.now()}`);
     if (!res.ok) return;
     const data = await res.json();
     funnelSteps = data.steps || [];

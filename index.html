@@ -843,9 +843,12 @@
     THEME:         'dark',
   };
 
+  const FUNNEL_ID = new URLSearchParams(location.search).get('f') || 'recheios';
+  const FUNNEL_BASE = FUNNEL_ID === 'recheios' ? '.' : `./funnels/${FUNNEL_ID}`;
+
   async function loadConfig() {
     try {
-      const res = await fetch('./config.json?v=' + Date.now());
+      const res = await fetch(`${FUNNEL_BASE}/config.json?v=` + Date.now());
       if (!res.ok) return DEFAULT_CONFIG;
       const c = await res.json();
       return {
@@ -862,7 +865,7 @@
 
   async function loadFunnel() {
     try {
-      const res = await fetch('./funnel.json?v=' + Date.now());
+      const res = await fetch(`${FUNNEL_BASE}/funnel.json?v=` + Date.now());
       if (!res.ok) return null;
       return await res.json();
     } catch { return null; }
@@ -1480,7 +1483,7 @@
     fetch('/api/track', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ session_id: SESSION_ID, step_id: stepId || null, step_type: stepType || null, event_type: eventType, value: value || null }),
+      body: JSON.stringify({ session_id: SESSION_ID, step_id: stepId || null, step_type: stepType || null, event_type: eventType, value: value || null, funnel_id: FUNNEL_ID }),
     }).catch(() => {});
   }
 
