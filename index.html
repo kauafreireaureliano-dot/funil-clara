@@ -1170,6 +1170,39 @@
   }
 
   /* ════════════════════════════════════════════════
+     ▌ MENSAGEM DE PDF (URL direta)
+  ════════════════════════════════════════════════ */
+  function addPdfDirect(url, name, size) {
+    const time = getTime();
+    const w = document.createElement('div');
+    w.className = 'mw r';
+    w.innerHTML = `
+      <div class="pdf-outer">
+        <div class="pdf-head">
+          <div class="pdf-icon-box">
+            <svg width="26" height="26" viewBox="0 0 24 24">
+              <path d="M20 2H8c-1.1 0-2 .9-2 2v12c0 1.1.9 2 2 2h12c1.1 0 2-.9 2-2V4c0-1.1-.9-2-2-2zM11.5 9.5c0 .83-.67 1.5-1.5 1.5H9v2H7.5V7H10c.83 0 1.5.67 1.5 1.5v1zm5 2c0 .83-.67 1.5-1.5 1.5h-2.5V7H15c.83 0 1.5.67 1.5 1.5v3zm4-3H19v1h1.5V11H19v2h-1.5V7H20.5v1.5zM9 9.5h1v-1H9v1zM4 6H2v14c0 1.1.9 2 2 2h14v-2H4V6zm10 5.5h1v-3h-1v3z"/>
+            </svg>
+            <span class="pdf-badge-text">PDF</span>
+          </div>
+          <div class="pdf-info">
+            <div class="pdf-name">${name}</div>
+            <div class="pdf-size">${size ? size + ' · ' : ''}PDF</div>
+          </div>
+        </div>
+        <button class="pdf-btn">
+          <svg width="16" height="16" viewBox="0 0 24 24"><path d="M12 4.5C7 4.5 2.73 7.61 1 12c1.73 4.39 6 7.5 11 7.5s9.27-3.11 11-7.5c-1.73-4.39-6-7.5-11-7.5zM12 17c-2.76 0-5-2.24-5-5s2.24-5 5-5 5 2.24 5 5-2.24 5-5 5zm0-8c-1.66 0-3 1.34-3 3s1.34 3 3 3 3-1.34 3-3-1.34-3-3-3z"/></svg>
+          Ver apostila
+        </button>
+        <div class="pdf-foot"><span class="ts">${time}</span></div>
+      </div>`;
+    w.querySelector('.pdf-btn').addEventListener('click', () => openPdf(url, name, w));
+    chat.appendChild(w);
+    scroll();
+    return w;
+  }
+
+  /* ════════════════════════════════════════════════
      ▌ PDF MODAL (PDF.js)
   ════════════════════════════════════════════════ */
   const pdfModal     = document.getElementById('pdfModal');
@@ -1414,12 +1447,33 @@
         showRecording();
         await sleep(step.recording_duration ?? 3000);
         removeIndicator();
-        addAudio(step.index ?? 0, step.duration ?? '0:10');
+        if (step.url) {
+          // URL direta — cria elemento de áudio sem depender do CONFIG
+          const w = addAudio(0, step.duration ?? '0:10');
+          const audio = new Audio(step.url);
+          const playBtn = w.querySelector('.play-btn');
+          const durEl   = w.querySelector('.audio-dur');
+          const wbars   = Array.from(w.querySelectorAll('.wbar'));
+          audio.addEventListener('loadedmetadata', () => { const t=Math.round(audio.duration); durEl.textContent=`${Math.floor(t/60)}:${String(t%60).padStart(2,'0')}`; });
+          audio.addEventListener('timeupdate', () => { const t=Math.floor(audio.currentTime); durEl.textContent=`${Math.floor(t/60)}:${String(t%60).padStart(2,'0')}`; });
+          audio.addEventListener('ended', () => { playBtn.innerHTML=PLAY_ICON; wbars.forEach(b=>b.classList.remove('playing')); });
+          playBtn.addEventListener('click', () => {
+            if (activeAudio && activeAudio !== audio) resetActiveAudio();
+            if (audio.paused) { audio.play().catch(()=>{}); playBtn.innerHTML=PAUSE_ICON; wbars.forEach(b=>b.classList.add('playing')); activeAudio=audio; activePlayBtn=playBtn; activeWbars=wbars; }
+            else { audio.pause(); playBtn.innerHTML=PLAY_ICON; wbars.forEach(b=>b.classList.remove('playing')); activeAudio=activePlayBtn=activeWbars=null; }
+          });
+        } else {
+          addAudio(step.index ?? 0, step.duration ?? '0:10');
+        }
         await sleep(delay);
         break;
       }
       case 'pdf': {
-        addPdf(step.index ?? 0, step.size || CONFIG.PDF_SIZES[step.index ?? 0] || '');
+        if (step.url) {
+          addPdfDirect(step.url, step.name || 'Apostila', step.size || '');
+        } else {
+          addPdf(step.index ?? 0, step.size || CONFIG.PDF_SIZES[step.index ?? 0] || '');
+        }
         await sleep(delay);
         break;
       }

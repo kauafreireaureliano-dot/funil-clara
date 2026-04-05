@@ -869,20 +869,42 @@
         </div>
 
         <div id="fe-audio" style="display:none">
-          <div class="field"><label>Áudio</label>
-            <select id="feAudioIndex"><option value="0">Áudio 1</option><option value="1">Áudio 2</option></select>
+          <div class="field">
+            <label>Arquivo de áudio</label>
+            <div id="feAudioDropZone" style="border:2px dashed var(--border);border-radius:8px;padding:20px;text-align:center;cursor:pointer;background:var(--bg);transition:.2s" onclick="document.getElementById('feAudioFile').click()" ondragover="event.preventDefault();this.style.borderColor='var(--green)'" ondragleave="this.style.borderColor='var(--border)'" ondrop="handleFileDrop(event,'audio')">
+              <div style="font-size:24px;margin-bottom:6px">🎙️</div>
+              <div id="feAudioDropLabel" style="font-size:13px;color:var(--muted)">Clique ou arraste o áudio aqui<br><span style="font-size:11px">MP3, OGG, M4A, WAV</span></div>
+            </div>
+            <input type="file" id="feAudioFile" accept="audio/*" style="display:none" onchange="handleFileSelect(this,'audio')">
           </div>
+          <div class="field"><label>URL atual do áudio</label><input type="url" id="feAudioUrl" placeholder="(será preenchido após upload)" style="font-size:12px;color:var(--muted)"></div>
           <div class="field"><label>Duração exibida (ex: 0:11)</label><input type="text" id="feAudioDuration" placeholder="0:03"></div>
           <div class="field"><label>Tempo "gravando" antes de enviar (ms)</label><input type="number" id="feRecordingDuration" value="3000" min="0"></div>
         </div>
 
         <div id="fe-pdf" style="display:none">
-          <div class="field"><label>PDF</label>
-            <select id="fePdfIndex"><option value="0">PDF 1</option><option value="1">PDF 2</option><option value="2">PDF 3</option></select>
+          <div class="field">
+            <label>Arquivo PDF</label>
+            <div id="fePdfDropZone" style="border:2px dashed var(--border);border-radius:8px;padding:20px;text-align:center;cursor:pointer;background:var(--bg);transition:.2s" onclick="document.getElementById('fePdfFile').click()" ondragover="event.preventDefault();this.style.borderColor='var(--green)'" ondragleave="this.style.borderColor='var(--border)'" ondrop="handleFileDrop(event,'pdf')">
+              <div style="font-size:24px;margin-bottom:6px">📄</div>
+              <div id="fePdfDropLabel" style="font-size:13px;color:var(--muted)">Clique ou arraste o PDF aqui<br><span style="font-size:11px">PDF</span></div>
+            </div>
+            <input type="file" id="fePdfFile" accept="application/pdf" style="display:none" onchange="handleFileSelect(this,'pdf')">
           </div>
+          <div class="field"><label>URL atual do PDF</label><input type="url" id="fePdfUrl" placeholder="(será preenchido após upload)" style="font-size:12px;color:var(--muted)"></div>
+          <div class="field"><label>Nome exibido (ex: Apostila de Recheios)</label><input type="text" id="fePdfName" placeholder="Apostila"></div>
+          <div class="field"><label>Tamanho exibido (ex: 2,4 MB)</label><input type="text" id="fePdfSize" placeholder=""></div>
         </div>
 
         <div id="fe-image" style="display:none">
+          <div class="field">
+            <label>Arquivo de imagem</label>
+            <div id="feImageDropZone" style="border:2px dashed var(--border);border-radius:8px;padding:20px;text-align:center;cursor:pointer;background:var(--bg);transition:.2s" onclick="document.getElementById('feImageFile').click()" ondragover="event.preventDefault();this.style.borderColor='var(--green)'" ondragleave="this.style.borderColor='var(--border)'" ondrop="handleFileDrop(event,'image')">
+              <div style="font-size:24px;margin-bottom:6px">🖼️</div>
+              <div id="feImageDropLabel" style="font-size:13px;color:var(--muted)">Clique ou arraste a imagem aqui<br><span style="font-size:11px">JPG, PNG, WEBP, GIF</span></div>
+            </div>
+            <input type="file" id="feImageFile" accept="image/*" style="display:none" onchange="handleFileSelect(this,'image')">
+          </div>
           <div class="field"><label>URL da imagem</label><input type="url" id="feImageUrl" placeholder="https://..."></div>
           <div class="field"><label>Legenda (opcional)</label><input type="text" id="feImageCaption" placeholder=""></div>
         </div>
@@ -1052,6 +1074,7 @@ const pending = {
 };
 
 let currentConfig = null;
+let pendingStepFile = null; // { file, mediaType }
 
 /* ════════════════════════════════════════════════
    ▌ INIT
@@ -1756,8 +1779,8 @@ const STEP_ICONS = {
 function stepSummary(step) {
   switch (step.type) {
     case 'text':           return (step.content || '').replace(/<[^>]+>/g, '').substring(0, 60) + ((step.content || '').length > 60 ? '…' : '');
-    case 'audio':          return `Áudio ${(step.index ?? 0) + 1} — ${step.duration || '0:00'}`;
-    case 'pdf':            return `PDF ${(step.index ?? 0) + 1}`;
+    case 'audio':          return step.url ? `${step.url.split('/').pop()} — ${step.duration || '0:00'}` : `Áudio ${(step.index ?? 0) + 1} — ${step.duration || '0:00'}`;
+    case 'pdf':            return step.url ? (step.name || step.url.split('/').pop()) : `PDF ${(step.index ?? 0) + 1}`;
     case 'image':          return step.url ? step.url.substring(0, 50) : '(sem URL)';
     case 'video':          return step.url ? step.url.substring(0, 50) : '(sem URL)';
     case 'button':         return step.label || 'Botão';
@@ -1848,12 +1871,28 @@ function openFunnelEditPanel(i) {
 
   document.getElementById('feContent').value = step.content || '';
   document.getElementById('feTypingDuration').value = step.typing_duration ?? 2000;
-  document.getElementById('feAudioIndex').value = step.index ?? 0;
+  // audio
+  document.getElementById('feAudioUrl').value = step.url || '';
   document.getElementById('feAudioDuration').value = step.duration || '';
   document.getElementById('feRecordingDuration').value = step.recording_duration ?? 3000;
-  document.getElementById('fePdfIndex').value = step.index ?? 0;
+  document.getElementById('feAudioDropLabel').innerHTML = step.url
+    ? `<span style="color:var(--green);font-weight:600">✔ Áudio carregado</span><br><span style="font-size:11px">${step.url.split('/').pop()}</span>`
+    : 'Clique ou arraste o áudio aqui<br><span style="font-size:11px">MP3, OGG, M4A, WAV</span>';
+  // pdf
+  document.getElementById('fePdfUrl').value = step.url || '';
+  document.getElementById('fePdfName').value = step.name || '';
+  document.getElementById('fePdfSize').value = step.size || '';
+  document.getElementById('fePdfDropLabel').innerHTML = step.url
+    ? `<span style="color:var(--green);font-weight:600">✔ PDF carregado</span><br><span style="font-size:11px">${step.url.split('/').pop()}</span>`
+    : 'Clique ou arraste o PDF aqui<br><span style="font-size:11px">PDF</span>';
+  // image
   document.getElementById('feImageUrl').value = step.url || '';
   document.getElementById('feImageCaption').value = step.caption || '';
+  document.getElementById('feImageDropLabel').innerHTML = step.url
+    ? `<span style="color:var(--green);font-weight:600">✔ Imagem carregada</span><br><span style="font-size:11px">${step.url.split('/').pop()}</span>`
+    : 'Clique ou arraste a imagem aqui<br><span style="font-size:11px">JPG, PNG, WEBP, GIF</span>';
+  // reset pending uploads for this panel open
+  pendingStepFile = null;
   document.getElementById('feVideoUrl').value = step.url || '';
   document.getElementById('feVideoThumb').value = step.thumbnail || '';
   document.getElementById('feButtonLabel').value = step.label || '';
@@ -1878,10 +1917,41 @@ function funnelUpdateTypeFields() {
   if (dc) dc.style.display = (type === 'delay') ? 'none' : '';
 }
 
-function funnelSaveStep() {
+async function funnelSaveStep() {
   if (funnelEditingIdx === null) return;
   const type = document.getElementById('feType').value;
   const step = { id: funnelSteps[funnelEditingIdx]?.id || ('s' + Date.now()), type };
+
+  // Upload pending file if any
+  if (pendingStepFile && pendingStepFile.mediaType === type) {
+    const token = getToken();
+    if (!token) { toast('Configure o token GitHub primeiro', 'red'); goTo('setup'); return; }
+    const { file, mediaType } = pendingStepFile;
+    const btn = document.querySelector('[onclick="funnelSaveStep()"]');
+    const origText = btn.textContent;
+    btn.disabled = true; btn.textContent = '⏳ Enviando...';
+    try {
+      const ext = file.name.split('.').pop();
+      const safeName = `${step.id}_${Date.now()}.${ext}`;
+      const assetPath = activeFunnelId === 'recheios'
+        ? `assets/${safeName}`
+        : `funnels/${activeFunnelId}/assets/${safeName}`;
+      const b64 = await fileToBase64(file);
+      const existing = await ghGet(assetPath);
+      await ghPut(assetPath, b64, `Upload ${mediaType}: ${safeName}`, existing?.sha);
+      const rawUrl = `${RAW}/${assetPath}`;
+      if (mediaType === 'audio') document.getElementById('feAudioUrl').value = rawUrl;
+      if (mediaType === 'pdf')   document.getElementById('fePdfUrl').value   = rawUrl;
+      if (mediaType === 'image') document.getElementById('feImageUrl').value  = rawUrl;
+      pendingStepFile = null;
+      toast('Arquivo enviado!', 'green');
+    } catch(e) {
+      toast('Erro ao enviar arquivo: ' + e.message, 'red');
+      btn.disabled = false; btn.textContent = origText;
+      return;
+    }
+    btn.disabled = false; btn.textContent = origText;
+  }
 
   switch (type) {
     case 'text':
@@ -1889,12 +1959,14 @@ function funnelSaveStep() {
       step.typing_duration = parseInt(document.getElementById('feTypingDuration').value) || 2000;
       break;
     case 'audio':
-      step.index = parseInt(document.getElementById('feAudioIndex').value) || 0;
+      step.url = document.getElementById('feAudioUrl').value;
       step.duration = document.getElementById('feAudioDuration').value || '0:00';
       step.recording_duration = parseInt(document.getElementById('feRecordingDuration').value) || 3000;
       break;
     case 'pdf':
-      step.index = parseInt(document.getElementById('fePdfIndex').value) || 0;
+      step.url = document.getElementById('fePdfUrl').value;
+      step.name = document.getElementById('fePdfName').value || 'Apostila';
+      step.size = document.getElementById('fePdfSize').value;
       break;
     case 'image':
       step.url = document.getElementById('feImageUrl').value;
@@ -1935,6 +2007,27 @@ function funnelSaveStep() {
   document.getElementById('funnelEditPanel').style.display = 'none';
   renderFunnelList();
   toast('Step salvo! Clique em Publicar para enviar.', 'green');
+}
+
+function handleFileSelect(input, mediaType) {
+  const file = input.files[0];
+  if (!file) return;
+  pendingStepFile = { file, mediaType };
+  const label = document.getElementById(`fe${mediaType.charAt(0).toUpperCase()+mediaType.slice(1)}DropLabel`);
+  if (label) label.innerHTML = `<span style="color:var(--green);font-weight:600">✔ ${file.name}</span><br><span style="font-size:11px">${(file.size/1024/1024).toFixed(2)} MB — pronto para enviar</span>`;
+  toast(`${file.name} selecionado. Clique em Salvar step para enviar.`, 'green');
+}
+
+function handleFileDrop(event, mediaType) {
+  event.preventDefault();
+  const zoneId = `fe${mediaType.charAt(0).toUpperCase()+mediaType.slice(1)}DropZone`;
+  document.getElementById(zoneId).style.borderColor = 'var(--border)';
+  const file = event.dataTransfer.files[0];
+  if (!file) return;
+  pendingStepFile = { file, mediaType };
+  const label = document.getElementById(`fe${mediaType.charAt(0).toUpperCase()+mediaType.slice(1)}DropLabel`);
+  if (label) label.innerHTML = `<span style="color:var(--green);font-weight:600">✔ ${file.name}</span><br><span style="font-size:11px">${(file.size/1024/1024).toFixed(2)} MB — pronto para enviar</span>`;
+  toast(`${file.name} selecionado. Clique em Salvar step para enviar.`, 'green');
 }
 
 function funnelCancelEdit() {
