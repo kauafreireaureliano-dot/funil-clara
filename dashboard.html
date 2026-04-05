@@ -1211,7 +1211,7 @@ function goTo(id) {
   document.querySelectorAll(`[onclick="goTo('${id}')"]`).forEach(b => b.classList.add('active'));
   if (id === 'analytics') loadAnalytics();
   if (id === 'meusfunis') loadFunnelList();
-  if (id === 'funil') setTimeout(updatePreview, 300);
+  if (id === 'funil') updatePreview();
 }
 
 /* ════════════════════════════════════════════════
@@ -1567,18 +1567,20 @@ function switchActiveFunnel(id) {
 async function loadActiveFunnelConfig() {
   try {
     const res = await fetch(`${RAW}/${funnelConfigPath(activeFunnelId)}?v=${Date.now()}`);
-    if (!res.ok) return;
-    const c = await res.json();
-    applyConfigToUI(c);
+    if (res.ok) {
+      currentConfig = await res.json();
+      applyConfigToUI(currentConfig);
+    }
   } catch {}
   try {
     const res2 = await fetch(`${RAW}/${funnelStepsPath(activeFunnelId)}?v=${Date.now()}`);
-    if (!res2.ok) return;
-    const d = await res2.json();
-    funnelSteps = d.steps || [];
-    renderFunnelList();
-    if (document.getElementById('sec-funil').classList.contains('active')) renderFunnelList();
+    if (res2.ok) {
+      const d = await res2.json();
+      funnelSteps = d.steps || [];
+      renderFunnelList();
+    }
   } catch {}
+  updatePreview();
 }
 
 function copyFunnelLink(id) {
