@@ -1,0 +1,66 @@
+{
+  "steps": [
+    {
+      "id": "s1",
+      "type": "text",
+      "content": "Olá! Bem-vindo ao funil Pães Sem Glúten 😊",
+      "typing_duration": 2000,
+      "delay": 3000
+    },
+    {
+      "id": "s1775360735156",
+      "type": "text",
+      "content": "Prazer aqui é a Clara! Vou te ensinar todas as minhas receitas de Pães Sem Glúten🥖❤️\n",
+      "typing_duration": 1000,
+      "delay": 3000
+    },
+    {
+      "id": "s1775360723672",
+      "type": "image",
+      "url": "https://jngxhwxomnfahhfygnag.supabase.co/storage/v1/object/public/nebula-media/765a8ddc-67e5-4823-b61a-cfdc52d0da21/11982b61-0d0d-4230-b7a3-8d7940422c4c/1775063825474.webp",
+      "caption": "",
+      "delay": 3000
+    },
+    {
+      "id": "s1775360838713",
+      "type": "text",
+      "content": "🍞 50 receitas de  pães sem glúten\n\n✅ Pães clássicos, rápidos e especiais\n\n✅ Mix de farinhas pra fazer em casa\n\n✅ Passo a passo simples e detalhado\n\n✅ Ingredientes de mercado — sem nada caro\n\n✅ Acesso imediato no celular\n\n✅ Uso liberado pra vender",
+      "typing_duration": 2000,
+      "delay": 3000
+    },
+    {
+      "id": "s1775360939211",
+      "type": "text",
+      "content": "Para mostrar nossa confiança e compromisso, <strong> eu envio todas as apostilas antes de você fazer o pagamento.<strong>\n",
+      "typing_duration": 2000,
+      "delay": 3000
+    },
+    {
+      "id": "s1775360993164",
+      "type": "text",
+      "content": "Pode ser? ❤️\n",
+      "typing_duration": 1000,
+      "delay": 2000
+    },
+    {
+      "id": "s1775361251986",
+      "type": "capture",
+      "placeholder": "",
+      "delay": 2000
+    },
+    {
+      "id": "s1775361315091",
+      "type": "audio",
+      "index": 1,
+      "duration": "0:03",
+      "recording_duration": 3000,
+      "delay": 1
+    },
+    {
+      "id": "s1775362121770",
+      "type": "pdf",
+      "index": 0,
+      "delay": 3000
+    }
+  ]
+}
