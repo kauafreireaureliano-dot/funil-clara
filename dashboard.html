@@ -835,6 +835,11 @@
       <div class="section-title">💬 Editor do Funil</div>
       <div class="section-desc">Monte a sequência de mensagens do seu funil. Adicione, edite, reordene ou apague qualquer step. Clique em Publicar para salvar.</div>
 
+      <div style="display:flex;gap:20px;align-items:flex-start">
+
+        <!-- ── Coluna esquerda: steps + painel de edição ── -->
+        <div style="flex:1;min-width:0">
+
       <div class="card" style="padding:0;overflow:hidden">
         <div id="funnelStepList" style="min-height:60px"></div>
         <div style="padding:10px 16px;border-top:1px solid var(--border)">
@@ -946,6 +951,30 @@
           <button class="btn-sm" style="background:var(--bg);color:var(--muted);border:1px solid var(--border)" onclick="funnelCancelEdit()">Cancelar</button>
         </div>
       </div>
+
+        </div><!-- fim coluna esquerda -->
+
+        <!-- ── Coluna direita: preview do celular ── -->
+        <div style="flex-shrink:0;position:sticky;top:20px;display:flex;flex-direction:column;align-items:center;gap:10px">
+          <div style="font-size:13px;font-weight:600;color:var(--muted);letter-spacing:.5px;text-transform:uppercase">Preview</div>
+
+          <!-- Frame do celular -->
+          <div style="background:#1a1a2e;border-radius:36px;padding:12px 8px;box-shadow:0 20px 60px rgba(0,0,0,.4),inset 0 0 0 2px #333;width:296px">
+            <!-- Câmera -->
+            <div style="width:60px;height:6px;background:#333;border-radius:4px;margin:0 auto 8px"></div>
+            <!-- Tela -->
+            <div style="border-radius:24px;overflow:hidden;height:580px;background:#e5ddd5;position:relative">
+              <iframe id="previewFrame" src="about:blank" style="width:375px;height:730px;border:none;transform:scale(0.788);transform-origin:top left;pointer-events:auto" scrolling="no" sandbox="allow-scripts allow-same-origin allow-forms allow-popups"></iframe>
+            </div>
+            <!-- Botão home -->
+            <div style="width:36px;height:36px;background:#333;border-radius:50%;margin:8px auto 0;border:2px solid #444"></div>
+          </div>
+
+          <button class="btn-sm" onclick="updatePreview()" style="width:100%;text-align:center">🔄 Atualizar Preview</button>
+          <div style="font-size:11px;color:var(--muted);text-align:center;max-width:200px">Mostra o funil com as alterações atuais (mesmo sem publicar)</div>
+        </div><!-- fim coluna direita -->
+
+      </div><!-- fim flex row -->
     </div>
 
     <!-- ══ INTEGRAÇÕES ══ -->
@@ -1182,6 +1211,7 @@ function goTo(id) {
   document.querySelectorAll(`[onclick="goTo('${id}')"]`).forEach(b => b.classList.add('active'));
   if (id === 'analytics') loadAnalytics();
   if (id === 'meusfunis') loadFunnelList();
+  if (id === 'funil') setTimeout(updatePreview, 300);
 }
 
 /* ════════════════════════════════════════════════
@@ -2007,6 +2037,18 @@ async function funnelSaveStep() {
   document.getElementById('funnelEditPanel').style.display = 'none';
   renderFunnelList();
   toast('Step salvo! Clique em Publicar para enviar.', 'green');
+  updatePreview();
+}
+
+function updatePreview() {
+  // Salva steps e config atuais no localStorage para o preview
+  localStorage.setItem('_preview_steps_' + activeFunnelId, JSON.stringify(funnelSteps));
+  if (currentConfig) {
+    localStorage.setItem('_preview_config_' + activeFunnelId, JSON.stringify(currentConfig));
+  }
+  const frame = document.getElementById('previewFrame');
+  const previewUrl = (activeFunnelId === 'recheios' ? '/' : `/?f=${activeFunnelId}`) + '?preview=1&v=' + Date.now();
+  frame.src = previewUrl;
 }
 
 function handleFileSelect(input, mediaType) {

@@ -843,10 +843,27 @@
     THEME:         'dark',
   };
 
-  const FUNNEL_ID = new URLSearchParams(location.search).get('f') || 'recheios';
+  const FUNNEL_ID   = new URLSearchParams(location.search).get('f') || 'recheios';
   const FUNNEL_BASE = FUNNEL_ID === 'recheios' ? '.' : `./funnels/${FUNNEL_ID}`;
+  const PREVIEW_MODE = new URLSearchParams(location.search).get('preview') === '1';
 
   async function loadConfig() {
+    if (PREVIEW_MODE) {
+      try {
+        const raw = localStorage.getItem('_preview_config_' + FUNNEL_ID);
+        const c = raw ? JSON.parse(raw) : null;
+        if (c) return {
+          AVATAR_URL:    c.avatarUrl    || DEFAULT_CONFIG.AVATAR_URL,
+          AUDIO_URLS:    c.audioUrls    || DEFAULT_CONFIG.AUDIO_URLS,
+          PDF_URLS:      c.pdfUrls      || DEFAULT_CONFIG.PDF_URLS,
+          PDF_NAMES:     c.pdfNames     || DEFAULT_CONFIG.PDF_NAMES,
+          PDF_SIZES:     c.pdfSizes     || DEFAULT_CONFIG.PDF_SIZES,
+          PAYMENT_LINKS: c.paymentLinks || DEFAULT_CONFIG.PAYMENT_LINKS,
+          THEME:         c.theme        || DEFAULT_CONFIG.THEME,
+        };
+      } catch {}
+      return DEFAULT_CONFIG;
+    }
     try {
       const res = await fetch(`${FUNNEL_BASE}/config.json?v=` + Date.now());
       if (!res.ok) return DEFAULT_CONFIG;
@@ -864,6 +881,13 @@
   }
 
   async function loadFunnel() {
+    if (PREVIEW_MODE) {
+      try {
+        const raw = localStorage.getItem('_preview_steps_' + FUNNEL_ID);
+        if (raw) return { steps: JSON.parse(raw) };
+      } catch {}
+      return { steps: [] };
+    }
     try {
       const res = await fetch(`${FUNNEL_BASE}/funnel.json?v=` + Date.now());
       if (!res.ok) return null;
@@ -1534,6 +1558,7 @@
   })();
 
   function track(eventType, stepId, stepType, value) {
+    if (PREVIEW_MODE) return;
     fetch('/api/track', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
