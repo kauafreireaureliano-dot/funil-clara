@@ -35,5 +35,14 @@
     "14,90": "checkout.html?valor=14,90&produto=Receitas%20de%20Recheios%20"
   },
   "metaPixelToken": "",
-  "orderBumps": []
+  "orderBumps": [
+    {
+      "name": "Guia De Precificação",
+      "salePrice": "2,99",
+      "originalPrice": "29,90",
+      "imageUrl": "https://ggcheckout.app/_next/image?url=%2Fapi%2Fr2-proxy%2Fuploads%2F153bc6c460a4e269%2F2025%2F12%2F8f5e7d3f-1d02-428d-9d75-0b772f8081f2-1766761029183.avif&w=360&q=70",
+      "desc": "precifique seus recheios de forma fácil, rápida e lucrando muito!❤️",
+      "deliveryUrl": "https://precificador-receita.lovable.app"
+    }
+  ]
 }
