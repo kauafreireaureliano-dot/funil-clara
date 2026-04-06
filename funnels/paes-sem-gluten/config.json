@@ -35,22 +35,5 @@
     "14,90": "checkout.html?valor=14,90&produto=Produto"
   },
   "metaPixelToken": "EAAQy5enpfHABRPnxruYAFs9O4UZAhTfrAq9qmZCFYQ5iCwrtN9btMONcw4ESvpOmJNS6YUZAe0ZB1UX8oP683a0GPUzOQODnOKZBe0tmCdPJVdZBYoJkIRMHbKzuW9qQkhGqrDYNWpZA3JRl8lWCZCWZCWaQ9m5uZB3NZCBw1gSkbIx5w3QEaxuWiTO9wmXysYyZC2kQugZDZD",
-  "orderBumps": [
-    {
-      "name": "QUALQUER COISA",
-      "salePrice": "1,03",
-      "originalPrice": "20",
-      "imageUrl": "https://videos.openai.com/az/vg-assets/task_01kn5820e4fhtrnvc05qedxy4z%2F1775071513_img_1.webp?se=2026-04-07T00%3A00%3A00Z&sp=r&sv=2026-02-06&sr=b&skoid=8ebb0df1-a278-4e2e-9c20-f2d373479b3a&sktid=a48cca56-e6da-484e-a814-9c849652bcb3&skt=2026-04-05T09%3A19%3A48Z&ske=2026-04-12T09%3A24%3A48Z&sks=b&skv=2026-02-06&sig=nAjVqEim/UAl%2Br9HACd7bl7Ptylh5Ic3%2BVZi4xXJi38%3D&ac=oaivgprodscus2",
-      "desc": "receitas de nkasnkasn",
-      "deliveryUrl": "https://videos.openai.com/az/vg-assets/task_01kn5820e4fhtrnvc05qedxy4z%2F1775071513_img_1.webp?se=2026-04-07T00%3A00%3A00Z&sp=r&sv=2026-02-06&sr=b&skoid=8ebb0df1-a278-4e2e-9c20-f2d373479b3a&sktid=a48cca56-e6da-484e-a814-9c849652bcb3&skt=2026-04-05T09%3A19%3A48Z&ske=2026-04-12T09%3A24%3A48Z&sks=b&skv=2026-02-06&sig=nAjVqEim/UAl%2Br9HACd7bl7Ptylh5Ic3%2BVZi4xXJi38%3D&ac=oaivgprodscus2"
-    },
-    {
-      "name": "Sabe trabalhar",
-      "salePrice": "190",
-      "originalPrice": "20",
-      "imageUrl": "https://videos.openai.com/az/vg-assets/task_01kn5820e4fhtrnvc05qedxy4z%2F1775071513_img_1.webp?se=2026-04-07T00%3A00%3A00Z&sp=r&sv=2026-02-06&sr=b&skoid=8ebb0df1-a278-4e2e-9c20-f2d373479b3a&sktid=a48cca56-e6da-484e-a814-9c849652bcb3&skt=2026-04-05T09%3A19%3A48Z&ske=2026-04-12T09%3A24%3A48Z&sks=b&skv=2026-02-06&sig=nAjVqEim/UAl%2Br9HACd7bl7Ptylh5Ic3%2BVZi4xXJi38%3D&ac=oaivgprodscus2",
-      "desc": "receitas de nkasnkasn",
-      "deliveryUrl": "https://videos.openai.com/az/vg-assets/task_01kn5820e4fhtrnvc05qedxy4z%2F1775071513_img_1.webp?se=2026-04-07T00%3A00%3A00Z&sp=r&sv=2026-02-06&sr=b&skoid=8ebb0df1-a278-4e2e-9c20-f2d373479b3a&sktid=a48cca56-e6da-484e-a814-9c849652bcb3&skt=2026-04-05T09%3A19%3A48Z&ske=2026-04-12T09%3A24%3A48Z&sks=b&skv=2026-02-06&sig=nAjVqEim/UAl%2Br9HACd7bl7Ptylh5Ic3%2BVZi4xXJi38%3D&ac=oaivgprodscus2"
-    }
-  ]
+  "orderBumps": []
 }
