@@ -7,7 +7,7 @@ export async function onRequestPost(context) {
   };
 
   try {
-    const { email, valor, produto, bumps, nome, celular } = await request.json();
+    const { email, valor, produto, bumps, nome, celular, funnel_id } = await request.json();
 
     if (!email || !valor) {
       return new Response(JSON.stringify({ erro: 'Email e valor são obrigatórios' }), { status: 400, headers });
@@ -30,11 +30,12 @@ export async function onRequestPost(context) {
         payer: { email },
         metadata: {
           buyer_email: email,
-          ...(nome    ? { buyer_nome: nome }       : {}),
-          ...(celular ? { buyer_celular: celular }  : {}),
+          ...(funnel_id ? { funnel_id }              : {}),
+          ...(nome      ? { buyer_nome: nome }        : {}),
+          ...(celular   ? { buyer_celular: celular }  : {}),
           ...(bumps && bumps.length ? { bumps: JSON.stringify(bumps) } : {}),
         },
-        notification_url: `${origin}/api/webhook`,
+        notification_url: `${origin}/api/webhook${funnel_id ? '?funnel=' + encodeURIComponent(funnel_id) : ''}`,
         date_of_expiration: new Date(Date.now() + 30 * 60 * 1000).toISOString(),
       }),
     });

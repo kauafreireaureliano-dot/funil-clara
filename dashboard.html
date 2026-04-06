@@ -789,6 +789,15 @@
         </div>
       </div>
 
+      <!-- Vendas por funil -->
+      <div class="card" style="margin-bottom:4px">
+        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:12px">
+          <div class="card-title" style="margin-bottom:0">💰 Vendas por funil (acumulado)</div>
+          <button onclick="loadAllFunnelsSales()" style="background:none;border:none;cursor:pointer;font-size:12px;color:var(--muted)">↻ atualizar</button>
+        </div>
+        <div id="allFunnelsSales"><div style="color:var(--muted);font-size:13px;text-align:center;padding:8px">Carregando...</div></div>
+      </div>
+
       <!-- Stat cards -->
       <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin-bottom:4px">
         <div class="card" style="text-align:center;padding:16px 12px">
@@ -836,6 +845,28 @@
     <div class="section" id="sec-funil">
       <div class="section-title">💬 Editor do Funil</div>
       <div class="section-desc">Monte a sequência de mensagens do seu funil. Adicione, edite, reordene ou apague qualquer step. Clique em Publicar para salvar.</div>
+
+      <!-- Mini analytics deste funil -->
+      <div class="card" style="margin-bottom:16px">
+        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:12px">
+          <div class="card-title" style="margin-bottom:0">📈 Desempenho deste funil</div>
+          <button onclick="loadFunnelSales()" style="background:none;border:none;cursor:pointer;font-size:12px;color:var(--muted)">↻ atualizar</button>
+        </div>
+        <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:12px">
+          <div style="text-align:center;padding:10px 0">
+            <div style="font-size:26px;font-weight:700;color:var(--text)" id="fsSales">—</div>
+            <div style="font-size:11px;color:var(--muted);margin-top:3px">Vendas</div>
+          </div>
+          <div style="text-align:center;padding:10px 0">
+            <div style="font-size:20px;font-weight:700;color:var(--green)" id="fsRevenue">—</div>
+            <div style="font-size:11px;color:var(--muted);margin-top:3px">Faturamento</div>
+          </div>
+          <div style="text-align:center;padding:10px 0">
+            <div style="font-size:20px;font-weight:700;color:#f59e0b" id="fsTicket">—</div>
+            <div style="font-size:11px;color:var(--muted);margin-top:3px">Ticket médio</div>
+          </div>
+        </div>
+      </div>
 
       <div style="display:flex;gap:20px;align-items:flex-start">
 
@@ -1294,7 +1325,7 @@ function goTo(id) {
   document.querySelectorAll('.nav-item').forEach(b => b.classList.remove('active'));
   document.getElementById('sec-' + id).classList.add('active');
   document.querySelectorAll(`[onclick="goTo('${id}')"]`).forEach(b => b.classList.add('active'));
-  if (id === 'analytics') loadAnalytics();
+  if (id === 'analytics') { loadAnalytics(); loadAllFunnelsSales(); }
   if (id === 'meusfunis') loadFunnelList();
   if (id === 'funil') updatePreview();
 }
@@ -1668,6 +1699,7 @@ async function loadActiveFunnelConfig() {
     }
   } catch {}
   updatePreview();
+  loadFunnelSales();
 }
 
 function copyFunnelLink(id) {
@@ -1798,6 +1830,77 @@ function resetGoal() {
 }
 
 renderGoal();
+
+/* ════════════════════════════════════════════════
+   ▌ ANALYTICS POR FUNIL (Supabase direto)
+════════════════════════════════════════════════ */
+const SUPA_URL = 'https://badgaqasjnosakzducjc.supabase.co';
+const SUPA_KEY = 'sb_publishable_-QVzljjE1sOYbO_ioSjYOA_1VaakZ5c';
+
+async function loadFunnelSales() {
+  const id = activeFunnelId;
+  ['fsSales','fsRevenue','fsTicket'].forEach(e => { const el = document.getElementById(e); if(el) el.textContent = '…'; });
+  try {
+    const res = await fetch(
+      `${SUPA_URL}/rest/v1/funnel_events?event_type=eq.sale_confirmed&step_id=eq.${encodeURIComponent(id)}&select=value`,
+      { headers: { 'Authorization': `Bearer ${SUPA_KEY}`, 'apikey': SUPA_KEY } }
+    );
+    const rows = await res.json();
+    const count = Array.isArray(rows) ? rows.length : 0;
+    const revenue = count > 0 ? rows.reduce((s, r) => s + parseFloat(r.value || 0), 0) : 0;
+    const ticket = count > 0 ? revenue / count : 0;
+    const el = (i) => document.getElementById(i);
+    if (el('fsSales'))   el('fsSales').textContent   = count;
+    if (el('fsRevenue')) el('fsRevenue').textContent = count > 0 ? fmtBRL(revenue) : 'R$ 0,00';
+    if (el('fsTicket'))  el('fsTicket').textContent  = count > 0 ? fmtBRL(ticket) : '—';
+  } catch {
+    const el = document.getElementById('fsSales');
+    if (el) el.textContent = 'erro';
+  }
+}
+
+async function loadAllFunnelsSales() {
+  const el = document.getElementById('allFunnelsSales');
+  if (!el) return;
+  el.innerHTML = '<div style="color:var(--muted);font-size:13px;text-align:center;padding:8px">Carregando...</div>';
+  try {
+    const res = await fetch(
+      `${SUPA_URL}/rest/v1/funnel_events?event_type=eq.sale_confirmed&select=step_id,value`,
+      { headers: { 'Authorization': `Bearer ${SUPA_KEY}`, 'apikey': SUPA_KEY } }
+    );
+    const rows = await res.json();
+    if (!Array.isArray(rows) || rows.length === 0) {
+      el.innerHTML = '<div style="color:var(--muted);font-size:13px;text-align:center;padding:8px">Nenhuma venda registrada ainda.</div>';
+      return;
+    }
+    // Agrupar por funil
+    const byFunnel = {};
+    for (const r of rows) {
+      const fid = r.step_id || 'recheios';
+      if (!byFunnel[fid]) byFunnel[fid] = { count: 0, revenue: 0 };
+      byFunnel[fid].count++;
+      byFunnel[fid].revenue += parseFloat(r.value || 0);
+    }
+    const sorted = Object.entries(byFunnel).sort((a, b) => b[1].revenue - a[1].revenue);
+    const maxRev = sorted[0]?.[1]?.revenue || 1;
+    el.innerHTML = sorted.map(([fid, d]) => {
+      const fname = allFunnels.find(f => f.id === fid)?.name || fid;
+      const pct = Math.round(d.revenue / maxRev * 100);
+      return `
+        <div style="margin-bottom:10px">
+          <div style="display:flex;justify-content:space-between;align-items:baseline;margin-bottom:4px">
+            <span style="font-size:13px;font-weight:600;color:var(--text)">${fname}</span>
+            <span style="font-size:12px;color:var(--muted)">${d.count} venda${d.count !== 1 ? 's' : ''} · <strong style="color:var(--green)">${fmtBRL(d.revenue)}</strong></span>
+          </div>
+          <div style="height:8px;background:var(--border);border-radius:4px;overflow:hidden">
+            <div style="height:100%;width:${pct}%;background:var(--green);border-radius:4px;transition:width .4s"></div>
+          </div>
+        </div>`;
+    }).join('');
+  } catch (err) {
+    el.innerHTML = `<div style="color:var(--danger);font-size:13px;padding:8px">Erro: ${err.message}</div>`;
+  }
+}
 
 async function loadAnalytics() {
   const days = document.getElementById('analyticsDays').value;

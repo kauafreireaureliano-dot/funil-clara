@@ -688,6 +688,7 @@
           valor: totalValor,
           produto: document.getElementById('productName').textContent,
           bumps: selectedBumps.map(b => ({ name: b.name, deliveryUrl: b.deliveryUrl || '' })),
+          funnel_id: FUNNEL_ID,
           ...(nomeVal    ? { nome: nomeVal }    : {}),
           ...(celularVal ? { celular: celularVal } : {}),
         }),

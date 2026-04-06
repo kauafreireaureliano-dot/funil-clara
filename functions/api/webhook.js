@@ -31,6 +31,7 @@ export async function onRequestPost(context) {
 
     if (payment.status !== 'approved') return new Response('ok', { status: 200 });
 
+    const funnelId = url.searchParams.get('funnel') || payment.metadata?.funnel_id || 'recheios';
     const email   = payment.metadata?.buyer_email || payment.payer?.email;
     const nomeComprador = payment.metadata?.buyer_nome || '';
     if (!email || email === 'XXXXXXXXXX') return new Response('ok', { status: 200 });
@@ -128,7 +129,7 @@ export async function onRequestPost(context) {
       },
       body: JSON.stringify({
         session_id: `payment_${paymentId}`,
-        step_id: null,
+        step_id: funnelId,
         step_type: null,
         event_type: 'sale_confirmed',
         value: String(payment.transaction_amount),
