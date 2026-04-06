@@ -31,6 +31,15 @@ export async function onRequestPost(context) {
 
     if (payment.status !== 'approved') return new Response('ok', { status: 200 });
 
+    // ── Idempotência: ignora se já processamos esse pagamento ──
+    const supaUrl = 'https://badgaqasjnosakzducjc.supabase.co';
+    const supaKey = 'sb_publishable_-QVzljjE1sOYbO_ioSjYOA_1VaakZ5c';
+    const already = await fetch(
+      `${supaUrl}/rest/v1/funnel_events?session_id=eq.payment_${paymentId}&event_type=eq.sale_confirmed&select=session_id&limit=1`,
+      { headers: { 'Authorization': `Bearer ${supaKey}`, 'apikey': supaKey } }
+    ).then(r => r.json()).catch(() => []);
+    if (Array.isArray(already) && already.length > 0) return new Response('ok', { status: 200 });
+
     const funnelId = url.searchParams.get('funnel') || payment.metadata?.funnel_id || 'recheios';
     const email   = payment.metadata?.buyer_email || payment.payer?.email;
     const nomeComprador = payment.metadata?.buyer_nome || '';
@@ -117,8 +126,6 @@ export async function onRequestPost(context) {
     });
 
     // ── Registrar venda no Supabase ──
-    const supaUrl = 'https://badgaqasjnosakzducjc.supabase.co';
-    const supaKey = 'sb_publishable_-QVzljjE1sOYbO_ioSjYOA_1VaakZ5c';
     await fetch(`${supaUrl}/rest/v1/funnel_events`, {
       method: 'POST',
       headers: {
