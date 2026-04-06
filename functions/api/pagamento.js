@@ -7,7 +7,7 @@ export async function onRequestPost(context) {
   };
 
   try {
-    const { email, valor, produto, bumps } = await request.json();
+    const { email, valor, produto, bumps, nome, celular } = await request.json();
 
     if (!email || !valor) {
       return new Response(JSON.stringify({ erro: 'Email e valor são obrigatórios' }), { status: 400, headers });
@@ -30,6 +30,8 @@ export async function onRequestPost(context) {
         payer: { email },
         metadata: {
           buyer_email: email,
+          ...(nome    ? { buyer_nome: nome }       : {}),
+          ...(celular ? { buyer_celular: celular }  : {}),
           ...(bumps && bumps.length ? { bumps: JSON.stringify(bumps) } : {}),
         },
         notification_url: `${origin}/api/webhook`,

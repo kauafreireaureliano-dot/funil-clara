@@ -973,6 +973,41 @@
           <div class="field"><label>Valor (ex: 14,90)</label><input type="text" id="feCheckoutValor" placeholder="1,99"></div>
           <div class="field"><label>Nome do produto</label><input type="text" id="feCheckoutProduto" placeholder="Apostilas Clara Aureliano"></div>
           <div class="field"><label>Texto do botão (opcional)</label><input type="text" id="feCheckoutLabel" placeholder="Contribuir com R$ 14,90"></div>
+
+          <div style="margin-top:10px;padding-top:10px;border-top:1px solid var(--border)">
+            <div style="font-size:12px;font-weight:600;color:var(--muted);text-transform:uppercase;letter-spacing:.5px;margin-bottom:10px">Campos extras no checkout</div>
+
+            <label style="display:flex;align-items:flex-start;gap:8px;margin-bottom:10px;cursor:pointer">
+              <input type="checkbox" id="feCheckoutNome" style="margin-top:3px;accent-color:var(--green)">
+              <div>
+                <div style="font-size:13px;font-weight:600">Pedir nome</div>
+                <div class="field" style="margin:6px 0 0;display:none" id="feCheckoutNomeDescDiv">
+                  <input type="text" id="feCheckoutNomeDesc" placeholder="Como podemos te chamar?" style="font-size:12px">
+                </div>
+              </div>
+            </label>
+
+            <label style="display:flex;align-items:flex-start;gap:8px;margin-bottom:10px;cursor:pointer">
+              <input type="checkbox" id="feCheckoutCelular" style="margin-top:3px;accent-color:var(--green)">
+              <div>
+                <div style="font-size:13px;font-weight:600">Pedir celular</div>
+                <div class="field" style="margin:6px 0 0;display:none" id="feCheckoutCelularDescDiv">
+                  <input type="text" id="feCheckoutCelularDesc" placeholder="Seu número pra te adicionarmos ao grupo de WhatsApp" style="font-size:12px">
+                </div>
+              </div>
+            </label>
+
+            <label style="display:flex;align-items:flex-start;gap:8px;cursor:pointer">
+              <input type="checkbox" id="feCheckoutTimer" style="margin-top:3px;accent-color:var(--green)">
+              <div style="flex:1">
+                <div style="font-size:13px;font-weight:600">Cronômetro de urgência</div>
+                <div style="display:flex;gap:8px;margin-top:6px;display:none" id="feCheckoutTimerDiv">
+                  <div class="field" style="margin:0;flex:1"><label style="font-size:11px">Minutos</label><input type="number" id="feCheckoutTimerMin" value="10" min="1" max="60"></div>
+                  <div class="field" style="margin:0;flex:2"><label style="font-size:11px">Texto acima (ex: "Oferta expira em")</label><input type="text" id="feCheckoutTimerText" placeholder="Oferta expira em"></div>
+                </div>
+              </div>
+            </label>
+          </div>
         </div>
 
         <div id="fe-multiple_choice" style="display:none">
@@ -1994,6 +2029,20 @@ function openFunnelEditPanel(i) {
   document.getElementById('feCheckoutValor').value = step.valor || '';
   document.getElementById('feCheckoutProduto').value = step.produto || '';
   document.getElementById('feCheckoutLabel').value = step.label || '';
+  // campos extras
+  const chkNome = document.getElementById('feCheckoutNome');
+  chkNome.checked = !!step.fields?.nome;
+  document.getElementById('feCheckoutNomeDescDiv').style.display = chkNome.checked ? '' : 'none';
+  document.getElementById('feCheckoutNomeDesc').value = step.fields?.nomeDesc || 'Como podemos te chamar?';
+  const chkCel = document.getElementById('feCheckoutCelular');
+  chkCel.checked = !!step.fields?.celular;
+  document.getElementById('feCheckoutCelularDescDiv').style.display = chkCel.checked ? '' : 'none';
+  document.getElementById('feCheckoutCelularDesc').value = step.fields?.celularDesc || 'Seu número pra te adicionarmos ao grupo de WhatsApp';
+  const chkTimer = document.getElementById('feCheckoutTimer');
+  chkTimer.checked = !!step.timer;
+  document.getElementById('feCheckoutTimerDiv').style.display = chkTimer.checked ? 'flex' : 'none';
+  document.getElementById('feCheckoutTimerMin').value = step.timer?.minutes || 10;
+  document.getElementById('feCheckoutTimerText').value = step.timer?.text || 'Oferta expira em';
   document.getElementById('feOptions').value = (step.options || []).join('\n');
   document.getElementById('feCapturePlaceholder').value = step.placeholder || '';
   document.getElementById('feDelayDuration').value = step.duration ?? 3000;
@@ -2010,6 +2059,16 @@ function funnelUpdateTypeFields() {
   const dc = document.getElementById('fe-delay-common');
   if (dc) dc.style.display = (type === 'delay') ? 'none' : '';
 }
+
+// Toggle sub-campos do checkout ao marcar checkboxes
+document.addEventListener('change', e => {
+  if (e.target.id === 'feCheckoutNome')
+    document.getElementById('feCheckoutNomeDescDiv').style.display = e.target.checked ? '' : 'none';
+  if (e.target.id === 'feCheckoutCelular')
+    document.getElementById('feCheckoutCelularDescDiv').style.display = e.target.checked ? '' : 'none';
+  if (e.target.id === 'feCheckoutTimer')
+    document.getElementById('feCheckoutTimerDiv').style.display = e.target.checked ? 'flex' : 'none';
+});
 
 async function funnelSaveStep() {
   if (funnelEditingIdx === null) return;
@@ -2078,6 +2137,22 @@ async function funnelSaveStep() {
       step.valor = document.getElementById('feCheckoutValor').value;
       step.produto = document.getElementById('feCheckoutProduto').value;
       step.label = document.getElementById('feCheckoutLabel').value;
+      // campos extras
+      step.fields = {};
+      if (document.getElementById('feCheckoutNome').checked) {
+        step.fields.nome = true;
+        step.fields.nomeDesc = document.getElementById('feCheckoutNomeDesc').value || 'Como podemos te chamar?';
+      }
+      if (document.getElementById('feCheckoutCelular').checked) {
+        step.fields.celular = true;
+        step.fields.celularDesc = document.getElementById('feCheckoutCelularDesc').value || 'Seu número pra te adicionarmos ao grupo de WhatsApp';
+      }
+      if (document.getElementById('feCheckoutTimer').checked) {
+        step.timer = {
+          minutes: parseInt(document.getElementById('feCheckoutTimerMin').value) || 10,
+          text: document.getElementById('feCheckoutTimerText').value || 'Oferta expira em',
+        };
+      }
       break;
     case 'multiple_choice':
       step.options = document.getElementById('feOptions').value.split('\n').map(s => s.trim()).filter(Boolean);

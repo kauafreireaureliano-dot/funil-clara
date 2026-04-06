@@ -415,7 +415,7 @@
 
   <!-- ══ TELA 1: Email ══ -->
   <div class="screen active" id="screen-email">
-    <div class="card">
+    <div class="card" id="identCard">
       <div class="card-title">Identificação</div>
       <div class="field">
         <label>Email para receber os materiais</label>
@@ -500,10 +500,16 @@
 </div><!-- /content -->
 
 <script>
-  const params  = new URLSearchParams(location.search);
-  const VALOR   = params.get('valor') || '1,99';
-  const PRODUTO = params.get('produto') || 'Apostilas Clara Aureliano';
-  const FUNNEL_ID = params.get('f') || 'recheios';
+  const params     = new URLSearchParams(location.search);
+  const VALOR      = params.get('valor') || '1,99';
+  const PRODUTO    = params.get('produto') || 'Apostilas Clara Aureliano';
+  const FUNNEL_ID  = params.get('f') || 'recheios';
+  const ASK_NOME   = params.get('nome') === '1';
+  const ASK_CEL    = params.get('celular') === '1';
+  const NOME_DESC  = params.get('nomeDesc') || 'Como podemos te chamar?';
+  const CEL_DESC   = params.get('celularDesc') || 'Seu número pra te adicionarmos ao grupo de WhatsApp';
+  const TIMER_MIN  = parseInt(params.get('timer') || '0');
+  const TIMER_TEXT = params.get('timerText') || 'Oferta expira em';
 
   let paymentId    = null;
   let pollInterval = null;
@@ -533,6 +539,45 @@
     } catch {
       document.getElementById('productName').textContent = decodeURIComponent(PRODUTO.replace(/\+/g, ' '));
     }
+
+    // Campos extras (nome / celular)
+    const idCard = document.getElementById('identCard');
+    if (ASK_NOME) {
+      const d = document.createElement('div');
+      d.className = 'field';
+      d.style.marginTop = '12px';
+      d.innerHTML = `<label>${NOME_DESC}</label><input type="text" id="nomeInput" placeholder="Seu nome" autocomplete="given-name">`;
+      idCard.appendChild(d);
+    }
+    if (ASK_CEL) {
+      const d = document.createElement('div');
+      d.className = 'field';
+      d.style.marginTop = '12px';
+      d.innerHTML = `<label>${CEL_DESC}</label><input type="tel" id="celularInput" placeholder="(11) 99999-9999" inputmode="tel" autocomplete="tel">`;
+      idCard.appendChild(d);
+    }
+
+    // Cronômetro de urgência
+    if (TIMER_MIN > 0) {
+      const timerEl = document.createElement('div');
+      timerEl.style.cssText = 'background:#fff8e1;border:1.5px solid #ffe082;border-radius:10px;padding:12px 16px;margin-bottom:12px;display:flex;align-items:center;gap:12px';
+      timerEl.innerHTML = `<span style="font-size:22px">⏳</span><div><div style="font-size:12px;color:#7c4d00;font-weight:600">${TIMER_TEXT}</div><div id="checkoutTimer" style="font-size:22px;font-weight:800;color:#e65100;letter-spacing:1px">--:--</div></div>`;
+      document.getElementById('screen-email').insertBefore(timerEl, document.getElementById('screen-email').firstChild);
+      startCheckoutTimer(TIMER_MIN * 60);
+    }
+  }
+
+  function startCheckoutTimer(seconds) {
+    const el = document.getElementById('checkoutTimer');
+    if (!el) return;
+    (function tick() {
+      if (seconds < 0) { el.textContent = '00:00'; el.style.color = '#ccc'; return; }
+      const m = Math.floor(seconds / 60);
+      const s = seconds % 60;
+      el.textContent = `${String(m).padStart(2,'0')}:${String(s).padStart(2,'0')}`;
+      seconds--;
+      setTimeout(tick, 1000);
+    })();
   }
 
   /* ── Render order bumps ── */
@@ -618,6 +663,13 @@
 
     userEmail = email;
     document.getElementById('successEmail').textContent = email;
+    // Atualiza o resumo do pedido com o total real
+    document.getElementById('productPrice').textContent = 'R$ ' + totalValor;
+    if (selectedBumps.length > 0) {
+      const bumpNames = selectedBumps.map(b => b.name).join(' + ');
+      document.getElementById('productName').textContent =
+        document.getElementById('productName').textContent + ' + ' + bumpNames;
+    }
     // Salva bumps selecionados para exibir na tela de sucesso
     sessionStorage.setItem('_co_bumps', JSON.stringify(selectedBumps));
 
@@ -625,6 +677,9 @@
     showLoading('Gerando seu PIX...');
 
     try {
+      const nomeVal    = document.getElementById('nomeInput')?.value.trim() || '';
+      const celularVal = document.getElementById('celularInput')?.value.trim() || '';
+
       const res = await fetch('/api/pagamento', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -633,6 +688,8 @@
           valor: totalValor,
           produto: document.getElementById('productName').textContent,
           bumps: selectedBumps.map(b => ({ name: b.name, deliveryUrl: b.deliveryUrl || '' })),
+          ...(nomeVal    ? { nome: nomeVal }    : {}),
+          ...(celularVal ? { celular: celularVal } : {}),
         }),
       });
 

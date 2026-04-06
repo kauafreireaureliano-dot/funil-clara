@@ -1256,18 +1256,22 @@
 
       const pdf = await pdfjsLib.getDocument({ url, withCredentials: false }).promise;
       pdfFrameWrap.innerHTML = '';
-      const W = pdfFrameWrap.clientWidth - 16;
+      const W   = pdfFrameWrap.clientWidth - 16;
+      const DPR = Math.min(window.devicePixelRatio || 1, 3); // até 3x para telas retina
 
       for (let p = 1; p <= pdf.numPages; p++) {
         const page     = await pdf.getPage(p);
         const base     = page.getViewport({ scale: 1 });
-        const scale    = Math.min(W / base.width, 2);
+        const cssScale = W / base.width;           // preenche a largura disponível
+        const scale    = cssScale * DPR;           // multiplica pelo DPR para nitidez real
         const viewport = page.getViewport({ scale });
         const canvas   = document.createElement('canvas');
         const ctx2d    = canvas.getContext('2d');
-        canvas.width   = viewport.width;
-        canvas.height  = viewport.height;
-        canvas.style.cssText = 'display:block;margin:0 auto 6px;border-radius:3px;max-width:100%';
+        // tamanho real do canvas (alta resolução)
+        canvas.width  = viewport.width;
+        canvas.height = viewport.height;
+        // exibição CSS no tamanho "normal" — o DPR é absorvido aqui
+        canvas.style.cssText = `display:block;margin:0 auto 6px;border-radius:3px;width:${Math.floor(viewport.width/DPR)}px;height:${Math.floor(viewport.height/DPR)}px;max-width:100%`;
         await page.render({ canvasContext: ctx2d, viewport }).promise;
         pdfFrameWrap.appendChild(canvas);
       }
@@ -1532,9 +1536,13 @@
       case 'checkout': {
         const valor = step.valor || '1,99';
         const prod  = encodeURIComponent(step.produto || 'Apostilas Clara Aureliano');
+        let coUrl = `checkout.html?valor=${encodeURIComponent(valor)}&produto=${prod}&f=${FUNNEL_ID}`;
+        if (step.fields?.nome)    coUrl += `&nome=1&nomeDesc=${encodeURIComponent(step.fields.nomeDesc||'')}`;
+        if (step.fields?.celular) coUrl += `&celular=1&celularDesc=${encodeURIComponent(step.fields.celularDesc||'')}`;
+        if (step.timer)           coUrl += `&timer=${step.timer.minutes}&timerText=${encodeURIComponent(step.timer.text||'Oferta expira em')}`;
         addSingleButton(
           step.label || `Contribuir com R$ ${valor}`,
-          `checkout.html?valor=${encodeURIComponent(valor)}&produto=${prod}&f=${FUNNEL_ID}`
+          coUrl
         );
         await sleep(delay);
         break;

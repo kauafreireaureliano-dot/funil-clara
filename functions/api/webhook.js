@@ -31,7 +31,8 @@ export async function onRequestPost(context) {
 
     if (payment.status !== 'approved') return new Response('ok', { status: 200 });
 
-    const email = payment.metadata?.buyer_email || payment.payer?.email;
+    const email   = payment.metadata?.buyer_email || payment.payer?.email;
+    const nomeComprador = payment.metadata?.buyer_nome || '';
     if (!email || email === 'XXXXXXXXXX') return new Response('ok', { status: 200 });
 
     const origin = url.origin;
@@ -80,7 +81,7 @@ export async function onRequestPost(context) {
         <p style="color:rgba(255,255,255,.85);margin:8px 0 0;font-size:14px">Seus PDFs estão prontos para download</p>
       </td></tr>
       <tr><td style="background:white;padding:24px;border-radius:0 0 12px 12px">
-        <p style="color:#333;font-size:15px;margin:0 0 20px">Olá! Obrigada pela sua compra 💚 Aqui estão seus materiais:</p>
+        <p style="color:#333;font-size:15px;margin:0 0 20px">Olá${nomeComprador ? ', <strong>' + nomeComprador + '</strong>' : ''}! Obrigada pela sua compra 💚 Aqui estão seus materiais:</p>
         ${pdfItems}${bumpItems ? `<p style="margin:16px 0 10px;font-size:13px;font-weight:700;color:#667781;text-transform:uppercase;letter-spacing:.5px">Adicionais comprados</p>${bumpItems}` : ''}
         <div style="background:#e8f5e9;border-radius:8px;padding:14px 16px;margin-top:20px">
           <p style="margin:0;color:#1b5e20;font-size:13px;line-height:1.6">
