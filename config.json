@@ -33,5 +33,7 @@
     "5,90": "checkout.html?valor=5,90&produto=Receitas%20de%20Recheios%20",
     "7,90": "checkout.html?valor=7,90&produto=Receitas%20de%20Recheios%20",
     "14,90": "checkout.html?valor=14,90&produto=Receitas%20de%20Recheios%20"
-  }
+  },
+  "metaPixelToken": "",
+  "orderBumps": []
 }
