@@ -1870,7 +1870,8 @@ async function loadFunnelSales() {
 
     // Agrupar por dia
     const byDay = {};
-    const todayKey = new Date().toLocaleDateString('pt-BR', { day:'2-digit', month:'2-digit' });
+    const todayKey     = new Date().toLocaleDateString('pt-BR', { day:'2-digit', month:'2-digit' });
+    const yesterdayKey = new Date(Date.now() - 864e5).toLocaleDateString('pt-BR', { day:'2-digit', month:'2-digit' });
 
     for (const r of rows) {
       const d = new Date(r.created_at);
@@ -1885,7 +1886,7 @@ async function loadFunnelSales() {
     }
 
     histEl.innerHTML = Object.entries(byDay).map(([day, d], idx) => {
-      const label = day === todayKey ? '📅 Hoje' : '📅 ' + day;
+      const label = day === todayKey ? '📅 Hoje' : day === yesterdayKey ? '📅 Ontem' : '📅 ' + day;
       const salesHtml = d.sales.map(s =>
         `<div style="display:flex;justify-content:space-between;padding:5px 0;border-bottom:1px solid var(--border);font-size:13px">
            <span style="color:var(--muted)">⏰ ${s.time}</span>
