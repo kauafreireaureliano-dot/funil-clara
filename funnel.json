@@ -59,7 +59,9 @@
     {
       "id": "s8",
       "type": "pdf",
-      "index": 1,
+      "url": "",
+      "name": "recheios com fogo ❤️",
+      "size": "",
       "delay": 3000
     },
     {
@@ -76,24 +78,10 @@
       "delay": 3000
     },
     {
-      "id": "s1775449869447",
-      "type": "text",
-      "content": "<strong>E olha</strong>, o Zap tira a qualidade das imagens e texto das apostilas 🥹, mas te envio todo as apostilas no seu e-mail pra você baixar com qualidade 🥰❤️",
-      "typing_duration": 2000,
-      "delay": 3000
-    },
-    {
       "id": "s11",
       "type": "text",
       "content": "Agora eu conto com a <strong>sua honestidade!</strong>",
       "typing_duration": 1900,
-      "delay": 3000
-    },
-    {
-      "id": "s12",
-      "type": "text",
-      "content": "Contribua com o Valor que sentir no coração:<br><br><strong>R$1,99, R$5,90, R$7,90, R$14,90</strong><br><br>Conto com você 🙏❤️",
-      "typing_duration": 2700,
       "delay": 3000
     },
     {
@@ -102,6 +90,27 @@
       "content": "LEMBRANDO! 🚨 Assim que você faz o pagamento, eu te mando o acesso novamente no seu e-mail (pra ficar salvo) e mando + 3 presentes ❤️😍",
       "typing_duration": 3000,
       "delay": 3000
+    },
+    {
+      "id": "s1775451472899",
+      "type": "text",
+      "content": "Após sua contribuição, <strong>vou mandar no seu whatsapp e no seu e-mail todas as apostilas novamente para que você não perca elas ♥️\n",
+      "typing_duration": 2000,
+      "delay": 3000
+    },
+    {
+      "id": "s1775525699522",
+      "type": "image",
+      "url": "https://raw.githubusercontent.com/kauafreireaureliano-dot/funil-clara/master/assets/s1775525699522_1775525715949.png",
+      "caption": "",
+      "delay": 2000
+    },
+    {
+      "id": "s1775525555370",
+      "type": "text",
+      "content": "As últimas 4 pessoas que contribuíram com meu trabalho pagaram R$14,90 mas você pode colaborar como quiser...\n",
+      "typing_duration": 2000,
+      "delay": 1500
     },
     {
       "id": "s14",
@@ -121,13 +130,6 @@
       "type": "text",
       "content": "❤️👆🏼",
       "typing_duration": 1000,
-      "delay": 3000
-    },
-    {
-      "id": "s1775451472899",
-      "type": "text",
-      "content": "",
-      "typing_duration": 2000,
       "delay": 3000
     }
   ]
