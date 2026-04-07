@@ -47,22 +47,25 @@ export async function onRequestPost(context) {
     })();
 
     // ── Registrar venda (atômico — ignora duplicata via UNIQUE constraint) ──
-    const insertRes = await fetch(`${supaUrl}/rest/v1/funnel_events`, {
-      method: 'POST',
-      headers: {
-        'Authorization': `Bearer ${supaKey}`,
-        'apikey': supaKey,
-        'Content-Type': 'application/json',
-        'Prefer': 'resolution=ignore-duplicates,return=representation',
-      },
-      body: JSON.stringify({
-        session_id: `payment_${paymentId}`,
-        step_id: funnelId,
-        step_type: null,
-        event_type: 'sale_confirmed',
-        value: String(payment.transaction_amount),
-      }),
-    });
+    const insertRes = await fetch(
+      `${supaUrl}/rest/v1/funnel_events?on_conflict=session_id,event_type`,
+      {
+        method: 'POST',
+        headers: {
+          'Authorization': `Bearer ${supaKey}`,
+          'apikey': supaKey,
+          'Content-Type': 'application/json',
+          'Prefer': 'resolution=ignore-duplicates,return=representation',
+        },
+        body: JSON.stringify({
+          session_id: `payment_${paymentId}`,
+          step_id: funnelId,
+          step_type: null,
+          event_type: 'sale_confirmed',
+          value: String(payment.transaction_amount),
+        }),
+      }
+    );
     const inserted = await insertRes.json().catch(() => []);
     // Se retornou array vazio = linha já existia (duplicata) → para aqui
     if (!Array.isArray(inserted) || inserted.length === 0) {
