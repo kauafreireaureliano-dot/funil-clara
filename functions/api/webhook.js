@@ -31,15 +31,8 @@ export async function onRequestPost(context) {
 
     if (payment.status !== 'approved') return new Response('ok', { status: 200 });
 
-    // ── Idempotência: ignora se já processamos esse pagamento ──
     const supaUrl = 'https://badgaqasjnosakzducjc.supabase.co';
     const supaKey = 'sb_publishable_-QVzljjE1sOYbO_ioSjYOA_1VaakZ5c';
-    const already = await fetch(
-      `${supaUrl}/rest/v1/funnel_events?session_id=eq.payment_${paymentId}&event_type=eq.sale_confirmed&select=session_id&limit=1`,
-      { headers: { 'Authorization': `Bearer ${supaKey}`, 'apikey': supaKey } }
-    ).then(r => r.json()).catch(() => []);
-    if (Array.isArray(already) && already.length > 0) return new Response('ok', { status: 200 });
-
     const funnelId = url.searchParams.get('funnel') || payment.metadata?.funnel_id || 'recheios';
     const email   = payment.metadata?.buyer_email || payment.payer?.email;
     const nomeComprador = payment.metadata?.buyer_nome || '';
@@ -53,7 +46,30 @@ export async function onRequestPost(context) {
       try { return JSON.parse(payment.metadata?.bumps || '[]'); } catch { return []; }
     })();
 
-    // ── Email via Resend ──
+    // ── Registrar venda (atômico — ignora duplicata via UNIQUE constraint) ──
+    const insertRes = await fetch(`${supaUrl}/rest/v1/funnel_events`, {
+      method: 'POST',
+      headers: {
+        'Authorization': `Bearer ${supaKey}`,
+        'apikey': supaKey,
+        'Content-Type': 'application/json',
+        'Prefer': 'resolution=ignore-duplicates,return=representation',
+      },
+      body: JSON.stringify({
+        session_id: `payment_${paymentId}`,
+        step_id: funnelId,
+        step_type: null,
+        event_type: 'sale_confirmed',
+        value: String(payment.transaction_amount),
+      }),
+    });
+    const inserted = await insertRes.json().catch(() => []);
+    // Se retornou array vazio = linha já existia (duplicata) → para aqui
+    if (!Array.isArray(inserted) || inserted.length === 0) {
+      return new Response('ok', { status: 200 });
+    }
+
+    // ── Email via Resend (só roda se a inserção foi nova) ──
     const pdfItems = pdfUrls.map((pdfUrl, i) => `
       <div style="border:1px solid #e9edef;border-radius:10px;padding:14px 16px;margin-bottom:12px">
         <table width="100%" cellpadding="0" cellspacing="0"><tr>
@@ -124,24 +140,6 @@ export async function onRequestPost(context) {
         html: emailHtml,
       }),
     });
-
-    // ── Registrar venda no Supabase ──
-    await fetch(`${supaUrl}/rest/v1/funnel_events`, {
-      method: 'POST',
-      headers: {
-        'Authorization': `Bearer ${supaKey}`,
-        'apikey': supaKey,
-        'Content-Type': 'application/json',
-        'Prefer': 'return=minimal',
-      },
-      body: JSON.stringify({
-        session_id: `payment_${paymentId}`,
-        step_id: funnelId,
-        step_type: null,
-        event_type: 'sale_confirmed',
-        value: String(payment.transaction_amount),
-      }),
-    }).catch(() => {});
 
     // ── Notificação + Meta CAPI — waitUntil garante execução ──
     const sideEffects = Promise.all([
