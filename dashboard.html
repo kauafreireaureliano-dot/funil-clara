@@ -1496,11 +1496,13 @@ async function deploy() {
 
     setProgress(10);
 
-    // ── Upload avatar ──
+    // ── Upload avatar (path por funil) ──
     if (pending.avatar) {
       toast('Subindo foto...', '');
       const b64 = await fileToBase64(pending.avatar.file);
-      const path = `assets/avatar.${pending.avatar.ext}`;
+      const path = activeFunnelId === 'recheios'
+        ? `assets/avatar.${pending.avatar.ext}`
+        : `funnels/${activeFunnelId}/assets/avatar.${pending.avatar.ext}`;
       const existing = await ghGet(path);
       await ghPut(path, b64, 'upload: avatar', existing?.sha);
       config.avatarUrl = `${RAW}/${path}`;
