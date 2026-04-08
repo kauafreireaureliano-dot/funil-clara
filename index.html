@@ -692,6 +692,49 @@
 </head>
 <body>
 
+<!-- CALL OVERLAY -->
+<div id="callOverlay" style="display:none;position:fixed;inset:0;z-index:999;background:#1a1a2e;flex-direction:column;align-items:center;justify-content:space-between;padding:60px 0 50px;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif">
+  <div style="text-align:center">
+    <div style="font-size:13px;color:rgba(255,255,255,.6);margin-bottom:6px" id="callTypeLabel">Chamada de voz do WhatsApp</div>
+    <div style="font-size:26px;font-weight:700;color:white" id="callNameLabel">Clara Aureliano</div>
+    <div style="font-size:14px;color:rgba(255,255,255,.5);margin-top:6px" id="callStatusLabel">Chamando...</div>
+  </div>
+  <div style="position:relative;display:flex;align-items:center;justify-content:center">
+    <div id="callRipple1" style="position:absolute;width:140px;height:140px;border-radius:50%;background:rgba(255,255,255,.07);animation:callRipple 2s ease-out infinite"></div>
+    <div id="callRipple2" style="position:absolute;width:140px;height:140px;border-radius:50%;background:rgba(255,255,255,.05);animation:callRipple 2s ease-out infinite .6s"></div>
+    <img id="callAvatarImg" src="" style="width:100px;height:100px;border-radius:50%;object-fit:cover;border:3px solid rgba(255,255,255,.3);position:relative;z-index:1">
+  </div>
+  <div>
+    <div id="callButtons" style="display:flex;gap:64px;align-items:center;justify-content:center">
+      <div style="text-align:center">
+        <button onclick="callDecline()" style="width:64px;height:64px;border-radius:50%;background:#ff3b30;border:none;cursor:pointer;display:flex;align-items:center;justify-content:center;box-shadow:0 4px 20px rgba(255,59,48,.5)">
+          <svg width="28" height="28" viewBox="0 0 24 24" fill="white" style="transform:rotate(135deg)"><path d="M6.62 10.79c1.44 2.83 3.76 5.14 6.59 6.59l2.2-2.2c.27-.27.67-.36 1.02-.24 1.12.37 2.33.57 3.57.57.55 0 1 .45 1 1V20c0 .55-.45 1-1 1-9.39 0-17-7.61-17-17 0-.55.45-1 1-1h3.5c.55 0 1 .45 1 1 0 1.25.2 2.45.57 3.57.11.35.03.74-.25 1.02l-2.2 2.2z"/></svg>
+        </button>
+        <div style="color:rgba(255,255,255,.6);font-size:12px;margin-top:8px">Recusar</div>
+      </div>
+      <div style="text-align:center">
+        <button onclick="callAccept()" id="callAcceptBtn" style="width:64px;height:64px;border-radius:50%;background:#34c759;border:none;cursor:pointer;display:flex;align-items:center;justify-content:center;box-shadow:0 4px 20px rgba(52,199,89,.5)">
+          <svg width="28" height="28" viewBox="0 0 24 24" fill="white"><path d="M6.62 10.79c1.44 2.83 3.76 5.14 6.59 6.59l2.2-2.2c.27-.27.67-.36 1.02-.24 1.12.37 2.33.57 3.57.57.55 0 1 .45 1 1V20c0 .55-.45 1-1 1-9.39 0-17-7.61-17-17 0-.55.45-1 1-1h3.5c.55 0 1 .45 1 1 0 1.25.2 2.45.57 3.57.11.35.03.74-.25 1.02l-2.2 2.2z"/></svg>
+        </button>
+        <div style="color:rgba(255,255,255,.6);font-size:12px;margin-top:8px">Aceitar</div>
+      </div>
+    </div>
+    <div id="callInProgress" style="display:none;text-align:center">
+      <div style="color:rgba(255,255,255,.5);font-size:13px;margin-bottom:24px" id="callTimer">0:00</div>
+      <button onclick="callHangUp()" style="width:64px;height:64px;border-radius:50%;background:#ff3b30;border:none;cursor:pointer;display:flex;align-items:center;justify-content:center;margin:0 auto;box-shadow:0 4px 20px rgba(255,59,48,.5)">
+        <svg width="28" height="28" viewBox="0 0 24 24" fill="white" style="transform:rotate(135deg)"><path d="M6.62 10.79c1.44 2.83 3.76 5.14 6.59 6.59l2.2-2.2c.27-.27.67-.36 1.02-.24 1.12.37 2.33.57 3.57.57.55 0 1 .45 1 1V20c0 .55-.45 1-1 1-9.39 0-17-7.61-17-17 0-.55.45-1 1-1h3.5c.55 0 1 .45 1 1 0 1.25.2 2.45.57 3.57.11.35.03.74-.25 1.02l-2.2 2.2z"/></svg>
+      </button>
+      <div style="color:rgba(255,255,255,.6);font-size:12px;margin-top:8px">Desligar</div>
+    </div>
+  </div>
+</div>
+<style>
+@keyframes callRipple {
+  0%   { transform: scale(1); opacity: .6; }
+  100% { transform: scale(2.2); opacity: 0; }
+}
+</style>
+
 <!-- PDF MODAL -->
 <div class="pdf-modal" id="pdfModal">
   <div class="pdf-modal-overlay" id="pdfOverlay"></div>
@@ -1061,6 +1104,108 @@
   function removeIndicator() {
     if (indicatorEl) { indicatorEl.remove(); indicatorEl = null; }
     statusLine.textContent = 'online';
+  }
+
+  /* ════════════════════════════════════════════════
+     ▌ LIGAÇÃO
+  ════════════════════════════════════════════════ */
+  let _callAudio = null;
+  let _callRingCtx = null;
+  let _callTimerInterval = null;
+  let _callResolve = null;
+
+  function startRingtone() {
+    try {
+      _callRingCtx = new (window.AudioContext || window.webkitAudioContext)();
+      let t = _callRingCtx.currentTime;
+      function ring() {
+        if (!_callRingCtx) return;
+        [830, 1245].forEach((freq, i) => {
+          const o = _callRingCtx.createOscillator();
+          const g = _callRingCtx.createGain();
+          o.connect(g); g.connect(_callRingCtx.destination);
+          o.frequency.value = freq;
+          o.type = 'sine';
+          g.gain.setValueAtTime(0, t + i * 0.1);
+          g.gain.linearRampToValueAtTime(0.18, t + i * 0.1 + 0.02);
+          g.gain.linearRampToValueAtTime(0, t + i * 0.1 + 0.3);
+          o.start(t + i * 0.1); o.stop(t + i * 0.1 + 0.35);
+        });
+        t += 2;
+        setTimeout(ring, 2000);
+      }
+      ring();
+    } catch {}
+  }
+
+  function stopRingtone() {
+    try { if (_callRingCtx) { _callRingCtx.close(); _callRingCtx = null; } } catch {}
+  }
+
+  function startCallTimer() {
+    let s = 0;
+    const el = document.getElementById('callTimer');
+    _callTimerInterval = setInterval(() => {
+      s++;
+      el.textContent = `${Math.floor(s/60)}:${String(s%60).padStart(2,'0')}`;
+    }, 1000);
+  }
+
+  function stopCallTimer() {
+    clearInterval(_callTimerInterval);
+    _callTimerInterval = null;
+  }
+
+  function callAccept() {
+    stopRingtone();
+    document.getElementById('callButtons').style.display = 'none';
+    document.getElementById('callInProgress').style.display = '';
+    document.getElementById('callStatusLabel').textContent = 'Em chamada';
+    startCallTimer();
+    if (_callAudio) {
+      _callAudio.play().catch(() => {});
+      _callAudio.onended = () => callHangUp();
+    } else {
+      setTimeout(callHangUp, 3000);
+    }
+  }
+
+  function callDecline() {
+    callHangUp(true);
+  }
+
+  function callHangUp(declined) {
+    stopRingtone();
+    stopCallTimer();
+    if (_callAudio) { _callAudio.pause(); _callAudio.currentTime = 0; }
+    document.getElementById('callStatusLabel').textContent = declined ? 'Chamada recusada' : 'Chamada encerrada';
+    document.getElementById('callInProgress').style.display = 'none';
+    document.getElementById('callButtons').style.display = '';
+    setTimeout(() => {
+      document.getElementById('callOverlay').style.display = 'none';
+      if (_callResolve) { _callResolve(); _callResolve = null; }
+    }, 800);
+  }
+
+  function showCall(step) {
+    return new Promise(resolve => {
+      _callResolve = resolve;
+      const overlay = document.getElementById('callOverlay');
+      overlay.style.display = 'flex';
+      document.getElementById('callAvatarImg').src = CONFIG.AVATAR_URL || '';
+      document.getElementById('callNameLabel').textContent = document.querySelector('.wa-name')?.textContent || 'Clara Aureliano';
+      document.getElementById('callStatusLabel').textContent = 'Chamando...';
+      document.getElementById('callButtons').style.display = 'flex';
+      document.getElementById('callInProgress').style.display = 'none';
+      document.getElementById('callTimer').textContent = '0:00';
+
+      _callAudio = step.url ? new Audio(step.url) : null;
+
+      startRingtone();
+
+      const ringMs = step.ring_duration || 0;
+      if (ringMs > 0) setTimeout(() => { if (_callResolve) callAccept(); }, ringMs);
+    });
   }
 
   /* ════════════════════════════════════════════════
@@ -1560,6 +1705,11 @@
       }
       case 'delay': {
         await sleep(step.duration ?? 3000);
+        break;
+      }
+      case 'call': {
+        await showCall(step);
+        await sleep(delay);
         break;
       }
       case 'payment_buttons': {

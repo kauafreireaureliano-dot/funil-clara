@@ -945,6 +945,7 @@
             <option value="capture">✏️ Captura de texto</option>
             <option value="delay">⏱️ Delay</option>
             <option value="payment_buttons">💰 Botões de pagamento</option>
+            <option value="call">📞 Ligação</option>
           </select>
         </div>
 
@@ -1055,6 +1056,21 @@
 
         <div id="fe-delay" style="display:none">
           <div class="field"><label>Duração (ms)</label><input type="number" id="feDelayDuration" value="3000" min="0"></div>
+        </div>
+
+        <div id="fe-call" style="display:none">
+          <div class="field">
+            <label>Áudio da ligação (voz gravada)</label>
+            <div id="feCallDropZone" style="border:2px dashed var(--border);border-radius:8px;padding:20px;text-align:center;cursor:pointer;background:var(--bg);transition:.2s" onclick="document.getElementById('feCallFile').click()" ondragover="event.preventDefault();this.style.borderColor='var(--green)'" ondragleave="this.style.borderColor='var(--border)'" ondrop="handleFileDrop(event,'call')">
+              <div style="font-size:24px;margin-bottom:6px">📞</div>
+              <div style="font-size:13px;color:var(--muted)" id="feCallFileName">Arraste o áudio ou clique aqui</div>
+              <input type="file" id="feCallFile" accept="audio/*" style="display:none" onchange="handleFileSelect(this,'call')">
+            </div>
+          </div>
+          <div class="field"><label>URL do áudio (se já tiver link)</label><input type="url" id="feCallUrl" placeholder="https://..."></div>
+          <div class="field"><label>Duração do áudio (ex: 0:28)</label><input type="text" id="feCallDuration" placeholder="0:28"></div>
+          <div class="field"><label>Tempo tocando antes de atender automaticamente (ms, 0 = não atende sozinho)</label><input type="number" id="feCallRingDuration" value="0" min="0" step="1000"></div>
+          <div style="font-size:12px;color:var(--muted);margin-top:-8px;margin-bottom:10px">Se deixar 0, o cliente precisa clicar em "Aceitar" pra ouvir o áudio.</div>
         </div>
 
         <div id="fe-delay-common">
@@ -2053,7 +2069,7 @@ async function loadFunnelFromGH() {
 
 const STEP_ICONS = {
   text: '💬', audio: '🎙️', pdf: '📄', image: '🖼️', video: '🎬',
-  button: '🔘', checkout: '💳', multiple_choice: '🔤', capture: '✏️',
+  button: '🔘', checkout: '💳', multiple_choice: '🔤', capture: '✏️', call: '📞',
   delay: '⏱️', payment_buttons: '💰'
 };
 
@@ -2063,6 +2079,7 @@ function stepSummary(step) {
     case 'audio':          return step.url ? `${step.url.split('/').pop()} — ${step.duration || '0:00'}` : `Áudio ${(step.index ?? 0) + 1} — ${step.duration || '0:00'}`;
     case 'pdf':            return step.url ? (step.name || step.url.split('/').pop()) : `PDF ${(step.index ?? 0) + 1}`;
     case 'image':          return step.url ? step.url.substring(0, 50) : '(sem URL)';
+    case 'call':           return step.url ? `Ligação · ${step.duration || '0:00'}` : 'Ligação (sem áudio)';
     case 'video':          return step.url ? step.url.substring(0, 50) : '(sem URL)';
     case 'button':         return step.label || 'Botão';
     case 'checkout':       return `R$ ${step.valor || '1,99'} — ${step.label || ''}`;
@@ -2169,6 +2186,13 @@ function openFunnelEditPanel(i) {
   document.getElementById('feAudioDropLabel').innerHTML = step.url
     ? `<span style="color:var(--green);font-weight:600">✔ Áudio carregado</span><br><span style="font-size:11px">${step.url.split('/').pop()}</span>`
     : 'Clique ou arraste o áudio aqui<br><span style="font-size:11px">MP3, OGG, M4A, WAV</span>';
+  // call
+  if (step.type === 'call') {
+    document.getElementById('feCallUrl').value = step.url || '';
+    document.getElementById('feCallDuration').value = step.duration || '';
+    document.getElementById('feCallRingDuration').value = step.ring_duration ?? 0;
+    document.getElementById('feCallFileName').textContent = step.url ? '✔ ' + step.url.split('/').pop() : 'Arraste o áudio ou clique aqui';
+  }
   // pdf
   document.getElementById('fePdfUrl').value = step.url || '';
   document.getElementById('fePdfName').value = step.name || '';
@@ -2213,7 +2237,7 @@ function openFunnelEditPanel(i) {
 
 function funnelUpdateTypeFields() {
   const type = document.getElementById('feType').value;
-  const allTypes = ['text','audio','pdf','image','video','button','checkout','multiple_choice','capture','delay'];
+  const allTypes = ['text','audio','pdf','image','video','button','checkout','multiple_choice','capture','delay','call'];
   allTypes.forEach(t => {
     const el = document.getElementById('fe-' + t);
     if (el) el.style.display = (t === type) ? '' : 'none';
@@ -2258,6 +2282,7 @@ async function funnelSaveStep() {
       if (mediaType === 'audio') document.getElementById('feAudioUrl').value = rawUrl;
       if (mediaType === 'pdf')   document.getElementById('fePdfUrl').value   = rawUrl;
       if (mediaType === 'image') document.getElementById('feImageUrl').value  = rawUrl;
+      if (mediaType === 'call')  { document.getElementById('feCallUrl').value = rawUrl; document.getElementById('feCallFileName').textContent = '✔ ' + safeName; }
       pendingStepFile = null;
       toast('Arquivo enviado!', 'green');
     } catch(e) {
@@ -2277,6 +2302,11 @@ async function funnelSaveStep() {
       step.url = document.getElementById('feAudioUrl').value;
       step.duration = document.getElementById('feAudioDuration').value || '0:00';
       step.recording_duration = parseInt(document.getElementById('feRecordingDuration').value) || 3000;
+      break;
+    case 'call':
+      step.url = document.getElementById('feCallUrl').value;
+      step.duration = document.getElementById('feCallDuration').value || '0:00';
+      step.ring_duration = parseInt(document.getElementById('feCallRingDuration').value) || 0;
       break;
     case 'pdf':
       step.url = document.getElementById('fePdfUrl').value;
