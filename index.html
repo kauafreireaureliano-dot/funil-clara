@@ -1067,6 +1067,7 @@
      ▌ MENSAGEM DE TEXTO
   ════════════════════════════════════════════════ */
   function addText(html, side, time) {
+    html = (html || '').replace(/\n/g, '<br>');
     time = time || getTime();
     const w = document.createElement('div');
     w.className = `mw ${side}`;
