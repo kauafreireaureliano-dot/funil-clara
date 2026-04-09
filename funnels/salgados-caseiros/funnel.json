@@ -1,9 +1,24 @@
 {
   "steps": [
     {
-      "id": "s1",
+      "id": "s1775753111713",
+      "type": "audio",
+      "url": "",
+      "duration": "0:00",
+      "recording_duration": 3000,
+      "delay": 3000
+    },
+    {
+      "id": "s1775753127908",
       "type": "text",
-      "content": "Olá! Bem-vindo ao funil Salgados Caseiros 😊",
+      "content": "👇 Feito pra quem já vende salgados ou quer começar agora:<br><br>✅ Apostila completa com os salgados mais vendidos: assados, fritos, coxinhas, esfirras, gourmet e massas base<br>✅ Ingredientes baratos e fáceis de achar em qualquer mercado<br>🎦 Videoaulas com passo a passo<br>🎓 Certificado de conclusão",
+      "typing_duration": 15000,
+      "delay": 1000
+    },
+    {
+      "id": "s1775753277700",
+      "type": "text",
+      "content": "*+4 Bônus Exclusivos 🎁*<br>🥐 Truque da Massa Industrial<br>📈 Guia de Vendas<br>💰 Como Lucrar 2x Mais<br>📊 Guia de Precificação <br>✅ Você recebe tudo agora mesmo aqui.",
       "typing_duration": 2000,
       "delay": 3000
     }
