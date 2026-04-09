@@ -34,6 +34,59 @@
       "type": "capture",
       "placeholder": "Digite se podemos te mandar as receitas",
       "delay": 3000
+    },
+    {
+      "id": "s1775754710571",
+      "type": "audio",
+      "url": "",
+      "duration": "0:00",
+      "recording_duration": 3000,
+      "delay": 3000
+    },
+    {
+      "id": "s1775754724997",
+      "type": "text",
+      "content": "Ok, estou enviando as receitas aqui abaixo 👇",
+      "typing_duration": 2000,
+      "delay": 3000
+    },
+    {
+      "id": "s1775754763868",
+      "type": "pdf",
+      "url": "",
+      "name": "Apostila",
+      "size": "",
+      "delay": 3000
+    },
+    {
+      "id": "s1775754771102",
+      "type": "text",
+      "content": "Você conseguiu abrir as receitas acima? 👆",
+      "typing_duration": 2000,
+      "delay": 3000
+    },
+    {
+      "id": "s1775754778813",
+      "type": "text",
+      "content": "Pronto, fiz minha parte! Confiei em você e enviei tudo com carinho ❤️<br><br> Agora é simples: escolhe como quer contribuir 👇",
+      "typing_duration": 2000,
+      "delay": 3000
+    },
+    {
+      "id": "s1775755333043",
+      "type": "text",
+      "content": "💰 R$9,90 — Apostila Completa<br><br>*⭐ R$19,90 — Apostila + 4 Bônus (mais escolhido)*",
+      "typing_duration": 6000,
+      "delay": 3000
+    },
+    {
+      "id": "s1775755442501",
+      "type": "checkout",
+      "valor": "",
+      "produto": "",
+      "label": "",
+      "fields": {},
+      "delay": 3000
     }
   ]
 }
