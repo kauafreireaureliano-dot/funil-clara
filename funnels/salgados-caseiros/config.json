@@ -1,0 +1,30 @@
+{
+  "theme": "dark",
+  "avatarUrl": "",
+  "audioUrls": [
+    "",
+    ""
+  ],
+  "pdfUrls": [
+    "",
+    "",
+    ""
+  ],
+  "pdfNames": [
+    "PDF 1",
+    "PDF 2",
+    "PDF 3"
+  ],
+  "pdfSizes": [
+    "",
+    "",
+    ""
+  ],
+  "produtos": {
+    "1,99": "Produto",
+    "5,90": "Produto",
+    "7,90": "Produto",
+    "14,90": "Produto"
+  },
+  "paymentLinks": {}
+}
