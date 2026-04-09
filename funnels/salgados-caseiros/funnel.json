@@ -19,7 +19,20 @@
       "id": "s1775753277700",
       "type": "text",
       "content": "*+4 Bônus Exclusivos 🎁*<br>🥐 Truque da Massa Industrial<br>📈 Guia de Vendas<br>💰 Como Lucrar 2x Mais<br>📊 Guia de Precificação <br>✅ Você recebe tudo agora mesmo aqui.",
-      "typing_duration": 2000,
+      "typing_duration": 5000,
+      "delay": 3000
+    },
+    {
+      "id": "s1775753740844",
+      "type": "text",
+      "content": "O combinado é esse: eu te envio as receitas primeiro, você confere com calma, e contribui com apenas *R$9,90*.<br><br> *Pode ser assim?* ❤️ *(É só escrever SIM)*",
+      "typing_duration": 4000,
+      "delay": 1000
+    },
+    {
+      "id": "s1775753953115",
+      "type": "capture",
+      "placeholder": "Digite se podemos te mandar as receitas",
       "delay": 3000
     }
   ]
