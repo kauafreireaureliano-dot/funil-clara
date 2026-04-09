@@ -1212,7 +1212,11 @@
      ▌ MENSAGEM DE TEXTO
   ════════════════════════════════════════════════ */
   function addText(html, side, time) {
-    html = (html || '').replace(/\n/g, '<br>');
+    html = (html || '')
+      .replace(/\n/g, '<br>')
+      .replace(/\*([^*\n]+)\*/g, '<strong>$1</strong>')
+      .replace(/_([^_\n]+)_/g, '<em>$1</em>')
+      .replace(/~([^~\n]+)~/g, '<s>$1</s>');
     time = time || getTime();
     const w = document.createElement('div');
     w.className = `mw ${side}`;
