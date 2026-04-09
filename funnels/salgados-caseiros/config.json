@@ -26,5 +26,14 @@
     "7,90": "Produto",
     "14,90": "Produto"
   },
-  "paymentLinks": {}
+  "paymentLinks": {
+    "1,99": "checkout.html?valor=1,99&produto=Produto",
+    "5,90": "checkout.html?valor=5,90&produto=Produto",
+    "7,90": "checkout.html?valor=7,90&produto=Produto",
+    "14,90": "checkout.html?valor=14,90&produto=Produto"
+  },
+  "notifyWebhookUrl": "https://phyznlckywngdgphlyho.supabase.co/functions/v1/gg-webhook",
+  "metaPixelId": "740149659063984",
+  "metaPixelToken": "",
+  "orderBumps": []
 }
