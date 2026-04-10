@@ -822,6 +822,12 @@
         </div>
       </div>
 
+      <!-- Insights automáticos -->
+      <div class="card" id="insightsCard" style="display:none">
+        <div class="card-title">💡 Insights do Funil</div>
+        <div id="analyticsInsights"></div>
+      </div>
+
       <!-- Hour chart -->
       <div class="card">
         <div class="card-title">Atividade por horário</div>
@@ -2021,6 +2027,81 @@ async function loadAnalytics() {
           </div>
         </div>
       `).join('');
+    }
+
+    // ── Insights automáticos ──
+    const insightsCard = document.getElementById('insightsCard');
+    const insightsEl   = document.getElementById('analyticsInsights');
+    if (insightsEl && data.steps.length >= 2) {
+      const insights = [];
+
+      // Maior queda entre steps consecutivos
+      let maxDrop = 0, maxDropIdx = 0;
+      for (let i = 0; i < data.steps.length - 1; i++) {
+        const drop = data.steps[i].count - data.steps[i+1].count;
+        if (drop > maxDrop) { maxDrop = drop; maxDropIdx = i; }
+      }
+      if (maxDrop > 0 && data.steps[maxDropIdx].count > 0) {
+        const dropPct = Math.round(maxDrop / data.steps[maxDropIdx].count * 100);
+        const s2 = data.steps[maxDropIdx + 1];
+        const label = STEP_TYPE_LABELS[s2.step_type] || s2.step_type || `step ${maxDropIdx+2}`;
+        insights.push({ type: dropPct >= 50 ? 'danger' : 'warn',
+          text: `${dropPct}% dos usuários abandonam entre o step ${maxDropIdx+1} e ${maxDropIdx+2} (${label}). É o maior gargalo do funil — revise o conteúdo ou reduza o tempo de espera nesse ponto.` });
+      }
+
+      // Hook inicial fraco
+      if (data.steps.length > 1 && data.steps[0].count > 10) {
+        const hookDrop = Math.round((data.steps[0].count - data.steps[1].count) / data.steps[0].count * 100);
+        if (hookDrop > 55 && maxDropIdx !== 0) {
+          insights.push({ type: 'warn',
+            text: `${hookDrop}% saem logo na primeira mensagem. O hook inicial não está prendendo — teste uma abertura com curiosidade, prova social ou uma promessa mais específica.` });
+        }
+      }
+
+      // Taxa de conversão baixa
+      const rate = parseFloat(data.conversion_rate);
+      if (!isNaN(rate) && data.total_sessions > 20) {
+        if (rate < 0.5) {
+          insights.push({ type: 'danger',
+            text: `Taxa de conversão de ${data.conversion_rate}% está crítica. Verifique se o checkout está funcionando, revise o preço e teste um bônus ou urgência na oferta.` });
+        } else if (rate < 2) {
+          insights.push({ type: 'warn',
+            text: `Conversão de ${data.conversion_rate}% tem espaço para crescer. Teste adicionar escassez real (vagas limitadas) ou um depoimento próximo ao botão de pagamento.` });
+        } else if (rate >= 5) {
+          insights.push({ type: 'ok',
+            text: `Conversão de ${data.conversion_rate}% é excelente! Foco agora em aumentar o volume de tráfego — o funil está convertendo bem.` });
+        }
+      }
+
+      // Horário de pico
+      if (data.hours && data.hours[data.peak_hour] > 0) {
+        const h = data.peak_hour;
+        if (h >= 21 || h <= 4) {
+          insights.push({ type: 'info',
+            text: `Seu público é noturno — pico às ${h}h. Programe anúncios e disparos entre 19h e 22h para pegar o tráfego aquecido.` });
+        } else if (h >= 11 && h <= 14) {
+          insights.push({ type: 'info',
+            text: `Pico de acesso no horário de almoço (${h}h). Criativos programados para sair às 11h tendem a performar melhor nesse público.` });
+        } else if (h >= 7 && h <= 9) {
+          insights.push({ type: 'info',
+            text: `Público matutino — pico às ${h}h. Disparos logo cedo (6h30-8h) podem capturar esses usuários antes do trabalho.` });
+        }
+      }
+
+      if (insights.length === 0) {
+        insights.push({ type: 'ok', text: 'Funil saudável no período. Nenhum gargalo crítico identificado — continue escalando o tráfego.' });
+      }
+
+      const clr = { warn:'#f59e0b', danger:'#ef4444', info:'#3b82f6', ok:'#00a884' };
+      const ico = { warn:'⚠️', danger:'🔴', info:'💡', ok:'✅' };
+      insightsEl.innerHTML = insights.map(ins => `
+        <div style="display:flex;gap:10px;padding:10px 12px;background:${clr[ins.type]}18;border-left:3px solid ${clr[ins.type]};border-radius:0 6px 6px 0;margin-bottom:8px">
+          <span style="flex-shrink:0">${ico[ins.type]}</span>
+          <span style="font-size:13px;line-height:1.5;color:var(--text)">${ins.text}</span>
+        </div>`).join('');
+      insightsCard.style.display = 'block';
+    } else if (insightsCard) {
+      insightsCard.style.display = 'none';
     }
 
     // Hours

@@ -396,6 +396,7 @@
       gap: 2px;
       height: 30px;
       margin-bottom: 4px;
+      cursor: pointer;
     }
 
     .wbar {
@@ -403,17 +404,11 @@
       border-radius: 2px;
       background: var(--color-muted);
       flex-shrink: 0;
-      transform-origin: center;
+      transition: background .05s;
     }
 
-    .wbar.playing {
+    .wbar.played {
       background: #00a884;
-      animation: wavePlay .5s ease-in-out infinite alternate;
-    }
-
-    @keyframes wavePlay {
-      from { transform: scaleY(.4); }
-      to   { transform: scaleY(1); }
     }
 
     .audio-foot {
@@ -1241,21 +1236,24 @@
   function resetActiveAudio() {
     if (activeAudio) { activeAudio.pause(); activeAudio.currentTime = 0; }
     if (activePlayBtn) activePlayBtn.innerHTML = PLAY_ICON;
-    if (activeWbars)   activeWbars.forEach(b => b.classList.remove('playing'));
+    if (activeWbars)   activeWbars.forEach(b => b.classList.remove('played'));
     activeAudio = activePlayBtn = activeWbars = null;
   }
 
-  function addAudio(audioIndex, defaultDuration, side) {
+  function addAudio(audioIndex, defaultDuration, side, urlOverride) {
     side = side || 'r';
     const time = getTime();
-    const url  = CONFIG.AUDIO_URLS[audioIndex] || '';
+    const url  = urlOverride || CONFIG.AUDIO_URLS[audioIndex] || '';
 
     const w = document.createElement('div');
     w.className = `mw ${side}`;
 
-    const bars = Array.from({ length: 30 }, (_, i) => {
-      const h = (4 + Math.random() * 22).toFixed(0);
-      return `<div class="wbar" style="height:${h}px;animation-delay:${(i * 0.04).toFixed(2)}s"></div>`;
+    // Alturas fixas com aparência de waveform real (não aleatória a cada render)
+    const BAR_COUNT = 40;
+    const seed = url.length || 17;
+    const bars = Array.from({ length: BAR_COUNT }, (_, i) => {
+      const h = 4 + Math.round(Math.abs(Math.sin(i * 0.9 + seed * 0.3) * Math.cos(i * 0.4)) * 22);
+      return `<div class="wbar" style="height:${h}px"></div>`;
     }).join('');
 
     w.innerHTML = `
@@ -1274,30 +1272,53 @@
     chat.appendChild(w);
     scroll();
 
-    const playBtn = w.querySelector('.play-btn');
-    const durEl   = w.querySelector('.audio-dur');
-    const wbars   = Array.from(w.querySelectorAll('.wbar'));
+    const playBtn  = w.querySelector('.play-btn');
+    const durEl    = w.querySelector('.audio-dur');
+    const waveform = w.querySelector('.waveform');
+    const wbars    = Array.from(w.querySelectorAll('.wbar'));
 
     if (!url) { playBtn.title = 'Áudio não configurado'; return w; }
 
     const audio = new Audio(url);
 
+    function fmtTime(s) {
+      return `${Math.floor(s/60)}:${String(Math.floor(s%60)).padStart(2,'0')}`;
+    }
+
+    function updateProgress(ratio) {
+      const split = Math.round(ratio * wbars.length);
+      wbars.forEach((b, i) => {
+        if (i < split) b.classList.add('played');
+        else b.classList.remove('played');
+      });
+    }
+
     audio.addEventListener('loadedmetadata', () => {
-      const t = Math.round(audio.duration);
-      durEl.textContent = `${Math.floor(t/60)}:${String(t%60).padStart(2,'0')}`;
+      durEl.textContent = fmtTime(audio.duration);
     });
 
     audio.addEventListener('timeupdate', () => {
-      const t = Math.floor(audio.currentTime);
-      durEl.textContent = `${Math.floor(t/60)}:${String(t%60).padStart(2,'0')}`;
+      if (audio.duration) {
+        durEl.textContent = fmtTime(audio.currentTime);
+        updateProgress(audio.currentTime / audio.duration);
+      }
     });
 
     audio.addEventListener('ended', () => {
       playBtn.innerHTML = PLAY_ICON;
-      wbars.forEach(b => b.classList.remove('playing'));
-      const total = Math.round(audio.duration);
-      durEl.textContent = `${Math.floor(total/60)}:${String(total%60).padStart(2,'0')}`;
+      updateProgress(0);
+      durEl.textContent = audio.duration ? fmtTime(audio.duration) : defaultDuration;
       if (activeAudio === audio) { activeAudio = activePlayBtn = activeWbars = null; }
+    });
+
+    // Seek por clique na waveform
+    waveform.addEventListener('click', e => {
+      if (!audio.duration) return;
+      const rect  = waveform.getBoundingClientRect();
+      const ratio = Math.max(0, Math.min(1, (e.clientX - rect.left) / rect.width));
+      audio.currentTime = ratio * audio.duration;
+      updateProgress(ratio);
+      durEl.textContent = fmtTime(audio.currentTime);
     });
 
     playBtn.addEventListener('click', () => {
@@ -1305,12 +1326,10 @@
       if (audio.paused) {
         audio.play().catch(() => {});
         playBtn.innerHTML = PAUSE_ICON;
-        wbars.forEach(b => b.classList.add('playing'));
         activeAudio = audio; activePlayBtn = playBtn; activeWbars = wbars;
       } else {
         audio.pause();
         playBtn.innerHTML = PLAY_ICON;
-        wbars.forEach(b => b.classList.remove('playing'));
         activeAudio = activePlayBtn = activeWbars = null;
       }
     });
@@ -1638,24 +1657,7 @@
         showRecording();
         await sleep(step.recording_duration ?? 3000);
         removeIndicator();
-        if (step.url) {
-          // URL direta — cria elemento de áudio sem depender do CONFIG
-          const w = addAudio(0, step.duration ?? '0:10');
-          const audio = new Audio(step.url);
-          const playBtn = w.querySelector('.play-btn');
-          const durEl   = w.querySelector('.audio-dur');
-          const wbars   = Array.from(w.querySelectorAll('.wbar'));
-          audio.addEventListener('loadedmetadata', () => { const t=Math.round(audio.duration); durEl.textContent=`${Math.floor(t/60)}:${String(t%60).padStart(2,'0')}`; });
-          audio.addEventListener('timeupdate', () => { const t=Math.floor(audio.currentTime); durEl.textContent=`${Math.floor(t/60)}:${String(t%60).padStart(2,'0')}`; });
-          audio.addEventListener('ended', () => { playBtn.innerHTML=PLAY_ICON; wbars.forEach(b=>b.classList.remove('playing')); });
-          playBtn.addEventListener('click', () => {
-            if (activeAudio && activeAudio !== audio) resetActiveAudio();
-            if (audio.paused) { audio.play().catch(()=>{}); playBtn.innerHTML=PAUSE_ICON; wbars.forEach(b=>b.classList.add('playing')); activeAudio=audio; activePlayBtn=playBtn; activeWbars=wbars; }
-            else { audio.pause(); playBtn.innerHTML=PLAY_ICON; wbars.forEach(b=>b.classList.remove('playing')); activeAudio=activePlayBtn=activeWbars=null; }
-          });
-        } else {
-          addAudio(step.index ?? 0, step.duration ?? '0:10');
-        }
+        addAudio(step.index ?? 0, step.duration ?? '0:10', 'r', step.url || null);
         await sleep(delay);
         break;
       }
