@@ -51,11 +51,19 @@
       "delay": 3000
     },
     {
-      "id": "s1775787499807",
+      "id": "s1775754763868",
       "type": "pdf",
-      "url": "",
-      "name": "Apostila",
-      "size": "",
+      "url": "https://raw.githubusercontent.com/kauafreireaureliano-dot/funil-clara/master/funnels/salgados-caseiros/assets/s1775754763868_1775787688002.pdf",
+      "name": "Salgados Secretos",
+      "size": "3.87",
+      "delay": 3000
+    },
+    {
+      "id": "s1775787702678",
+      "type": "pdf",
+      "url": "https://raw.githubusercontent.com/kauafreireaureliano-dot/funil-clara/master/funnels/salgados-caseiros/assets/s1775787702678_1775787729568.pdf",
+      "name": "Guia dos Salgados",
+      "size": "1.70",
       "delay": 3000
     },
     {
