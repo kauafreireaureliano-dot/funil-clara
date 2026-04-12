@@ -510,6 +510,7 @@
   const CEL_DESC   = params.get('celularDesc') || 'Seu número pra te adicionarmos ao grupo de WhatsApp';
   const TIMER_MIN  = parseInt(params.get('timer') || '0');
   const TIMER_TEXT = params.get('timerText') || 'Oferta expira em';
+  const REDIRECT   = params.get('redirect') || '';
 
   let paymentId    = null;
   let pollInterval = null;
@@ -745,7 +746,13 @@
               '</div>';
           }
         } catch {}
-        setTimeout(() => showScreen('ok'), 900);
+        setTimeout(() => {
+          if (REDIRECT) {
+            window.location.href = REDIRECT;
+          } else {
+            showScreen('ok');
+          }
+        }, 900);
       }
     } catch { /* silencia erros de rede no polling */ }
   }

@@ -1692,6 +1692,7 @@
         if (step.fields?.nome)    coUrl += `&nome=1&nomeDesc=${encodeURIComponent(step.fields.nomeDesc||'')}`;
         if (step.fields?.celular) coUrl += `&celular=1&celularDesc=${encodeURIComponent(step.fields.celularDesc||'')}`;
         if (step.timer)           coUrl += `&timer=${step.timer.minutes}&timerText=${encodeURIComponent(step.timer.text||'Oferta expira em')}`;
+        if (step.redirect)        coUrl += `&redirect=${encodeURIComponent(step.redirect)}`;
         addSingleButton(
           step.label || `Contribuir com R$ ${valor}`,
           coUrl
