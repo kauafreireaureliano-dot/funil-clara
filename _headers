@@ -1,3 +1,6 @@
+/*.html
+  Cache-Control: no-store, no-cache, must-revalidate
+
 /config.json
   Cache-Control: no-store, no-cache, must-revalidate
 
@@ -5,6 +8,12 @@
   Cache-Control: no-store, no-cache, must-revalidate
 
 /pixel.js
+  Cache-Control: no-store, no-cache, must-revalidate
+
+/funnels/*/config.json
+  Cache-Control: no-store, no-cache, must-revalidate
+
+/funnels/*/funnel.json
   Cache-Control: no-store, no-cache, must-revalidate
 
 /assets/*
