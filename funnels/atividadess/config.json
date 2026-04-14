@@ -35,5 +35,6 @@
   "notifyWebhookUrl": "",
   "metaPixelId": "",
   "metaPixelToken": "",
-  "orderBumps": []
+  "orderBumps": [],
+  "botName": "Clarice"
 }
