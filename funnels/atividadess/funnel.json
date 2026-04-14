@@ -20,6 +20,26 @@
       "url": "https://drive.google.com/file/d/1OFejWF-VtxRZZhsyEDUNjf5kCFdwwRTv/view?usp=sharing",
       "thumbnail": "file:///C:/Users/kayky/OneDrive/Imagens/Capturar.PNG",
       "delay": 3000
+    },
+    {
+      "id": "s1776192168818",
+      "type": "text",
+      "content": "Para mostrar nossa confiança e compromisso, eu envio a apostila antes de você fazer o pagamento.",
+      "typing_duration": 2800,
+      "delay": 3000
+    },
+    {
+      "id": "s1776192170180",
+      "type": "text",
+      "content": "Posso te enviar a apostila e a chave pix? 📄 🔑",
+      "typing_duration": 2000,
+      "delay": 3000
+    },
+    {
+      "id": "s1776192270006",
+      "type": "capture",
+      "placeholder": "",
+      "delay": 3000
     }
   ]
 }
