@@ -882,6 +882,7 @@
      ▌ CONFIG — carregado do config.json
   ════════════════════════════════════════════════ */
   const DEFAULT_CONFIG = {
+    BOT_NAME:      'Clara Aureliano',
     AVATAR_URL:    'https://ui-avatars.com/api/?name=Clara+Aureliano&background=2a3942&color=e9edef&size=80&bold=true',
     AUDIO_URLS:    ['', ''],
     PDF_URLS:      ['', '', ''],
@@ -901,6 +902,7 @@
         const raw = localStorage.getItem('_preview_config_' + FUNNEL_ID);
         const c = raw ? JSON.parse(raw) : null;
         if (c) return {
+          BOT_NAME:      c.botName      || DEFAULT_CONFIG.BOT_NAME,
           AVATAR_URL:    c.avatarUrl    || DEFAULT_CONFIG.AVATAR_URL,
           AUDIO_URLS:    c.audioUrls    || DEFAULT_CONFIG.AUDIO_URLS,
           PDF_URLS:      c.pdfUrls      || DEFAULT_CONFIG.PDF_URLS,
@@ -918,6 +920,7 @@
       if (!res.ok) return DEFAULT_CONFIG;
       const c = await res.json();
       return {
+        BOT_NAME:      c.botName      || DEFAULT_CONFIG.BOT_NAME,
         AVATAR_URL:    c.avatarUrl    || DEFAULT_CONFIG.AVATAR_URL,
         AUDIO_URLS:    c.audioUrls    || DEFAULT_CONFIG.AUDIO_URLS,
         PDF_URLS:      c.pdfUrls      || DEFAULT_CONFIG.PDF_URLS,
@@ -1780,6 +1783,8 @@
   async function runFunnel() {
     CONFIG = await loadConfig();
     document.getElementById('avatar').src = CONFIG.AVATAR_URL;
+    document.querySelector('.wa-name').textContent = CONFIG.BOT_NAME;
+    document.title = CONFIG.BOT_NAME;
     applyTheme(CONFIG.THEME);
     if (CONFIG.PIXEL_ID && typeof fbq === 'function' && !PREVIEW_MODE) {
       fbq('init', CONFIG.PIXEL_ID);

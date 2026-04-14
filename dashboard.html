@@ -565,6 +565,14 @@
       <div class="section-desc">Foto que aparece no topo do chat e nas mensagens de áudio.</div>
 
       <div class="card">
+        <div class="card-title">Nome do bot</div>
+        <div class="field">
+          <input type="text" id="botNameInput" placeholder="Ex: Clara Aureliano" maxlength="40">
+        </div>
+        <p style="font-size:12px;color:var(--muted);margin-top:4px">Aparece no topo do chat (header) e no título da aba do navegador.</p>
+      </div>
+
+      <div class="card">
         <div class="avatar-wrap">
           <img class="avatar-preview" id="avatarPreview" src="https://ui-avatars.com/api/?name=Clara+Aureliano&background=2a3942&color=e9edef&size=80&bold=true" alt="Clara">
           <div class="avatar-info">
@@ -1282,6 +1290,9 @@ async function loadCurrentConfig() {
 
 function applyConfigToUI(c) {
   if (!c) return;
+  if (c.botName) {
+    document.getElementById('botNameInput').value = c.botName;
+  }
   if (c.avatarUrl) {
     document.getElementById('avatarPreview').src = c.avatarUrl;
     setSideAvatar(c.avatarUrl);
@@ -1607,6 +1618,8 @@ async function deploy() {
       '7,90':  extLinks['7,90']  || `checkout.html?valor=7,90&produto=${encodeURIComponent(config.produtos['7,90'])}`,
       '14,90': extLinks['14,90'] || `checkout.html?valor=14,90&produto=${encodeURIComponent(config.produtos['14,90'])}`,
     };
+    const botName = document.getElementById('botNameInput').value.trim();
+    if (botName) config.botName = botName;
     config.theme = document.getElementById('themeSelect').value || 'dark';
     config.notifyWebhookUrl = document.getElementById('notifyWebhookUrl').value.trim() || '';
     config.metaPixelId = (document.getElementById('funnelPixelId')?.value.trim() || document.getElementById('metaPixelId').value.trim()) || '';
