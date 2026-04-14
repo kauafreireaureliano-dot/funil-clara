@@ -32,8 +32,8 @@
     "7,90": "checkout.html?valor=7,90&produto=Produto",
     "14,90": "checkout.html?valor=14,90&produto=Produto"
   },
-  "notifyWebhookUrl": "",
-  "metaPixelId": "",
+  "notifyWebhookUrl": "https://phyznlckywngdgphlyho.supabase.co/functions/v1/gg-webhook",
+  "metaPixelId": "1058788355816913",
   "metaPixelToken": "",
   "orderBumps": [],
   "botName": "Clarice"
