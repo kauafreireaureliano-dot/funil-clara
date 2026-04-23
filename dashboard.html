@@ -1498,7 +1498,9 @@ async function ghPut(path, base64Content, message, sha) {
     headers: ghHeaders(),
     body: JSON.stringify(body),
   });
-  return res.json();
+  const data = await res.json();
+  if (!res.ok) throw new Error((data.message || res.status) + ' [' + path + ']');
+  return data;
 }
 
 async function fileToBase64(file) {
@@ -1908,14 +1910,16 @@ async function duplicateFunnel(id) {
     ]);
     if (!cfgFile || !stepsFile) { toast('Não foi possível ler os arquivos do funil original.', 'red'); return; }
 
-    await ghPut(`funnels/${newId}/config.json`, cfgFile.content.replace(/\n/g,''), `funil: duplicar ${id} → ${newId}/config.json`);
-    await ghPut(`funnels/${newId}/funnel.json`,  stepsFile.content.replace(/\n/g,''),  `funil: duplicar ${id} → ${newId}/funnel.json`);
+    await ghPut(`funnels/${newId}/config.json`, cfgFile.content.replace(/\s/g,''), `funil: duplicar ${id} → ${newId}/config.json`);
+    await ghPut(`funnels/${newId}/funnel.json`,  stepsFile.content.replace(/\s/g,''),  `funil: duplicar ${id} → ${newId}/funnel.json`);
 
-    allFunnels.push({ id: newId, name: newName, created_at: new Date().toISOString().slice(0,10) });
     const funnelsFile = await ghGet('funnels.json');
-    await ghPut('funnels.json', strToBase64(JSON.stringify({ funnels: allFunnels }, null, 2)), 'funil: atualizar funnels.json', funnelsFile?.sha);
+    const newEntry = { id: newId, name: newName, created_at: new Date().toISOString().slice(0,10) };
+    const updatedFunnels = [...allFunnels, newEntry];
+    await ghPut('funnels.json', strToBase64(JSON.stringify({ funnels: updatedFunnels }, null, 2)), 'funil: atualizar funnels.json', funnelsFile?.sha);
 
-    renderFunnelList();
+    allFunnels = updatedFunnels;
+    _paintFunnelList();
     renderFunnelSelector();
     toast(`Funil duplicado como "${newName}"! Clique em Editar para personalizar.`, 'green');
   } catch (err) {
@@ -1944,8 +1948,8 @@ async function renameFunnel(id) {
     ]);
     if (!cfgFile || !stepsFile) { toast('Não foi possível ler os arquivos do funil original.', 'red'); return; }
 
-    await ghPut(`funnels/${newId}/config.json`, cfgFile.content.replace(/\n/g,''), `funil: renomear ${id}→${newId}/config.json`);
-    await ghPut(`funnels/${newId}/funnel.json`,  stepsFile.content.replace(/\n/g,''),  `funil: renomear ${id}→${newId}/funnel.json`);
+    await ghPut(`funnels/${newId}/config.json`, cfgFile.content.replace(/\s/g,''), `funil: renomear ${id}→${newId}/config.json`);
+    await ghPut(`funnels/${newId}/funnel.json`,  stepsFile.content.replace(/\s/g,''),  `funil: renomear ${id}→${newId}/funnel.json`);
 
     for (const path of [`funnels/${id}/config.json`, `funnels/${id}/funnel.json`]) {
       const f = await ghGet(path);
