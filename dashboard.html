@@ -1707,25 +1707,29 @@ async function loadFunnelList() {
 
 function renderFunnelList() {
   const el = document.getElementById('funnelList');
+  if (!el) return;
   if (!allFunnels.length) { el.innerHTML = '<div style="color:var(--muted);font-size:13px;text-align:center;padding:24px">Nenhum funil criado.</div>'; return; }
-  el.innerHTML = allFunnels.map(f => `
-    <div class="card" style="padding:14px 16px;margin-bottom:8px">
-      <div style="display:flex;align-items:center;gap:12px">
-        <div style="font-size:24px">🚀</div>
-        <div style="flex:1;min-width:0">
-          <div style="font-weight:600;font-size:14px">${f.name}</div>
-          <div style="font-size:11px;color:var(--muted);margin-top:2px;font-family:monospace">/${f.id}</div>
-        </div>
-        <button onclick="copyFunnelLink('${f.id}')" style="background:var(--bg);border:1px solid var(--border);border-radius:6px;padding:5px 10px;cursor:pointer;font-size:12px;flex-shrink:0">🔗</button>
-      </div>
-      <div style="display:flex;gap:6px;margin-top:10px;flex-wrap:wrap">
-        <button onclick="editFunnel('${f.id}')" style="flex:1;background:var(--green);color:white;border:none;border-radius:7px;padding:7px 0;cursor:pointer;font-size:12px;font-weight:600">✏️ Editar</button>
-        <button onclick="duplicateFunnel('${f.id}')" style="flex:1;background:var(--bg);border:1px solid var(--border);border-radius:7px;padding:7px 0;cursor:pointer;font-size:12px;font-weight:600">📋 Duplicar</button>
-        ${f.id !== 'recheios' ? `<button onclick="renameFunnel('${f.id}')" style="flex:1;background:var(--bg);border:1px solid var(--border);border-radius:7px;padding:7px 0;cursor:pointer;font-size:12px;font-weight:600">✏ Slug</button>` : ''}
-        ${f.id !== 'recheios' ? `<button onclick="deleteFunnel('${f.id}')" style="background:#fef2f2;border:1px solid #fecaca;border-radius:7px;padding:7px 10px;cursor:pointer;font-size:13px;color:var(--danger)">🗑️</button>` : ''}
-      </div>
-    </div>
-  `).join('');
+  const cards = allFunnels.map(function(f) {
+    const notRoot = f.id !== 'recheios';
+    const slugBtn  = notRoot ? '<button onclick="renameFunnel(\'' + f.id + '\')" style="flex:1;background:var(--bg);border:1px solid var(--border);border-radius:7px;padding:7px 0;cursor:pointer;font-size:12px;font-weight:600">✏ Slug</button>' : '';
+    const delBtn   = notRoot ? '<button onclick="deleteFunnel(\'' + f.id + '\')" style="background:#fef2f2;border:1px solid #fecaca;border-radius:7px;padding:7px 10px;cursor:pointer;font-size:13px;color:var(--danger)">🗑️</button>' : '';
+    return '<div class="card" style="padding:14px 16px;margin-bottom:8px">'
+      + '<div style="display:flex;align-items:center;gap:12px">'
+        + '<div style="font-size:24px">🚀</div>'
+        + '<div style="flex:1;min-width:0">'
+          + '<div style="font-weight:600;font-size:14px">' + f.name + '</div>'
+          + '<div style="font-size:11px;color:var(--muted);margin-top:2px;font-family:monospace">/' + f.id + '</div>'
+        + '</div>'
+        + '<button onclick="copyFunnelLink(\'' + f.id + '\')" style="background:var(--bg);border:1px solid var(--border);border-radius:6px;padding:5px 10px;cursor:pointer;font-size:12px;flex-shrink:0">🔗</button>'
+      + '</div>'
+      + '<div style="display:flex;gap:6px;margin-top:10px;flex-wrap:wrap">'
+        + '<button onclick="editFunnel(\'' + f.id + '\')" style="flex:1;background:var(--green);color:white;border:none;border-radius:7px;padding:7px 0;cursor:pointer;font-size:12px;font-weight:600">✏️ Editar</button>'
+        + '<button onclick="duplicateFunnel(\'' + f.id + '\')" style="flex:1;background:var(--bg);border:1px solid var(--border);border-radius:7px;padding:7px 0;cursor:pointer;font-size:12px;font-weight:600">📋 Duplicar</button>'
+        + slugBtn + delBtn
+      + '</div>'
+    + '</div>';
+  });
+  el.innerHTML = cards.join('');
 }
 
 function renderFunnelSelector() {
