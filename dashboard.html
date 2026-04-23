@@ -1679,11 +1679,14 @@ function funnelStepsPath(id)  { return id === 'recheios' ? 'funnel.json'  : `fun
 function funnelUrl(id)        { return id === 'recheios' ? '/'            : `/?f=${id}`; }
 
 async function loadFunnelList() {
+  const ctrl = new AbortController();
+  const t = setTimeout(() => ctrl.abort(), 6000);
   try {
-    const res = await fetch(`${RAW}/funnels.json?v=${Date.now()}`);
-    if (!res.ok) { allFunnels = [{ id: 'recheios', name: 'Receitas de Recheios', root: true }]; }
-    else { const d = await res.json(); allFunnels = d.funnels || []; }
+    const res = await fetch(`${RAW}/funnels.json?v=${Date.now()}`, { signal: ctrl.signal });
+    if (!res.ok) allFunnels = [{ id: 'recheios', name: 'Receitas de Recheios', root: true }];
+    else { const d = await res.json(); allFunnels = d.funnels?.length ? d.funnels : [{ id: 'recheios', name: 'Receitas de Recheios', root: true }]; }
   } catch { allFunnels = [{ id: 'recheios', name: 'Receitas de Recheios', root: true }]; }
+  finally { clearTimeout(t); }
   renderFunnelList();
   renderFunnelSelector();
 }
