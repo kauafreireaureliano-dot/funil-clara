@@ -1707,6 +1707,7 @@ async function loadFunnelList() {
 
 function renderFunnelList() {
   const el = document.getElementById('funnelList');
+  console.log('[rFL] el:', el, 'allFunnels:', allFunnels.length);
   if (!el) return;
   if (!allFunnels.length) { el.innerHTML = '<div style="color:var(--muted);font-size:13px;text-align:center;padding:24px">Nenhum funil criado.</div>'; return; }
   const cards = allFunnels.map(function(f) {
@@ -1729,7 +1730,10 @@ function renderFunnelList() {
       + '</div>'
     + '</div>';
   });
-  el.innerHTML = cards.join('');
+  const html = cards.join('');
+  console.log('[rFL] setting innerHTML, length:', html.length);
+  el.innerHTML = html;
+  console.log('[rFL] after set, innerHTML length:', el.innerHTML.length);
 }
 
 function renderFunnelSelector() {
