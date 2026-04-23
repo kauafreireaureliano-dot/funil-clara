@@ -20,6 +20,11 @@
       "id": "salgados-caseiros",
       "name": "Salgados Caseiros",
       "created_at": "2026-04-09"
+    },
+    {
+      "id": "recheios-copia",
+      "name": "Receitas de Recheios (cópia)",
+      "created_at": "2026-04-23"
     }
   ]
 }
