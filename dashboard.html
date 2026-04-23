@@ -1683,10 +1683,37 @@ function funnelConfigPath(id) { return id === 'recheios' ? 'config.json' : `funn
 function funnelStepsPath(id)  { return id === 'recheios' ? 'funnel.json'  : `funnels/${id}/funnel.json`; }
 function funnelUrl(id)        { return id === 'recheios' ? '/'            : `/?f=${id}`; }
 
+function _paintFunnelList() {
+  var el = document.getElementById('funnelList');
+  if (!el) return;
+  if (!allFunnels.length) { el.innerHTML = '<div style="color:var(--muted);font-size:13px;text-align:center;padding:24px">Nenhum funil criado.</div>'; return; }
+  var html = '';
+  for (var i = 0; i < allFunnels.length; i++) {
+    var f = allFunnels[i];
+    var notRoot = f.id !== 'recheios';
+    html += '<div class="card" style="padding:14px 16px;margin-bottom:8px">'
+      + '<div style="display:flex;align-items:center;gap:12px">'
+        + '<div style="font-size:24px">&#128640;</div>'
+        + '<div style="flex:1;min-width:0">'
+          + '<div style="font-weight:600;font-size:14px">' + f.name + '</div>'
+          + '<div style="font-size:11px;color:var(--muted);margin-top:2px;font-family:monospace">/' + f.id + '</div>'
+        + '</div>'
+        + '<button onclick="copyFunnelLink(\'' + f.id + '\')" style="background:var(--bg);border:1px solid var(--border);border-radius:6px;padding:5px 10px;cursor:pointer;font-size:12px">&#128279;</button>'
+      + '</div>'
+      + '<div style="display:flex;gap:6px;margin-top:10px;flex-wrap:wrap">'
+        + '<button onclick="editFunnel(\'' + f.id + '\')" style="flex:1;background:var(--green);color:white;border:none;border-radius:7px;padding:7px 0;cursor:pointer;font-size:12px;font-weight:600">Editar</button>'
+        + '<button onclick="duplicateFunnel(\'' + f.id + '\')" style="flex:1;background:var(--bg);border:1px solid var(--border);border-radius:7px;padding:7px 0;cursor:pointer;font-size:12px;font-weight:600">Duplicar</button>'
+        + (notRoot ? '<button onclick="renameFunnel(\'' + f.id + '\')" style="flex:1;background:var(--bg);border:1px solid var(--border);border-radius:7px;padding:7px 0;cursor:pointer;font-size:12px;font-weight:600">Slug</button>' : '')
+        + (notRoot ? '<button onclick="deleteFunnel(\'' + f.id + '\')" style="background:#fef2f2;border:1px solid #fecaca;border-radius:7px;padding:7px 10px;cursor:pointer;font-size:13px;color:var(--danger)">&#128465;</button>' : '')
+      + '</div>'
+    + '</div>';
+  }
+  el.innerHTML = html;
+}
+
 async function loadFunnelList() {
-  // Renderiza imediatamente com o que tiver (nunca fica preso no "Carregando...")
   if (!allFunnels.length) allFunnels = [{ id: 'recheios', name: 'Receitas de Recheios', root: true }];
-  renderFunnelList();
+  _paintFunnelList();
   renderFunnelSelector();
 
   // Atualiza em background
@@ -1705,9 +1732,10 @@ async function loadFunnelList() {
   } catch {} finally { clearTimeout(t); }
 }
 
-function renderFunnelList() {
+function renderFunnelList() { _paintFunnelList(); }
+
+function _renderFunnelList_old() {
   const el = document.getElementById('funnelList');
-  console.log('[rFL] el:', el, 'allFunnels:', allFunnels.length);
   if (!el) return;
   if (!allFunnels.length) { el.innerHTML = '<div style="color:var(--muted);font-size:13px;text-align:center;padding:24px">Nenhum funil criado.</div>'; return; }
   const cards = allFunnels.map(function(f) {
