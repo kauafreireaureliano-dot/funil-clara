@@ -1264,7 +1264,7 @@ let pendingStepFile = null; // { file, mediaType }
   if (token) {
     document.getElementById('tokenInput').value = token;
     document.getElementById('setupAlert').style.display = 'none';
-    await checkToken(token, false);
+    try { await checkToken(token, false); } catch {}
   }
   await loadFunnelList();
   await loadCurrentConfig();
@@ -1384,10 +1384,14 @@ async function testToken() {
 }
 
 async function checkToken(token, showMsg) {
+  const ctrl = new AbortController();
+  const t = setTimeout(() => ctrl.abort(), 6000);
   try {
     const res = await fetch(`${API}/repos/${OWNER}/${REPO}`, {
-      headers: { Authorization: `Bearer ${token}` }
+      headers: { Authorization: `Bearer ${token}` },
+      signal: ctrl.signal,
     });
+    clearTimeout(t);
     if (res.ok) {
       setTokenStatus('ok', '✓ Conectado ao repositório');
       if (showMsg) toast('Conectado com sucesso!', 'green');
@@ -1399,6 +1403,7 @@ async function checkToken(token, showMsg) {
       return false;
     }
   } catch {
+    clearTimeout(t);
     setTokenStatus('err', '✗ Erro de conexão');
     return false;
   }
