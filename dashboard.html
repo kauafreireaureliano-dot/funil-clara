@@ -1701,6 +1701,7 @@ function renderFunnelList() {
       <div style="display:flex;gap:6px;flex-shrink:0">
         <button onclick="copyFunnelLink('${f.id}')" style="background:var(--bg);border:1px solid var(--border);border-radius:6px;padding:5px 10px;cursor:pointer;font-size:12px">🔗 Link</button>
         <button onclick="editFunnel('${f.id}')" style="background:var(--green);color:white;border:none;border-radius:6px;padding:5px 10px;cursor:pointer;font-size:12px;font-weight:600">✏️ Editar</button>
+        <button onclick="duplicateFunnel('${f.id}')" style="background:var(--bg);border:1px solid var(--border);border-radius:6px;padding:5px 10px;cursor:pointer;font-size:12px" title="Duplicar funil">⧉</button>
         ${f.id !== 'recheios' ? `<button onclick="deleteFunnel('${f.id}')" style="background:#fef2f2;border:1px solid #fecaca;border-radius:6px;padding:5px 10px;cursor:pointer;font-size:12px;color:var(--danger)">🗑️</button>` : ''}
       </div>
     </div>
@@ -1832,6 +1833,40 @@ async function deleteFunnel(id) {
   }
 }
 
+async function duplicateFunnel(id) {
+  const src = allFunnels.find(x => x.id === id);
+  if (!src) return;
+  const token = getToken();
+  if (!token) { toast('Configure o token GitHub primeiro', 'red'); goTo('setup'); return; }
+
+  let newId   = id + '-copia';
+  let newName = src.name + ' (cópia)';
+  let counter = 1;
+  while (allFunnels.find(f => f.id === newId)) { counter++; newId = id + '-copia' + counter; newName = src.name + ` (cópia ${counter})`; }
+
+  toast('Duplicando funil...', '');
+  try {
+    const [cfgFile, stepsFile] = await Promise.all([
+      ghGet(id === 'recheios' ? 'config.json' : `funnels/${id}/config.json`),
+      ghGet(id === 'recheios' ? 'funnel.json' : `funnels/${id}/funnel.json`),
+    ]);
+    if (!cfgFile || !stepsFile) { toast('Não foi possível ler os arquivos do funil original.', 'red'); return; }
+
+    await ghPut(`funnels/${newId}/config.json`, cfgFile.content.replace(/\n/g,''), `funil: duplicar ${id} → ${newId}/config.json`);
+    await ghPut(`funnels/${newId}/funnel.json`,  stepsFile.content.replace(/\n/g,''),  `funil: duplicar ${id} → ${newId}/funnel.json`);
+
+    allFunnels.push({ id: newId, name: newName, created_at: new Date().toISOString().slice(0,10) });
+    const funnelsFile = await ghGet('funnels.json');
+    await ghPut('funnels.json', strToBase64(JSON.stringify({ funnels: allFunnels }, null, 2)), 'funil: atualizar funnels.json', funnelsFile?.sha);
+
+    renderFunnelList();
+    renderFunnelSelector();
+    toast(`Funil duplicado como "${newName}"! Clique em Editar para personalizar.`, 'green');
+  } catch (err) {
+    toast('Erro ao duplicar: ' + err.message, 'red');
+  }
+}
+
 /* ════════════════════════════════════════════════
    ▌ ANALYTICS
 ════════════════════════════════════════════════ */
@@ -1928,30 +1963,40 @@ async function loadFunnelSales() {
       });
     }
 
-    histEl.innerHTML = Object.entries(byDay).map(([day, d], idx) => {
-      const label = day === todayKey ? '📅 Hoje' : day === yesterdayKey ? '📅 Ontem' : '📅 ' + day;
-      const salesHtml = d.sales.map(s =>
-        `<div style="display:flex;justify-content:space-between;padding:5px 0;border-bottom:1px solid var(--border);font-size:13px">
-           <span style="color:var(--muted)">⏰ ${s.time}</span>
-           <span style="font-weight:600;color:var(--green)">${fmtBRL(s.value)}</span>
-         </div>`
-      ).join('');
-      return `
-        <div style="margin-bottom:4px">
-          <div onclick="this.nextElementSibling.style.display=this.nextElementSibling.style.display==='none'?'block':'none'"
-               style="display:flex;justify-content:space-between;align-items:center;padding:9px 4px;cursor:pointer;user-select:none">
-            <span style="font-size:13px;font-weight:600">${label}</span>
-            <span style="font-size:13px">
-              <span style="color:var(--muted)">${d.count} venda${d.count!==1?'s':''} · </span>
-              <strong style="color:var(--green)">${fmtBRL(d.revenue)}</strong>
-              <span style="color:var(--muted);margin-left:6px;font-size:11px">▾</span>
-            </span>
-          </div>
-          <div style="display:${idx===0?'block':'none'};padding-left:8px;padding-bottom:8px">
-            ${salesHtml}
-          </div>
-        </div>`;
-    }).join('');
+    const entries = Object.entries(byDay);
+    const maxDayRev = Math.max(...entries.map(([,d]) => d.revenue), 1);
+    histEl.innerHTML = `
+      <div style="font-size:11px;font-weight:600;color:var(--muted);text-transform:uppercase;letter-spacing:.5px;margin-bottom:10px">Histórico de vendas</div>
+      ${entries.map(([day, d], idx) => {
+        const label = day === todayKey ? 'Hoje' : day === yesterdayKey ? 'Ontem' : day;
+        const barW   = Math.round(d.revenue / maxDayRev * 100);
+        const uid    = 'day_' + idx;
+        const salesHtml = d.sales.map(s =>
+          `<div style="display:flex;justify-content:space-between;align-items:center;padding:6px 12px;font-size:12px">
+             <span style="color:var(--muted)">🕐 ${s.time}</span>
+             <span style="font-weight:600;color:var(--green)">${fmtBRL(s.value)}</span>
+           </div>`
+        ).join('');
+        return `
+          <div style="margin-bottom:6px;border:1px solid var(--border);border-radius:10px;overflow:hidden">
+            <div onclick="(function(el){var d=el.nextElementSibling;var open=d.style.maxHeight&&d.style.maxHeight!=='0px';d.style.maxHeight=open?'0px':d.scrollHeight+'px';el.querySelector('.dchv').textContent=open?'▾':'▴';})(this)"
+                 style="display:flex;align-items:center;gap:10px;padding:10px 12px;cursor:pointer;user-select:none;background:var(--bg2,var(--bg))">
+              <div style="min-width:44px;font-size:12px;font-weight:700;color:var(--text)">${label}</div>
+              <div style="flex:1;height:6px;background:var(--border);border-radius:3px;overflow:hidden">
+                <div style="height:100%;width:${barW}%;background:var(--green);border-radius:3px"></div>
+              </div>
+              <div style="display:flex;align-items:center;gap:8px;flex-shrink:0">
+                <span style="font-size:11px;background:var(--green);color:white;border-radius:20px;padding:1px 7px;font-weight:700">${d.count}</span>
+                <span style="font-size:13px;font-weight:700;color:var(--green)">${fmtBRL(d.revenue)}</span>
+                <span class="dchv" style="font-size:11px;color:var(--muted)">${idx===0?'▴':'▾'}</span>
+              </div>
+            </div>
+            <div style="max-height:${idx===0?'400px':'0px'};overflow:hidden;transition:max-height .25s ease;border-top:1px solid var(--border)">
+              ${salesHtml}
+            </div>
+          </div>`;
+      }).join('')}
+    `;
   } catch (err) {
     const el = document.getElementById('fsSales');
     if (el) el.textContent = 'erro';
