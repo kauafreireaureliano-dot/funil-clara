@@ -1692,17 +1692,20 @@ function renderFunnelList() {
   const el = document.getElementById('funnelList');
   if (!allFunnels.length) { el.innerHTML = '<div style="color:var(--muted);font-size:13px;text-align:center;padding:24px">Nenhum funil criado.</div>'; return; }
   el.innerHTML = allFunnels.map(f => `
-    <div class="card" style="display:flex;align-items:center;gap:12px;padding:14px 16px;margin-bottom:8px">
-      <div style="font-size:24px">🚀</div>
-      <div style="flex:1;min-width:0">
-        <div style="font-weight:600;font-size:14px">${f.name}</div>
-        <div style="font-size:12px;color:var(--muted);margin-top:1px">funil-clara.pages.dev${funnelUrl(f.id)}</div>
+    <div class="card" style="padding:14px 16px;margin-bottom:8px">
+      <div style="display:flex;align-items:center;gap:12px">
+        <div style="font-size:24px">🚀</div>
+        <div style="flex:1;min-width:0">
+          <div style="font-weight:600;font-size:14px">${f.name}</div>
+          <div style="font-size:11px;color:var(--muted);margin-top:2px;font-family:monospace">/${f.id}</div>
+        </div>
+        <button onclick="copyFunnelLink('${f.id}')" style="background:var(--bg);border:1px solid var(--border);border-radius:6px;padding:5px 10px;cursor:pointer;font-size:12px;flex-shrink:0">🔗</button>
       </div>
-      <div style="display:flex;gap:6px;flex-shrink:0">
-        <button onclick="copyFunnelLink('${f.id}')" style="background:var(--bg);border:1px solid var(--border);border-radius:6px;padding:5px 10px;cursor:pointer;font-size:12px">🔗 Link</button>
-        <button onclick="editFunnel('${f.id}')" style="background:var(--green);color:white;border:none;border-radius:6px;padding:5px 10px;cursor:pointer;font-size:12px;font-weight:600">✏️ Editar</button>
-        <button onclick="duplicateFunnel('${f.id}')" style="background:var(--bg);border:1px solid var(--border);border-radius:6px;padding:5px 10px;cursor:pointer;font-size:12px" title="Duplicar funil">⧉</button>
-        ${f.id !== 'recheios' ? `<button onclick="deleteFunnel('${f.id}')" style="background:#fef2f2;border:1px solid #fecaca;border-radius:6px;padding:5px 10px;cursor:pointer;font-size:12px;color:var(--danger)">🗑️</button>` : ''}
+      <div style="display:flex;gap:6px;margin-top:10px;flex-wrap:wrap">
+        <button onclick="editFunnel('${f.id}')" style="flex:1;background:var(--green);color:white;border:none;border-radius:7px;padding:7px 0;cursor:pointer;font-size:12px;font-weight:600">✏️ Editar</button>
+        <button onclick="duplicateFunnel('${f.id}')" style="flex:1;background:var(--bg);border:1px solid var(--border);border-radius:7px;padding:7px 0;cursor:pointer;font-size:12px;font-weight:600">📋 Duplicar</button>
+        ${f.id !== 'recheios' ? `<button onclick="renameFunnel('${f.id}')" style="flex:1;background:var(--bg);border:1px solid var(--border);border-radius:7px;padding:7px 0;cursor:pointer;font-size:12px;font-weight:600">✏ Slug</button>` : ''}
+        ${f.id !== 'recheios' ? `<button onclick="deleteFunnel('${f.id}')" style="background:#fef2f2;border:1px solid #fecaca;border-radius:7px;padding:7px 10px;cursor:pointer;font-size:13px;color:var(--danger)">🗑️</button>` : ''}
       </div>
     </div>
   `).join('');
@@ -1864,6 +1867,52 @@ async function duplicateFunnel(id) {
     toast(`Funil duplicado como "${newName}"! Clique em Editar para personalizar.`, 'green');
   } catch (err) {
     toast('Erro ao duplicar: ' + err.message, 'red');
+  }
+}
+
+async function renameFunnel(id) {
+  const src = allFunnels.find(x => x.id === id);
+  if (!src) return;
+  const newId = prompt(`Novo slug para "${src.name}"\n(só letras minúsculas, números e hífens)`, id);
+  if (!newId || newId === id) return;
+  if (!/^[a-z0-9-]+$/.test(newId)) { toast('Slug inválido — use só letras minúsculas, números e hífens.', 'red'); return; }
+  if (allFunnels.find(f => f.id === newId)) { toast('Já existe um funil com esse slug.', 'red'); return; }
+  const token = getToken();
+  if (!token) { toast('Configure o token GitHub primeiro', 'red'); goTo('setup'); return; }
+
+  const newName = prompt('Novo nome de exibição:', src.name);
+  if (newName === null) return;
+
+  toast('Renomeando funil...', '');
+  try {
+    const [cfgFile, stepsFile] = await Promise.all([
+      ghGet(`funnels/${id}/config.json`),
+      ghGet(`funnels/${id}/funnel.json`),
+    ]);
+    if (!cfgFile || !stepsFile) { toast('Não foi possível ler os arquivos do funil original.', 'red'); return; }
+
+    await ghPut(`funnels/${newId}/config.json`, cfgFile.content.replace(/\n/g,''), `funil: renomear ${id}→${newId}/config.json`);
+    await ghPut(`funnels/${newId}/funnel.json`,  stepsFile.content.replace(/\n/g,''),  `funil: renomear ${id}→${newId}/funnel.json`);
+
+    for (const path of [`funnels/${id}/config.json`, `funnels/${id}/funnel.json`]) {
+      const f = await ghGet(path);
+      if (f) await fetch(`${API}/repos/${OWNER}/${REPO}/contents/${path}`, {
+        method: 'DELETE', headers: ghHeaders(),
+        body: JSON.stringify({ message: `funil: remover antigo ${path}`, sha: f.sha, branch: BRANCH }),
+      });
+    }
+
+    const idx = allFunnels.findIndex(x => x.id === id);
+    allFunnels[idx] = { ...src, id: newId, name: newName || src.name };
+    const funnelsFile = await ghGet('funnels.json');
+    await ghPut('funnels.json', strToBase64(JSON.stringify({ funnels: allFunnels }, null, 2)), 'funil: atualizar funnels.json', funnelsFile?.sha);
+
+    if (activeFunnelId === id) { activeFunnelId = newId; localStorage.setItem('_activeFunnel', newId); }
+    renderFunnelList();
+    renderFunnelSelector();
+    toast(`Funil renomeado para "/${newId}" com sucesso!`, 'green');
+  } catch (err) {
+    toast('Erro ao renomear: ' + err.message, 'red');
   }
 }
 
