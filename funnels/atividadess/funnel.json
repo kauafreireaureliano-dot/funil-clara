@@ -47,6 +47,14 @@
       "content": "perfeito, vou te enviar o material",
       "typing_duration": 2000,
       "delay": 3000
+    },
+    {
+      "id": "s1777061148999",
+      "type": "pdf",
+      "url": "https://raw.githubusercontent.com/kauafreireaureliano-dot/funil-clara/master/funnels/atividadess/assets/s1777061148999_1777061216333.pdf",
+      "name": "Apostila de Português",
+      "size": "19,74",
+      "delay": 2000
     }
   ]
 }
