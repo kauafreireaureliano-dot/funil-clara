@@ -1596,21 +1596,54 @@
     return '';
   }
 
+  function _ytId(url) {
+    var m = url.match(/(?:youtube\.com\/watch\?.*v=|youtu\.be\/|youtube\.com\/embed\/)([^&\/\?]+)/);
+    return m ? m[1] : null;
+  }
+
   function addVideo(url, thumbnail) {
     const w = document.createElement('div');
     w.className = 'mw r';
     const time  = getTime();
     const thumb = thumbnail || '';
+    const ytId  = _ytId(url);
     const embed = toEmbedUrl(url);
-    const isDirect = !embed && /\.(mp4|webm|ogg|mov)(\?|$)/i.test(url);
+    const isDirect = !embed && !ytId && /\.(mp4|webm|ogg|mov)(\?|$)/i.test(url);
 
     let media;
-    if (embed) {
+    if (ytId) {
+      // Thumbnail + play button — ao clicar carrega iframe inline sem redirecionar
+      const ytThumb  = 'https://img.youtube.com/vi/' + ytId + '/hqdefault.jpg';
+      const embedUrl = 'https://www.youtube.com/embed/' + ytId + '?autoplay=1&playsinline=1&rel=0';
+      const uid = 'yt' + Date.now();
+      const el = document.createElement('div');
+      el.id = uid;
+      el.style.cssText = 'position:relative;border-radius:8px;overflow:hidden;cursor:pointer;background:#000;width:100%';
+      el.innerHTML = '<img src="' + ytThumb + '" style="width:100%;display:block">'
+        + '<div style="position:absolute;inset:0;display:flex;align-items:center;justify-content:center">'
+          + '<div style="width:52px;height:52px;background:rgba(0,0,0,.72);border-radius:50%;display:flex;align-items:center;justify-content:center">'
+            + '<div style="width:0;height:0;border-top:13px solid transparent;border-bottom:13px solid transparent;border-left:22px solid #fff;margin-left:5px"></div>'
+          + '</div>'
+        + '</div>';
+      el.addEventListener('click', function() {
+        this.innerHTML = '<iframe src="' + embedUrl + '" style="width:100%;height:210px;border:0;display:block" allow="autoplay;encrypted-media;fullscreen;picture-in-picture" allowfullscreen></iframe>';
+      });
+      const bubble = document.createElement('div');
+      bubble.className = 'bubble r';
+      bubble.style.cssText = 'padding:4px 4px 0;max-width:260px';
+      bubble.appendChild(el);
+      bubble.insertAdjacentHTML('beforeend', '<div class="meta"><span class="ts">' + time + '</span></div>');
+      w.appendChild(bubble);
+      sndReceive();
+      chat.appendChild(w);
+      scroll();
+      return w;
+    } else if (embed) {
       media = `<iframe src="${embed}" style="width:100%;height:180px;border:0;border-radius:8px;display:block" allowfullscreen allow="autoplay; encrypted-media"></iframe>`;
     } else if (isDirect) {
       media = `<video src="${url}" controls playsinline style="width:100%;border-radius:8px;display:block;max-height:240px"></video>`;
     } else {
-      // fallback: thumbnail clicável abre no navegador
+      // fallback: thumbnail clicável
       media = `<div style="position:relative;cursor:pointer;border-radius:8px;overflow:hidden" onclick="window.open('${url}','_blank')">
         ${thumb
           ? `<img src="${thumb}" style="width:100%;display:block">`
