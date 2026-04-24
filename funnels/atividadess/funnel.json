@@ -55,6 +55,25 @@
       "name": "Apostila de Português",
       "size": "19,74",
       "delay": 2000
+    },
+    {
+      "id": "s1777061333981",
+      "type": "text",
+      "content": "prontinho, profe!<br>te enviei todo o material⬆️<br>só precisar clicar e baixar🥰<br>agora só falta sua contribuição🥰🙏",
+      "typing_duration": 2000,
+      "delay": 2000
+    },
+    {
+      "id": "s1777061493160",
+      "type": "text",
+      "content": "Assim que o pagamento for confirmado, o acesso também será liberado imediatamente no seu e-mail. Além disso, você também será incluído em um *grupo VIP exclusivo, onde receberá atividades novas todos os dias.*",
+      "typing_duration": 2000,
+      "delay": 3000
+    },
+    {
+      "id": "s1777061358151",
+      "type": "payment_buttons",
+      "delay": 3000
     }
   ]
 }
