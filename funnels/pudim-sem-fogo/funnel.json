@@ -117,6 +117,101 @@
       "delay": 1500
     },
     {
+      "id": "s1777010657453",
+      "type": "checkout",
+      "valor": "3,49",
+      "produto": "Apostilas Pudim Sem Fogo",
+      "label": "Contribuir com R$ 3,49",
+      "redirect": "https://drive.google.com/drive/folders/1CF67gPBatYTwRSs82gg9Qo1eYfBb6fjO?usp=sharing",
+      "fields": {
+        "nome": true,
+        "nomeDesc": "Como podemos te chamar?",
+        "celular": true,
+        "celularDesc": "Seu número pra te adicionarmos ao grupo de WhatsApp"
+      },
+      "timer": {
+        "minutes": 10,
+        "text": "Oferta expira em"
+      },
+      "delay": 3000
+    },
+    {
+      "id": "s1777010807535",
+      "type": "checkout",
+      "valor": "7,90",
+      "produto": "Apostilas Pudim Sem Fogo",
+      "label": "Contribuir com R$ 7,90 💕",
+      "redirect": "https://drive.google.com/drive/folders/1CF67gPBatYTwRSs82gg9Qo1eYfBb6fjO?usp=sharing",
+      "fields": {
+        "nome": true,
+        "nomeDesc": "Como podemos te chamar?",
+        "celular": true,
+        "celularDesc": "Seu número pra te adicionarmos ao grupo de WhatsApp"
+      },
+      "timer": {
+        "minutes": 10,
+        "text": "Oferta expira em"
+      },
+      "delay": 3000
+    },
+    {
+      "id": "s1777010845586",
+      "type": "checkout",
+      "valor": "9,90",
+      "produto": "Apostilas Pudim Sem Fogo",
+      "label": "Contribuir com R$ 9,90 (Ajudar o projeto❤️)",
+      "redirect": "https://drive.google.com/drive/folders/1CF67gPBatYTwRSs82gg9Qo1eYfBb6fjO?usp=sharing",
+      "fields": {
+        "nome": true,
+        "nomeDesc": "Como podemos te chamar?",
+        "celular": true,
+        "celularDesc": "Seu número pra te adicionarmos ao grupo de WhatsApp"
+      },
+      "timer": {
+        "minutes": 10,
+        "text": "Oferta expira em"
+      },
+      "delay": 3000
+    },
+    {
+      "id": "s1777010909022",
+      "type": "checkout",
+      "valor": "14,90",
+      "produto": "Apostilas Pudim Sem Fogo",
+      "label": "Contribuir com R$ 14,90 (Oferta de Gratidão🥰)",
+      "redirect": "https://drive.google.com/drive/folders/1CF67gPBatYTwRSs82gg9Qo1eYfBb6fjO?usp=sharing",
+      "fields": {
+        "nome": true,
+        "nomeDesc": "Como podemos te chamar?",
+        "celular": true,
+        "celularDesc": "Seu número pra te adicionarmos ao grupo de WhatsApp"
+      },
+      "timer": {
+        "minutes": 10,
+        "text": "Oferta expira em"
+      },
+      "delay": 3000
+    },
+    {
+      "id": "s1777010993667",
+      "type": "checkout",
+      "valor": "24,90",
+      "produto": "Apostilas Pudim Sem Fogo",
+      "label": "Contribuir com R$ 24,90 (Apoiador Máximo😱)",
+      "redirect": "https://drive.google.com/drive/folders/1CF67gPBatYTwRSs82gg9Qo1eYfBb6fjO?usp=sharing",
+      "fields": {
+        "nome": true,
+        "nomeDesc": "Como podemos te chamar?",
+        "celular": true,
+        "celularDesc": "Seu número pra te adicionarmos ao grupo de WhatsApp"
+      },
+      "timer": {
+        "minutes": 10,
+        "text": "Oferta expira em"
+      },
+      "delay": 3000
+    },
+    {
       "id": "s15",
       "type": "audio",
       "index": 1,
