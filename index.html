@@ -859,10 +859,16 @@
   ];
 
   function applyWallpaper(theme) {
-    const isDark  = theme !== 'light';
-    const bg      = isDark ? '#0b141a' : '#efeae2';
-    const iconRGB = isDark ? '255,255,255' : '0,0,0';
-    const opacity = isDark ? .055 : .06;
+    const chat = document.getElementById('chat');
+    if (theme === 'light') {
+      chat.style.backgroundImage = "url('/assets/bg-light.jpg')";
+      chat.style.backgroundSize  = '400px auto';
+      chat.style.backgroundRepeat = 'repeat';
+      return;
+    }
+    const bg      = '#0b141a';
+    const iconRGB = '255,255,255';
+    const opacity = .055;
 
     const paths = POSITIONS.map(([x, y, s], i) => {
       const d = ICONS[i % ICONS.length];
@@ -874,8 +880,9 @@
       <g fill='rgb(${iconRGB})'>${paths}</g>
     </svg>`;
 
-    document.getElementById('chat').style.backgroundImage =
-      'url("data:image/svg+xml,' + encodeURIComponent(svg) + '")';
+    chat.style.backgroundImage = 'url("data:image/svg+xml,' + encodeURIComponent(svg) + '")';
+    chat.style.backgroundSize  = '';
+    chat.style.backgroundRepeat = '';
   }
 
   /* ════════════════════════════════════════════════
