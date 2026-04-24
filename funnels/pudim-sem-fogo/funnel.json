@@ -24,7 +24,7 @@
     {
       "id": "s3",
       "type": "text",
-      "content": "Para mostrar nossa confiança e compromisso, eu envio todas as apostilas antes de você fazer o pagamento.",
+      "content": "Para mostrar nossa confiança e compromisso, *eu envio todas as apostilas antes de você fazer o pagamento.*✅😊",
       "typing_duration": 2800,
       "delay": 3000
     },
@@ -53,15 +53,17 @@
     {
       "id": "s7",
       "type": "pdf",
-      "index": 0,
+      "url": "https://raw.githubusercontent.com/kauafreireaureliano-dot/funil-clara/master/funnels/pudim-sem-fogo/assets/s7_1777010391721.pdf",
+      "name": "Pudim sem fogo - PDF",
+      "size": "5.64",
       "delay": 3000
     },
     {
       "id": "s8",
       "type": "pdf",
-      "url": "",
-      "name": "recheios com fogo ❤️",
-      "size": "",
+      "url": "https://raw.githubusercontent.com/kauafreireaureliano-dot/funil-clara/master/funnels/pudim-sem-fogo/assets/s8_1777010439052.pdf",
+      "name": "11 Caldas para Pudins - PDF",
+      "size": "1.86",
       "delay": 3000
     },
     {
@@ -74,7 +76,9 @@
     {
       "id": "s10",
       "type": "pdf",
-      "index": 2,
+      "url": "https://raw.githubusercontent.com/kauafreireaureliano-dot/funil-clara/master/funnels/pudim-sem-fogo/assets/s10_1777010522835.pdf",
+      "name": "Sobremesas Sem fogo - Bônus",
+      "size": "6.57",
       "delay": 3000
     },
     {
@@ -111,11 +115,6 @@
       "content": "As últimas 4 pessoas que contribuíram com meu trabalho pagaram R$14,90 mas você pode colaborar como quiser...\n",
       "typing_duration": 2000,
       "delay": 1500
-    },
-    {
-      "id": "s14",
-      "type": "payment_buttons",
-      "delay": 3000
     },
     {
       "id": "s15",
