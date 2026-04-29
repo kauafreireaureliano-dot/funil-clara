@@ -6,6 +6,22 @@
       "content": "Olá! Bem-vindo ao funil Protocolo Ignição 😊",
       "typing_duration": 2000,
       "delay": 3000
+    },
+    {
+      "id": "s1777439294743",
+      "type": "checkout",
+      "valor": "9,90",
+      "produto": "Método Ignição 🔥",
+      "label": "sssss",
+      "fields": {
+        "nome": true,
+        "nomeDesc": "Como podemos te chamar?"
+      },
+      "timer": {
+        "minutes": 10,
+        "text": "Oferta expira em"
+      },
+      "delay": 3000
     }
   ]
 }
