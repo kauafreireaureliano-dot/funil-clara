@@ -6,22 +6,6 @@
       "content": "Olá! Bem-vindo ao funil Protocolo Ignição 😊",
       "typing_duration": 2000,
       "delay": 3000
-    },
-    {
-      "id": "s1777438638639",
-      "type": "checkout",
-      "valor": "9,90",
-      "produto": "Protocolo Ignição",
-      "label": "IGNIÇÃO-CHECKOUY",
-      "fields": {
-        "nome": true,
-        "nomeDesc": "Como podemos te chamar?"
-      },
-      "timer": {
-        "minutes": 10,
-        "text": "Oferta expira em"
-      },
-      "delay": 3000
     }
   ]
 }
