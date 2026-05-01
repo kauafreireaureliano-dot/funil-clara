@@ -43,6 +43,7 @@ export async function onRequestGet(context) {
     let totalRevenue   = 0;
     let salesCount     = 0;
     const salesByDay   = {};
+    const seenSales    = new Set(); // dedup por session_id (= payment_<id>)
 
     for (const e of events) {
       if (e.event_type === 'page_view') {
@@ -61,6 +62,8 @@ export async function onRequestGet(context) {
         conversions.add(e.session_id);
       }
       if (e.event_type === 'sale_confirmed') {
+        if (seenSales.has(e.session_id)) continue; // ignora duplicatas
+        seenSales.add(e.session_id);
         const amount = parseFloat(e.value) || 0;
         totalRevenue += amount;
         salesCount++;

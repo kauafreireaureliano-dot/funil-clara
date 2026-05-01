@@ -1256,6 +1256,40 @@ const pending = {
 let currentConfig = null;
 let pendingStepFile = null; // { file, mediaType }
 
+/* ── Rascunho local (evita perder edições não publicadas) ── */
+function _draftKey() { return 'draft_' + (activeFunnelId || 'recheios'); }
+function saveDraft() {
+  try {
+    localStorage.setItem(_draftKey(), JSON.stringify({
+      ts: Date.now(),
+      steps: funnelSteps,
+      orderBumps: currentConfig?.orderBumps || [],
+    }));
+    _showUnsaved(true);
+  } catch {}
+}
+function clearDraft() {
+  localStorage.removeItem(_draftKey());
+  _showUnsaved(false);
+}
+function _showUnsaved(show) {
+  const btn = document.getElementById('deployBtn');
+  if (!btn) return;
+  btn.textContent = show ? '🚀 Publicar mudanças ⚠' : '🚀 Publicar mudanças';
+}
+function applyDraftIfNewer(ghTs) {
+  try {
+    const raw = localStorage.getItem(_draftKey());
+    if (!raw) return false;
+    const draft = JSON.parse(raw);
+    if (draft.ts <= (ghTs || 0)) return false;
+    if (Array.isArray(draft.steps) && draft.steps.length) funnelSteps = draft.steps;
+    if (currentConfig && Array.isArray(draft.orderBumps)) currentConfig.orderBumps = draft.orderBumps;
+    _showUnsaved(true);
+    return true;
+  } catch { return false; }
+}
+
 /* ════════════════════════════════════════════════
    ▌ INIT
 ════════════════════════════════════════════════ */
@@ -1659,6 +1693,7 @@ async function deploy() {
     setProgress(95);
 
     currentConfig = config;
+    clearDraft();
     setProgress(100);
 
     toast('✅ Publicado! Site atualiza em ~30s', 'green');
@@ -1789,21 +1824,25 @@ function switchActiveFunnel(id) {
 }
 
 async function loadActiveFunnelConfig() {
+  const ghTs = Date.now(); // timestamp de quando buscamos do GitHub
   try {
-    const res = await fetch(`${RAW}/${funnelConfigPath(activeFunnelId)}?v=${Date.now()}`);
+    const res = await fetch(`${RAW}/${funnelConfigPath(activeFunnelId)}?v=${ghTs}`);
     if (res.ok) {
       currentConfig = await res.json();
       applyConfigToUI(currentConfig);
     }
   } catch {}
   try {
-    const res2 = await fetch(`${RAW}/${funnelStepsPath(activeFunnelId)}?v=${Date.now()}`);
+    const res2 = await fetch(`${RAW}/${funnelStepsPath(activeFunnelId)}?v=${ghTs}`);
     if (res2.ok) {
       const d = await res2.json();
       funnelSteps = d.steps || [];
       renderFunnelList();
     }
   } catch {}
+  // Se houver rascunho local mais recente que o GitHub, restaura sem perder edições
+  const hadDraft = applyDraftIfNewer(ghTs - 5000); // margem 5s
+  if (hadDraft) renderFunnelList();
   updatePreview();
   loadFunnelSales();
 }
@@ -2033,11 +2072,17 @@ async function loadFunnelSales() {
 
   try {
     const res = await fetch(
-      `${SUPA_URL}/rest/v1/funnel_events?event_type=eq.sale_confirmed&step_id=eq.${encodeURIComponent(id)}&select=value,created_at&order=created_at.desc`,
+      `${SUPA_URL}/rest/v1/funnel_events?event_type=eq.sale_confirmed&step_id=eq.${encodeURIComponent(id)}&select=session_id,value,created_at&order=created_at.desc`,
       { headers: { 'Authorization': `Bearer ${SUPA_KEY}`, 'apikey': SUPA_KEY } }
     );
-    const rows = await res.json();
-    const count = Array.isArray(rows) ? rows.length : 0;
+    const rawRows = await res.json();
+    // Dedup por session_id (MP pode disparar webhook 2x para o mesmo payment)
+    const seenSids = new Set();
+    const rows = Array.isArray(rawRows) ? rawRows.filter(r => {
+      if (!r.session_id || seenSids.has(r.session_id)) return false;
+      seenSids.add(r.session_id); return true;
+    }) : [];
+    const count = rows.length;
     const revenue = count > 0 ? rows.reduce((s, r) => s + parseFloat(r.value || 0), 0) : 0;
     const ticket = count > 0 ? revenue / count : 0;
     const $ = (i) => document.getElementById(i);
@@ -2116,11 +2161,17 @@ async function loadAllFunnelsSales() {
   el.innerHTML = '<div style="color:var(--muted);font-size:13px;text-align:center;padding:8px">Carregando...</div>';
   try {
     const res = await fetch(
-      `${SUPA_URL}/rest/v1/funnel_events?event_type=eq.sale_confirmed&select=step_id,value`,
+      `${SUPA_URL}/rest/v1/funnel_events?event_type=eq.sale_confirmed&select=session_id,step_id,value`,
       { headers: { 'Authorization': `Bearer ${SUPA_KEY}`, 'apikey': SUPA_KEY } }
     );
-    const rows = await res.json();
-    if (!Array.isArray(rows) || rows.length === 0) {
+    const rawRows = await res.json();
+    // Dedup por session_id antes de agregar
+    const seenAll = new Set();
+    const rows = Array.isArray(rawRows) ? rawRows.filter(r => {
+      if (!r.session_id || seenAll.has(r.session_id)) return false;
+      seenAll.add(r.session_id); return true;
+    }) : [];
+    if (rows.length === 0) {
       el.innerHTML = '<div style="color:var(--muted);font-size:13px;text-align:center;padding:8px">Nenhuma venda registrada ainda.</div>';
       return;
     }
@@ -2620,6 +2671,7 @@ async function funnelSaveStep() {
   funnelEditingIdx = null;
   document.getElementById('funnelEditPanel').style.display = 'none';
   renderFunnelList();
+  saveDraft();
   toast('Step salvo! Clique em Publicar para enviar.', 'green');
   markPreviewDirty();
 }
@@ -2756,6 +2808,7 @@ function obSave() {
 
   obCancelForm();
   renderObList();
+  saveDraft();
   toast('Bump salvo! Clique em Publicar para enviar.', 'green');
 }
 
@@ -2763,6 +2816,7 @@ function obDelete(i) {
   if (!confirm('Apagar este order bump?')) return;
   currentConfig.orderBumps.splice(i, 1);
   renderObList();
+  saveDraft();
   toast('Bump removido. Clique em Publicar para aplicar.', 'green');
 }
 
