@@ -33,7 +33,9 @@ export async function onRequestPost(context) {
 
     const supaUrl = 'https://badgaqasjnosakzducjc.supabase.co';
     const supaKey = 'sb_publishable_-QVzljjE1sOYbO_ioSjYOA_1VaakZ5c';
-    const funnelId = url.searchParams.get('funnel') || payment.metadata?.funnel_id || 'recheios';
+    const funnelId = url.searchParams.get('funnel') || payment.metadata?.funnel_id;
+    // Ignora pagamentos que não vieram pelo checkout do Nebula
+    if (!funnelId) return new Response('ok', { status: 200 });
     const email   = payment.metadata?.buyer_email || payment.payer?.email;
     const nomeComprador = payment.metadata?.buyer_nome || '';
     if (!email || email === 'XXXXXXXXXX') return new Response('ok', { status: 200 });
@@ -46,19 +48,30 @@ export async function onRequestPost(context) {
       try { return JSON.parse(payment.metadata?.bumps || '[]'); } catch { return []; }
     })();
 
-    // ── Registrar venda (atômico — ignora duplicata via UNIQUE constraint) ──
-    const insertRes = await fetch(
-      `${supaUrl}/rest/v1/funnel_events?on_conflict=session_id,event_type`,
+    // ── Dedup: verifica se já existe venda para esse payment_id ──
+    const sessionId = `payment_${paymentId}`;
+    const existsRes = await fetch(
+      `${supaUrl}/rest/v1/funnel_events?session_id=eq.${encodeURIComponent(sessionId)}&event_type=eq.sale_confirmed&limit=1`,
+      { headers: { 'Authorization': `Bearer ${supaKey}`, 'apikey': supaKey } }
+    );
+    const existing = await existsRes.json().catch(() => []);
+    if (Array.isArray(existing) && existing.length > 0) {
+      return new Response('ok', { status: 200 }); // já processado
+    }
+
+    // ── Registrar venda ──
+    await fetch(
+      `${supaUrl}/rest/v1/funnel_events`,
       {
         method: 'POST',
         headers: {
           'Authorization': `Bearer ${supaKey}`,
           'apikey': supaKey,
           'Content-Type': 'application/json',
-          'Prefer': 'resolution=ignore-duplicates,return=representation',
+          'Prefer': 'return=minimal',
         },
         body: JSON.stringify({
-          session_id: `payment_${paymentId}`,
+          session_id: sessionId,
           step_id: funnelId,
           step_type: null,
           event_type: 'sale_confirmed',
@@ -66,11 +79,6 @@ export async function onRequestPost(context) {
         }),
       }
     );
-    const inserted = await insertRes.json().catch(() => []);
-    // Se retornou array vazio = linha já existia (duplicata) → para aqui
-    if (!Array.isArray(inserted) || inserted.length === 0) {
-      return new Response('ok', { status: 200 });
-    }
 
     // ── Email via Resend (só roda se a inserção foi nova) ──
     const pdfItems = pdfUrls.map((pdfUrl, i) => `
