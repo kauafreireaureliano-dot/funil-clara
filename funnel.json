@@ -113,11 +113,6 @@
       "delay": 1500
     },
     {
-      "id": "s14",
-      "type": "payment_buttons",
-      "delay": 3000
-    },
-    {
       "id": "s15",
       "type": "audio",
       "index": 1,
@@ -130,6 +125,16 @@
       "type": "text",
       "content": "❤️👆🏼",
       "typing_duration": 1000,
+      "delay": 3000
+    },
+    {
+      "id": "s1778007522232",
+      "type": "valor_livre",
+      "produto": "Apostila de recheios",
+      "sugestoes": [
+        "1,99, 5,90, 7,90, 14,90"
+      ],
+      "redirect": "https://drive.google.com/drive/folders/1CF67gPBatYTwRSs82gg9Qo1eYfBb6fjO?usp=sharing",
       "delay": 3000
     }
   ]
