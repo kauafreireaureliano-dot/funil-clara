@@ -376,8 +376,8 @@
   </style>
 </head>
 <script>
-  function trackMetaEvent(eventName, params) {
-    if (typeof fbq !== 'undefined') fbq('track', eventName, params || {});
+  function trackMetaEvent(eventName, params, options) {
+    if (typeof fbq !== 'undefined') fbq('track', eventName, params || {}, options || {});
   }
 </script>
 <body>
@@ -727,7 +727,7 @@
         clearTimeout(expiryTimer);
         document.getElementById('qrSpinner').style.display = 'none';
         document.getElementById('qrStatusText').textContent = '✅ Pago!';
-        trackMetaEvent('Purchase', { currency: 'BRL', value: parseFloat(VALOR.replace(',', '.')) });
+        trackMetaEvent('Purchase', { currency: 'BRL', value: parseFloat(VALOR.replace(',', '.')) }, { eventID: 'purchase_' + paymentId });
         // Exibe links de acesso dos bumps comprados
         try {
           const bumps = JSON.parse(sessionStorage.getItem('_co_bumps') || '[]');
