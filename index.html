@@ -1535,6 +1535,76 @@
   }
 
   /* ════════════════════════════════════════════════
+     ▌ VALOR LIVRE (pessoa digita quanto quer pagar)
+  ════════════════════════════════════════════════ */
+  function waitForValor(step) {
+    return new Promise(resolve => {
+      const prod      = step.produto   || 'Apostilas Clara Aureliano';
+      const sugestoes = step.sugestoes || [];
+      const redirect  = step.redirect  || '';
+
+      // Chips de sugestão
+      if (sugestoes.length) {
+        const wrap = document.createElement('div');
+        wrap.style.cssText = 'display:flex;flex-wrap:wrap;gap:6px;padding:4px 16px 10px;justify-content:flex-end';
+        sugestoes.forEach(s => {
+          const chip = document.createElement('button');
+          chip.textContent = 'R$ ' + s;
+          chip.style.cssText = 'background:transparent;border:1.5px solid var(--color-sent);color:var(--color-sent);border-radius:18px;padding:7px 16px;font-size:13px;cursor:pointer;font-family:inherit;transition:background .15s,transform .1s;-webkit-tap-highlight-color:transparent';
+          chip.addEventListener('touchstart', () => chip.style.background = 'rgba(0,92,75,.15)', { passive: true });
+          chip.addEventListener('touchend',   () => chip.style.background = 'transparent',       { passive: true });
+          chip.onmouseover = () => chip.style.background = 'rgba(0,92,75,.1)';
+          chip.onmouseout  = () => chip.style.background = 'transparent';
+          chip.onclick = () => { wrap.remove(); doSend(s); };
+          wrap.appendChild(chip);
+        });
+        chat.appendChild(wrap);
+        scroll();
+      }
+
+      // Habilita input
+      msgInput.disabled    = false;
+      msgInput.placeholder = 'Digite o valor (ex: 5,90)';
+      msgInput.inputMode   = 'decimal';
+      micCircleBtn.style.display  = 'none';
+      sendCircleBtn.style.display = 'flex';
+      setTimeout(() => msgInput.focus(), 100);
+
+      function doSend(prefill) {
+        const raw = (prefill || msgInput.value).trim().replace(/R\$\s*/,'').replace(/\./g,'').replace(',','.');
+        const num = parseFloat(raw);
+        if (!num || num < 1) {
+          msgInput.placeholder = 'Valor mínimo R$ 1,00 — tente de novo';
+          msgInput.value = '';
+          return;
+        }
+        const valor = num.toFixed(2).replace('.', ',');
+
+        msgInput.value              = '';
+        msgInput.disabled           = true;
+        msgInput.placeholder        = 'Mensagem';
+        msgInput.inputMode          = '';
+        micCircleBtn.style.display  = '';
+        sendCircleBtn.style.display = 'none';
+        sendCircleBtn.onclick       = null;
+        msgInput.onkeydown          = null;
+
+        sndSend();
+        addText('R$ ' + valor, 's', getTime());
+        track('payment_click', null, null, valor);
+
+        let url = `checkout.html?valor=${encodeURIComponent(valor)}&produto=${encodeURIComponent(prod)}&f=${encodeURIComponent(FUNNEL_ID)}`;
+        if (redirect) url += `&redirect=${encodeURIComponent(redirect)}`;
+        setTimeout(() => { window.location.href = url; }, 700);
+        resolve(valor);
+      }
+
+      sendCircleBtn.onclick = () => doSend();
+      msgInput.onkeydown    = e => { if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); doSend(); } };
+    });
+  }
+
+  /* ════════════════════════════════════════════════
      ▌ BOTÕES DE PAGAMENTO
   ════════════════════════════════════════════════ */
   function addPaymentButtons() {
@@ -1796,6 +1866,10 @@
       case 'payment_buttons': {
         addPaymentButtons();
         await sleep(delay);
+        break;
+      }
+      case 'valor_livre': {
+        await waitForValor(step);
         break;
       }
     }

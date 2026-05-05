@@ -959,6 +959,7 @@
             <option value="capture">✏️ Captura de texto</option>
             <option value="delay">⏱️ Delay</option>
             <option value="payment_buttons">💰 Botões de pagamento</option>
+            <option value="valor_livre">💸 Valor livre (pessoa digita)</option>
             <option value="call">📞 Ligação</option>
           </select>
         </div>
@@ -1091,6 +1092,16 @@
           <div class="field"><label>Duração do áudio (ex: 0:28)</label><input type="text" id="feCallDuration" placeholder="0:28"></div>
           <div class="field"><label>Tempo tocando antes de atender automaticamente (ms, 0 = não atende sozinho)</label><input type="number" id="feCallRingDuration" value="0" min="0" step="1000"></div>
           <div style="font-size:12px;color:var(--muted);margin-top:-8px;margin-bottom:10px">Se deixar 0, o cliente precisa clicar em "Aceitar" pra ouvir o áudio.</div>
+        </div>
+
+        <div id="fe-valor_livre" style="display:none">
+          <div class="field"><label>Produto (nome)</label><input type="text" id="feVlProduto" placeholder="Apostilas Clara Aureliano"></div>
+          <div class="field">
+            <label>Sugestões de valor (separadas por vírgula)</label>
+            <input type="text" id="feVlSugestoes" placeholder="1,99 | 5,90 | 7,90">
+            <div style="font-size:11px;color:var(--muted);margin-top:4px">Ex: <code>1,99 | 5,90 | 7,90</code> — aparece como chips clicáveis. Deixe vazio para só o input.</div>
+          </div>
+          <div class="field"><label>Redirecionar após pagamento (URL)</label><input type="url" id="feVlRedirect" placeholder="https://..."></div>
         </div>
 
         <div id="fe-delay-common">
@@ -2389,6 +2400,7 @@ function stepSummary(step) {
     case 'capture':        return step.placeholder || 'Captura de texto';
     case 'delay':          return `${step.duration ?? 3000}ms`;
     case 'payment_buttons': return 'Botões R$1,99 → R$14,90';
+    case 'valor_livre': return `Valor livre${(step.sugestoes||[]).length ? ' · sugestões: ' + step.sugestoes.join(', ') : ''}`;
     default: return step.type;
   }
 }
@@ -2536,11 +2548,14 @@ function openFunnelEditPanel(i) {
   document.getElementById('feCapturePlaceholder').value = step.placeholder || '';
   document.getElementById('feDelayDuration').value = step.duration ?? 3000;
   document.getElementById('feDelay').value = step.delay ?? 3000;
+  document.getElementById('feVlProduto').value   = step.produto || '';
+  document.getElementById('feVlSugestoes').value = (step.sugestoes || []).join(' | ');
+  document.getElementById('feVlRedirect').value  = step.redirect || '';
 }
 
 function funnelUpdateTypeFields() {
   const type = document.getElementById('feType').value;
-  const allTypes = ['text','audio','pdf','image','video','button','checkout','multiple_choice','capture','delay','call'];
+  const allTypes = ['text','audio','pdf','image','video','button','checkout','multiple_choice','capture','delay','call','valor_livre'];
   allTypes.forEach(t => {
     const el = document.getElementById('fe-' + t);
     if (el) el.style.display = (t === type) ? '' : 'none';
@@ -2660,6 +2675,11 @@ async function funnelSaveStep() {
       step.duration = parseInt(document.getElementById('feDelayDuration').value) || 3000;
       break;
     case 'payment_buttons':
+      break;
+    case 'valor_livre':
+      step.produto   = document.getElementById('feVlProduto').value.trim() || 'Apostilas Clara Aureliano';
+      step.sugestoes = document.getElementById('feVlSugestoes').value.split('|').map(s => s.trim()).filter(Boolean);
+      step.redirect  = document.getElementById('feVlRedirect').value.trim() || undefined;
       break;
   }
 
