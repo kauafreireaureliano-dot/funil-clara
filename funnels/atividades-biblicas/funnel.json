@@ -3,8 +3,8 @@
     {
       "id": "s1",
       "type": "audio",
-      "url": "",
-      "duration": "0:00",
+      "url": "https://raw.githubusercontent.com/kauafreireaureliano-dot/funil-clara/master/funnels/atividades-biblicas/assets/s1_1778541521604.ogg",
+      "duration": "15:00",
       "recording_duration": 3000,
       "delay": 3000
     },
@@ -39,7 +39,7 @@
     {
       "id": "s1778540860576",
       "type": "audio",
-      "url": "",
+      "url": "https://raw.githubusercontent.com/kauafreireaureliano-dot/funil-clara/master/funnels/atividades-biblicas/assets/s1778540860576_1778541565100.ogg",
       "duration": "0:00",
       "recording_duration": 3000,
       "delay": 3000
