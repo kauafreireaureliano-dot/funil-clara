@@ -2,8 +2,52 @@
   "steps": [
     {
       "id": "s1",
+      "type": "audio",
+      "url": "",
+      "duration": "0:00",
+      "recording_duration": 3000,
+      "delay": 3000
+    },
+    {
+      "id": "s1778540563122",
+      "type": "image",
+      "url": "",
+      "caption": "Nossas atividades ❤️🥰",
+      "delay": 3000
+    },
+    {
+      "id": "s1778540620080",
       "type": "text",
-      "content": "Olá! Bem-vindo ao funil Biblicos 😊",
+      "content": "Eu criei 20 atividades bíblicas ilustradas pra crianças de 3 a 6 anos 🙏<br>São folhinhas prontas pra imprimir, colorir, recortar e aprender sobre a Palavra de Deus de um jeito que a criança ama ❤️<br>Cada folha tem:<br>*✅ Ilustração linda pra colorir<br>✅ Espaço pra criança escrever o nome e a data<br>✅ Tema bíblico com história real*",
+      "typing_duration": 2000,
+      "delay": 3000
+    },
+    {
+      "id": "s1778540721159",
+      "type": "image",
+      "url": "",
+      "caption": "Olha como elas são lindas ❤️",
+      "delay": 3000
+    },
+    {
+      "id": "s1778540828913",
+      "type": "text",
+      "content": "São 20 atividades no total, cobrindo histórias como:<br>*🐟 Jonas e o peixe grande<br>👶 O nascimento de Jesus<br>🦁 Daniel na cova dos leões<br>🌈 Noé e o arco-íris<br>🙌 Jesus e as crianças<br>E muito mais...*",
+      "typing_duration": 2000,
+      "delay": 3000
+    },
+    {
+      "id": "s1778540860576",
+      "type": "audio",
+      "url": "",
+      "duration": "0:00",
+      "recording_duration": 3000,
+      "delay": 3000
+    },
+    {
+      "id": "s1778540881799",
+      "type": "text",
+      "content": "🎁 20 Atividades Bíblicas Ilustradas<br>Prontas pra imprimir em casa — formato A4<br>De ~R$19,90~ por apenas R$5,00 👇",
       "typing_duration": 2000,
       "delay": 3000
     }
