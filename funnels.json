@@ -15,6 +15,11 @@
       "id": "atividadess",
       "name": "atividades-k",
       "created_at": "2026-04-08"
+    },
+    {
+      "id": "atividades-biblicas",
+      "name": "Biblicos",
+      "created_at": "2026-05-11"
     }
   ]
 }
