@@ -11,7 +11,7 @@
     {
       "id": "s1778540563122",
       "type": "image",
-      "url": "",
+      "url": "https://raw.githubusercontent.com/kauafreireaureliano-dot/funil-clara/master/funnels/atividades-biblicas/assets/s1778540563122_1778544138087.png",
       "caption": "Nossas atividades ❤️🥰",
       "delay": 3000
     },
@@ -47,8 +47,20 @@
     {
       "id": "s1778540881799",
       "type": "text",
-      "content": "🎁 20 Atividades Bíblicas Ilustradas<br>Prontas pra imprimir em casa — formato A4<br>De ~R$19,90~ por apenas R$5,00 👇",
+      "content": "🎁 20 Atividades Bíblicas Ilustradas<br>Prontas pra imprimir em casa — formato A4<br>De ~R$19,90~ por apenas *R$5,00* 👇",
       "typing_duration": 2000,
+      "delay": 3000
+    },
+    {
+      "id": "s1778542011729",
+      "type": "checkout",
+      "valor": "5",
+      "produto": "Atividades bíblicas da Clara",
+      "label": "Eu quero!",
+      "fields": {
+        "nome": true,
+        "nomeDesc": "Como podemos te chamar?"
+      },
       "delay": 3000
     }
   ]
