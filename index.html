@@ -1650,6 +1650,60 @@
   }
 
   /* ════════════════════════════════════════════════
+     ▌ CARROSEL DE IMAGENS
+  ════════════════════════════════════════════════ */
+  function addCarousel(images, caption) {
+    if (!images || !images.length) return;
+    const w    = document.createElement('div');
+    w.className = 'mw r';
+    const time = getTime();
+    const uid  = 'car' + Date.now();
+
+    const imgs = images.map(url =>
+      `<div style="flex:0 0 82%;scroll-snap-align:start;border-radius:10px;overflow:hidden;background:var(--border)">` +
+      `<img src="${url}" style="width:100%;display:block;aspect-ratio:1/1;object-fit:cover" loading="lazy">` +
+      `</div>`
+    ).join('');
+
+    const dots = images.length > 1 ? images.map((_, i) =>
+      `<div style="width:${i===0?'18px':'6px'};height:6px;border-radius:3px;` +
+      `background:${i===0?'var(--color-sent)':'rgba(128,128,128,.3)'};` +
+      `transition:width .25s,background .25s;flex-shrink:0"></div>`
+    ).join('') : '';
+
+    w.innerHTML =
+      `<div class="bubble r" style="padding:5px 5px 8px;max-width:290px">` +
+        `<div id="${uid}" style="display:flex;gap:6px;overflow-x:auto;scroll-snap-type:x mandatory;` +
+          `-webkit-overflow-scrolling:touch;scrollbar-width:none;border-radius:10px">` +
+          `<style>#${uid}::-webkit-scrollbar{display:none}</style>` +
+          imgs +
+        `</div>` +
+        (images.length > 1 ? `<div id="d_${uid}" style="display:flex;justify-content:center;gap:4px;margin-top:8px;align-items:center">${dots}</div>` : '') +
+        (caption ? `<div style="padding:6px 4px 2px;font-size:13px;line-height:1.4">${caption}</div>` : '') +
+        `<div class="meta"><span class="ts">${time}</span></div>` +
+      `</div>`;
+
+    // Dots dinâmicos no scroll
+    if (images.length > 1) {
+      const track  = w.querySelector('#' + uid);
+      const dotsEl = w.querySelector('#d_' + uid);
+      track.addEventListener('scroll', function() {
+        const gap  = 6;
+        const itemW = (track.firstElementChild?.offsetWidth || 1) + gap;
+        const idx   = Math.round(track.scrollLeft / itemW);
+        Array.from(dotsEl.children).forEach((d, i) => {
+          d.style.width      = i === idx ? '18px' : '6px';
+          d.style.background = i === idx ? 'var(--color-sent)' : 'rgba(128,128,128,.3)';
+        });
+      }, { passive: true });
+    }
+
+    sndReceive();
+    chat.appendChild(w);
+    scroll();
+  }
+
+  /* ════════════════════════════════════════════════
      ▌ VÍDEO
   ════════════════════════════════════════════════ */
   function toEmbedUrl(url) {
@@ -1816,6 +1870,11 @@
       }
       case 'image': {
         addImage(step.url || '', step.caption || '');
+        await sleep(delay);
+        break;
+      }
+      case 'carousel': {
+        addCarousel(step.images || [], step.caption || '');
         await sleep(delay);
         break;
       }

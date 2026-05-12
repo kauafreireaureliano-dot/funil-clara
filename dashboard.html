@@ -952,6 +952,7 @@
             <option value="audio">🎙️ Áudio</option>
             <option value="pdf">📄 PDF</option>
             <option value="image">🖼️ Imagem</option>
+            <option value="carousel">🎠 Carrosel de imagens</option>
             <option value="video">🎬 Vídeo</option>
             <option value="button">🔘 Botão</option>
             <option value="checkout">💳 Checkout</option>
@@ -995,6 +996,15 @@
           <div class="field"><label>URL atual do PDF</label><input type="url" id="fePdfUrl" placeholder="(será preenchido após upload)" style="font-size:12px;color:var(--muted)"></div>
           <div class="field"><label>Nome exibido (ex: Apostila de Recheios)</label><input type="text" id="fePdfName" placeholder="Apostila"></div>
           <div class="field"><label>Tamanho exibido (ex: 2,4 MB)</label><input type="text" id="fePdfSize" placeholder=""></div>
+        </div>
+
+        <div id="fe-carousel" style="display:none">
+          <div class="field">
+            <label>URLs das imagens <span style="font-size:11px;color:var(--muted)">(uma por linha)</span></label>
+            <textarea id="feCarouselImages" rows="5" placeholder="https://raw.githubusercontent.com/.../imagem1.jpg&#10;https://raw.githubusercontent.com/.../imagem2.jpg" style="width:100%;resize:vertical;font-size:12px;padding:8px;border:1px solid var(--border);border-radius:8px;background:var(--bg);color:var(--text);font-family:monospace"></textarea>
+            <div style="font-size:11px;color:var(--muted);margin-top:4px">Cole as URLs das imagens — uma por linha. Mínimo 2 para o carrosel aparecer com navegação.</div>
+          </div>
+          <div class="field"><label>Legenda (opcional)</label><input type="text" id="feCarouselCaption" placeholder="Ex: Veja o que você vai receber..."></div>
         </div>
 
         <div id="fe-image" style="display:none">
@@ -2409,6 +2419,7 @@ function stepSummary(step) {
     case 'audio':          return step.url ? `${step.url.split('/').pop()} — ${step.duration || '0:00'}` : `Áudio ${(step.index ?? 0) + 1} — ${step.duration || '0:00'}`;
     case 'pdf':            return step.url ? (step.name || step.url.split('/').pop()) : `PDF ${(step.index ?? 0) + 1}`;
     case 'image':          return step.url ? step.url.substring(0, 50) : '(sem URL)';
+    case 'carousel':       return `${(step.images||[]).length} imagens${step.caption ? ' · ' + step.caption : ''}`;
     case 'call':           return step.url ? `Ligação · ${step.duration || '0:00'}` : 'Ligação (sem áudio)';
     case 'video':          return step.url ? step.url.substring(0, 50) : '(sem URL)';
     case 'button':         return step.label || 'Botão';
@@ -2568,11 +2579,13 @@ function openFunnelEditPanel(i) {
   document.getElementById('feVlProduto').value   = step.produto || '';
   document.getElementById('feVlSugestoes').value = (step.sugestoes || []).join(' | ');
   document.getElementById('feVlRedirect').value  = step.redirect || '';
+  document.getElementById('feCarouselImages').value  = (step.images || []).join('\n');
+  document.getElementById('feCarouselCaption').value = step.caption || '';
 }
 
 function funnelUpdateTypeFields() {
   const type = document.getElementById('feType').value;
-  const allTypes = ['text','audio','pdf','image','video','button','checkout','multiple_choice','capture','delay','call','valor_livre'];
+  const allTypes = ['text','audio','pdf','image','carousel','video','button','checkout','multiple_choice','capture','delay','call','valor_livre'];
   allTypes.forEach(t => {
     const el = document.getElementById('fe-' + t);
     if (el) el.style.display = (t === type) ? '' : 'none';
@@ -2651,6 +2664,10 @@ async function funnelSaveStep() {
     case 'image':
       step.url = document.getElementById('feImageUrl').value;
       step.caption = document.getElementById('feImageCaption').value;
+      break;
+    case 'carousel':
+      step.images  = document.getElementById('feCarouselImages').value.split('\n').map(s => s.trim()).filter(Boolean);
+      step.caption = document.getElementById('feCarouselCaption').value.trim() || undefined;
       break;
     case 'video':
       step.url = document.getElementById('feVideoUrl').value;
