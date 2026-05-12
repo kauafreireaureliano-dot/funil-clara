@@ -1539,9 +1539,11 @@
   ════════════════════════════════════════════════ */
   function waitForValor(step) {
     return new Promise(resolve => {
-      const prod      = step.produto   || 'Apostilas Clara Aureliano';
-      const sugestoes = step.sugestoes || [];
-      const redirect  = step.redirect  || '';
+      const prod         = step.produto      || 'Apostilas Clara Aureliano';
+      const sugestoes    = step.sugestoes    || [];
+      const redirect     = step.redirect     || '';
+      const deliveryUrl  = step.deliveryUrl  || '';
+      const deliveryName = step.deliveryName || '';
 
       // Chips de sugestão
       if (sugestoes.length) {
@@ -1594,7 +1596,9 @@
         track('payment_click', null, null, valor);
 
         let url = `checkout.html?valor=${encodeURIComponent(valor)}&produto=${encodeURIComponent(prod)}&f=${encodeURIComponent(FUNNEL_ID)}`;
-        if (redirect) url += `&redirect=${encodeURIComponent(redirect)}`;
+        if (redirect)     url += `&redirect=${encodeURIComponent(redirect)}`;
+        if (deliveryUrl)  url += `&deliveryUrl=${encodeURIComponent(deliveryUrl)}`;
+        if (deliveryName) url += `&deliveryName=${encodeURIComponent(deliveryName)}`;
         setTimeout(() => { window.location.href = url; }, 700);
         resolve(valor);
       }
@@ -1896,6 +1900,8 @@
         if (step.fields?.celular) coUrl += `&celular=1&celularDesc=${encodeURIComponent(step.fields.celularDesc||'')}`;
         if (step.timer)           coUrl += `&timer=${step.timer.minutes}&timerText=${encodeURIComponent(step.timer.text||'Oferta expira em')}`;
         if (step.redirect)        coUrl += `&redirect=${encodeURIComponent(step.redirect)}`;
+        if (step.deliveryUrl)     coUrl += `&deliveryUrl=${encodeURIComponent(step.deliveryUrl)}`;
+        if (step.deliveryName)    coUrl += `&deliveryName=${encodeURIComponent(step.deliveryName)}`;
         addSingleButton(
           step.label || `Contribuir com R$ ${valor}`,
           coUrl

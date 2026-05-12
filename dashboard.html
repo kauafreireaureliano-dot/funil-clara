@@ -1036,6 +1036,16 @@
           <div class="field"><label>Texto do botão (opcional)</label><input type="text" id="feCheckoutLabel" placeholder="Contribuir com R$ 14,90"></div>
 
           <div class="field" style="margin-top:10px">
+            <label>🔑 Link de acesso ao produto (enviado no email)</label>
+            <input type="url" id="feCheckoutDeliveryUrl" placeholder="https://grupovip.com/acesso ou drive.google.com/...">
+            <div style="font-size:11px;color:var(--muted);margin-top:4px">O cliente recebe esse link no email de confirmação automaticamente.</div>
+          </div>
+          <div class="field">
+            <label>Texto do botão de acesso (opcional)</label>
+            <input type="text" id="feCheckoutDeliveryName" placeholder="Acessar grupo VIP">
+          </div>
+
+          <div class="field" style="margin-top:10px">
             <label>Redirect pós-pagamento (opcional)</label>
             <input type="url" id="feCheckoutRedirect" placeholder="https://seusite.com/upsell ou área de membros">
             <div style="font-size:11px;color:var(--muted);margin-top:4px">Após confirmar o pagamento, o cliente é redirecionado para essa URL automaticamente.</div>
@@ -2557,7 +2567,9 @@ function openFunnelEditPanel(i) {
   document.getElementById('feCheckoutValor').value = step.valor || '';
   document.getElementById('feCheckoutProduto').value = step.produto || '';
   document.getElementById('feCheckoutLabel').value = step.label || '';
-  document.getElementById('feCheckoutRedirect').value = step.redirect || '';
+  document.getElementById('feCheckoutRedirect').value    = step.redirect || '';
+  document.getElementById('feCheckoutDeliveryUrl').value  = step.deliveryUrl || '';
+  document.getElementById('feCheckoutDeliveryName').value = step.deliveryName || '';
   // campos extras
   const chkNome = document.getElementById('feCheckoutNome');
   chkNome.checked = !!step.fields?.nome;
@@ -2681,7 +2693,9 @@ async function funnelSaveStep() {
       step.valor = document.getElementById('feCheckoutValor').value;
       step.produto = document.getElementById('feCheckoutProduto').value;
       step.label = document.getElementById('feCheckoutLabel').value;
-      step.redirect = document.getElementById('feCheckoutRedirect').value.trim() || undefined;
+      step.redirect     = document.getElementById('feCheckoutRedirect').value.trim() || undefined;
+      step.deliveryUrl  = document.getElementById('feCheckoutDeliveryUrl').value.trim() || undefined;
+      step.deliveryName = document.getElementById('feCheckoutDeliveryName').value.trim() || undefined;
       // campos extras
       step.fields = {};
       if (document.getElementById('feCheckoutNome').checked) {

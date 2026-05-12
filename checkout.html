@@ -510,9 +510,11 @@
   const ASK_CEL    = params.get('celular') === '1';
   const NOME_DESC  = params.get('nomeDesc') || 'Como podemos te chamar?';
   const CEL_DESC   = params.get('celularDesc') || 'Seu número pra te adicionarmos ao grupo de WhatsApp';
-  const TIMER_MIN  = parseInt(params.get('timer') || '0');
-  const TIMER_TEXT = params.get('timerText') || 'Oferta expira em';
-  const REDIRECT   = params.get('redirect') || '';
+  const TIMER_MIN    = parseInt(params.get('timer') || '0');
+  const TIMER_TEXT   = params.get('timerText') || 'Oferta expira em';
+  const REDIRECT     = params.get('redirect') || '';
+  const DELIVERY_URL  = params.get('deliveryUrl') || '';
+  const DELIVERY_NAME = params.get('deliveryName') || '';
 
   let paymentId    = null;
   let pollInterval = null;
@@ -692,6 +694,8 @@
           produto: document.getElementById('productName').textContent,
           bumps: selectedBumps.map(b => ({ name: b.name, deliveryUrl: b.deliveryUrl || '' })),
           funnel_id: FUNNEL_ID,
+          ...(DELIVERY_URL  ? { delivery_url: DELIVERY_URL }   : {}),
+          ...(DELIVERY_NAME ? { delivery_name: DELIVERY_NAME } : {}),
           ...(nomeVal    ? { nome: nomeVal }    : {}),
           ...(celularVal ? { celular: celularVal } : {}),
         }),
