@@ -61,7 +61,10 @@
       "type": "checkout",
       "valor": "5",
       "produto": "Atividades bíblicas da Clara",
-      "label": "Eu quero!",
+      "label": "Eu quero as atividades!",
+      "redirect": "https://drive.google.com/drive/folders/1I2k48ROiiHve3usTAIhY36-DdI0RHDFU?usp=sharing",
+      "deliveryUrl": "https://drive.google.com/drive/folders/1I2k48ROiiHve3usTAIhY36-DdI0RHDFU?usp=sharing",
+      "deliveryName": "Acessar atividades",
       "fields": {
         "nome": true,
         "nomeDesc": "Como podemos te chamar?"
