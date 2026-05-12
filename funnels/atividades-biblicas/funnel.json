@@ -24,8 +24,13 @@
     },
     {
       "id": "s1778540721159",
-      "type": "image",
-      "url": "https://raw.githubusercontent.com/kauafreireaureliano-dot/funil-clara/master/funnels/atividades-biblicas/assets/s1778540721159_1778561984906.png",
+      "type": "carousel",
+      "images": [
+        "https://i.imgur.com/OWYYpr9.png",
+        "https://i.imgur.com/tU7opQS.png",
+        "https://i.imgur.com/5YlvaSy.png",
+        "https://i.imgur.com/dTuJXLi.png"
+      ],
       "caption": "Olha como elas são lindas ❤️",
       "delay": 3000
     },
