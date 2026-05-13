@@ -41,7 +41,8 @@ export async function onRequestPost(context) {
     if (!email || email === 'XXXXXXXXXX') return new Response('ok', { status: 200 });
 
     const origin = url.origin;
-    const config = await fetch(`${origin}/config.json`).then(r => r.json()).catch(() => ({}));
+    const cfgPath = funnelId === 'recheios' ? '/config.json' : `/funnels/${funnelId}/config.json`;
+    const config = await fetch(`${origin}${cfgPath}`).then(r => r.json()).catch(() => ({}));
     const pdfUrls  = config.pdfUrls  || [];
     const pdfNames = config.pdfNames || [];
     const bumpsData = (() => {
