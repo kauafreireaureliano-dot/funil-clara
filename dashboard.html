@@ -456,6 +456,7 @@
       <button class="nav-item" onclick="goTo('analytics')"><span class="ni">📊</span> Análises</button>
       <button class="nav-item" onclick="goTo('funil')"><span class="ni">💬</span> Funil</button>
       <button class="nav-item" onclick="goTo('integracoes')"><span class="ni">🔌</span> Integrações</button>
+      <button class="nav-item" onclick="goTo('pages')"><span class="ni">🌐</span> Páginas</button>
     </nav>
 
     <div class="sidebar-footer">
@@ -483,6 +484,7 @@
     <button class="nav-item" onclick="goTo('analytics')"><span class="ni">📊</span> Análises</button>
     <button class="nav-item" onclick="goTo('funil')"><span class="ni">💬</span> Funil</button>
     <button class="nav-item" onclick="goTo('integracoes')"><span class="ni">🔌</span> API</button>
+    <button class="nav-item" onclick="goTo('pages')"><span class="ni">🌐</span> Páginas</button>
     <button class="nav-item" style="background:var(--green);color:white" onclick="deploy()"><span class="ni">🚀</span> Publicar</button>
   </div>
 
@@ -1231,6 +1233,52 @@
       </div>
     </div>
 
+    <!-- ══ PÁGINAS ══ -->
+    <div class="section" id="sec-pages">
+      <div class="section-title">🌐 Páginas</div>
+      <div class="section-desc">Publique qualquer HTML como uma página pública. Ideal para páginas de venda, quiz, obrigado, e muito mais.</div>
+
+      <div style="display:flex;gap:10px;margin-bottom:18px">
+        <button class="btn-sm" style="background:var(--green);color:white;flex:1" onclick="openPageEditor(null)">+ Nova página</button>
+      </div>
+
+      <div id="pagesListWrap">
+        <div style="color:var(--muted);font-size:13px;text-align:center;padding:20px">Carregando...</div>
+      </div>
+
+      <!-- Editor de página -->
+      <div id="pageEditorPanel" style="display:none">
+        <div style="display:flex;align-items:center;gap:10px;margin-bottom:16px">
+          <button class="btn-sm" onclick="closePagesEditor()">← Voltar</button>
+          <span id="pageEditorTitle" style="font-weight:700;font-size:15px">Nova página</span>
+        </div>
+
+        <div class="card">
+          <div class="field" style="margin-bottom:12px">
+            <label>Nome da página</label>
+            <input type="text" id="pageNameInput" placeholder="Ex: Página de Vendas – Atividades Bíblicas">
+          </div>
+          <div class="field" style="margin-bottom:12px">
+            <label>Slug (aparece na URL)</label>
+            <div style="display:flex;align-items:center;gap:6px">
+              <span style="font-size:12px;color:var(--muted);white-space:nowrap">funil-clara.pages.dev/pages/</span>
+              <input type="text" id="pageSlugInput" placeholder="atividades-biblicas" style="flex:1" oninput="sanitizeSlug(this)">
+            </div>
+            <div id="pageUrlPreview" style="font-size:11px;color:var(--green);margin-top:4px"></div>
+          </div>
+          <div class="field" style="margin-bottom:16px">
+            <label>Código HTML</label>
+            <textarea id="pageHtmlInput" rows="18" placeholder="Cole aqui o HTML completo da sua página..." style="font-family:monospace;font-size:12px;resize:vertical"></textarea>
+          </div>
+          <div style="display:flex;gap:10px">
+            <button class="btn-sm" style="background:var(--green);color:white;flex:1;padding:10px" onclick="savePage()">💾 Publicar página</button>
+            <button class="btn-sm" id="pageDeleteBtn" style="background:#ff4d4d;color:white;display:none" onclick="deleteCustomPage()">🗑 Excluir</button>
+          </div>
+          <div id="pageSaveStatus" style="font-size:12px;color:var(--muted);margin-top:8px;text-align:center"></div>
+        </div>
+      </div>
+    </div>
+
   </main>
   </div><!-- fim wrapper mobile -->
 </div>
@@ -1436,6 +1484,7 @@ function goTo(id) {
   if (id === 'analytics') { loadAnalytics(); loadAllFunnelsSales(); }
   if (id === 'meusfunis') loadFunnelList();
   if (id === 'funil') updatePreview();
+  if (id === 'pages') { loadPagesList(); }
 }
 
 /* ════════════════════════════════════════════════
@@ -2899,6 +2948,176 @@ function funnelCancelEdit() {
   funnelEditingIdx = null;
   document.getElementById('funnelEditPanel').style.display = 'none';
   renderFunnelList();
+}
+
+/* ════════════════════════════════════════════════
+   ▌ PÁGINAS
+════════════════════════════════════════════════ */
+let _pagesList = [];
+let _editingPageSlug = null;
+
+async function loadPagesList() {
+  const wrap = document.getElementById('pagesListWrap');
+  wrap.innerHTML = '<div style="color:var(--muted);font-size:13px;text-align:center;padding:20px">Carregando...</div>';
+  document.getElementById('pageEditorPanel').style.display = 'none';
+  document.getElementById('pagesListWrap').style.display = 'block';
+
+  const data = await ghGet('pages.json');
+  if (data) {
+    try { _pagesList = JSON.parse(atob(data.content.replace(/\n/g, ''))); } catch { _pagesList = []; }
+  } else {
+    _pagesList = [];
+  }
+  renderPagesList();
+}
+
+function renderPagesList() {
+  const wrap = document.getElementById('pagesListWrap');
+  if (_pagesList.length === 0) {
+    wrap.innerHTML = '<div style="color:var(--muted);font-size:13px;text-align:center;padding:30px">Nenhuma página ainda.<br>Clique em <strong>+ Nova página</strong> para começar.</div>';
+    return;
+  }
+  let html = '';
+  for (const p of _pagesList) {
+    const url = `https://funil-clara.pages.dev/pages/${p.slug}/`;
+    html += `
+      <div class="card" style="display:flex;align-items:center;justify-content:space-between;gap:10px;padding:14px 16px;margin-bottom:10px">
+        <div style="flex:1;min-width:0">
+          <div style="font-weight:700;font-size:14px;color:var(--text);margin-bottom:2px">${p.name}</div>
+          <a href="${url}" target="_blank" style="font-size:11px;color:var(--green);word-break:break-all">${url}</a>
+        </div>
+        <div style="display:flex;gap:6px;flex-shrink:0">
+          <button class="btn-sm" onclick="copyPageLink('${p.slug}')" title="Copiar link">🔗</button>
+          <button class="btn-sm" onclick="openPageEditor('${p.slug}')">✏️ Editar</button>
+        </div>
+      </div>`;
+  }
+  wrap.innerHTML = html;
+}
+
+function openPageEditor(slug) {
+  _editingPageSlug = slug;
+  document.getElementById('pagesListWrap').style.display = 'none';
+  document.getElementById('pageEditorPanel').style.display = 'block';
+  document.getElementById('pageSaveStatus').textContent = '';
+
+  if (slug) {
+    const page = _pagesList.find(p => p.slug === slug);
+    document.getElementById('pageEditorTitle').textContent = page?.name || 'Editar página';
+    document.getElementById('pageNameInput').value = page?.name || '';
+    document.getElementById('pageSlugInput').value = slug;
+    document.getElementById('pageSlugInput').disabled = true;
+    document.getElementById('pageDeleteBtn').style.display = '';
+    updatePageUrlPreview();
+    // Carrega HTML atual
+    document.getElementById('pageHtmlInput').value = '';
+    ghGet(`pages/${slug}/index.html`).then(data => {
+      if (data) document.getElementById('pageHtmlInput').value = decodeURIComponent(escape(atob(data.content.replace(/\n/g, ''))));
+    });
+  } else {
+    document.getElementById('pageEditorTitle').textContent = 'Nova página';
+    document.getElementById('pageNameInput').value = '';
+    document.getElementById('pageSlugInput').value = '';
+    document.getElementById('pageSlugInput').disabled = false;
+    document.getElementById('pageDeleteBtn').style.display = 'none';
+    document.getElementById('pageHtmlInput').value = '';
+    document.getElementById('pageUrlPreview').textContent = '';
+  }
+}
+
+function closePagesEditor() {
+  document.getElementById('pageEditorPanel').style.display = 'none';
+  document.getElementById('pagesListWrap').style.display = 'block';
+}
+
+function sanitizeSlug(input) {
+  input.value = input.value
+    .toLowerCase()
+    .normalize('NFD').replace(/[̀-ͯ]/g, '')
+    .replace(/[^a-z0-9-]/g, '-')
+    .replace(/-+/g, '-');
+  updatePageUrlPreview();
+}
+
+function updatePageUrlPreview() {
+  const slug = document.getElementById('pageSlugInput').value.trim();
+  const el = document.getElementById('pageUrlPreview');
+  el.textContent = slug ? `https://funil-clara.pages.dev/pages/${slug}/` : '';
+}
+
+async function savePage() {
+  const name = document.getElementById('pageNameInput').value.trim();
+  const slug = document.getElementById('pageSlugInput').value.trim();
+  const html = document.getElementById('pageHtmlInput').value;
+  const statusEl = document.getElementById('pageSaveStatus');
+
+  if (!name) { toast('Informe o nome da página', 'red'); return; }
+  if (!slug) { toast('Informe o slug da URL', 'red'); return; }
+  if (!html.trim()) { toast('Cole o HTML da página', 'red'); return; }
+  if (!/^[a-z0-9-]+$/.test(slug)) { toast('Slug inválido — use só letras, números e hífen', 'red'); return; }
+
+  statusEl.textContent = 'Publicando...';
+  try {
+    // Salva o HTML no GitHub
+    const htmlBase64 = strToBase64(html);
+    const existingFile = await ghGet(`pages/${slug}/index.html`);
+    await ghPut(`pages/${slug}/index.html`, htmlBase64, `page: ${slug}`, existingFile?.sha);
+
+    // Atualiza pages.json
+    const existing = _pagesList.find(p => p.slug === slug);
+    if (existing) {
+      existing.name = name;
+    } else {
+      _pagesList.push({ slug, name, createdAt: new Date().toISOString() });
+    }
+    const indexData = await ghGet('pages.json');
+    await ghPut('pages.json', strToBase64(JSON.stringify(_pagesList, null, 2)), `pages index: ${slug}`, indexData?.sha);
+
+    statusEl.textContent = '';
+    toast('Página publicada!', 'green');
+    _editingPageSlug = slug;
+    document.getElementById('pageSlugInput').disabled = true;
+    document.getElementById('pageDeleteBtn').style.display = '';
+    document.getElementById('pageEditorTitle').textContent = name;
+    renderPagesList();
+  } catch (err) {
+    statusEl.textContent = 'Erro: ' + err.message;
+    toast('Erro ao publicar: ' + err.message, 'red');
+  }
+}
+
+async function deleteCustomPage() {
+  const slug = _editingPageSlug;
+  if (!slug) return;
+  if (!confirm(`Excluir a página "${slug}"? Esta ação não pode ser desfeita.`)) return;
+
+  try {
+    // Remove do pages.json
+    _pagesList = _pagesList.filter(p => p.slug !== slug);
+    const indexData = await ghGet('pages.json');
+    await ghPut('pages.json', strToBase64(JSON.stringify(_pagesList, null, 2)), `remove page: ${slug}`, indexData?.sha);
+
+    // Apaga o arquivo HTML (substitui por placeholder vazio para "deletar" via API)
+    const fileData = await ghGet(`pages/${slug}/index.html`);
+    if (fileData) {
+      await fetch(`${API}/repos/${OWNER}/${REPO}/contents/pages/${slug}/index.html`, {
+        method: 'DELETE',
+        headers: ghHeaders(),
+        body: JSON.stringify({ message: `delete page: ${slug}`, sha: fileData.sha, branch: BRANCH }),
+      });
+    }
+
+    toast('Página excluída', 'green');
+    closePagesEditor();
+    renderPagesList();
+  } catch (err) {
+    toast('Erro ao excluir: ' + err.message, 'red');
+  }
+}
+
+function copyPageLink(slug) {
+  const url = `https://funil-clara.pages.dev/pages/${slug}/`;
+  navigator.clipboard.writeText(url).then(() => toast('Link copiado!', 'green')).catch(() => toast(url));
 }
 
 /* ════════════════════════════════════════════════
