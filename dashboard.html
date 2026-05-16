@@ -1316,6 +1316,21 @@
           </div>
         </div>
 
+        <!-- Design personalizado -->
+        <div class="card" style="margin-bottom:14px">
+          <div class="card-title" style="margin-bottom:6px">🎨 Design personalizado</div>
+          <p style="font-size:12px;color:var(--muted);margin-bottom:12px;line-height:1.6">
+            Peça ao Claude para criar o HTML do design e cole aqui. O sistema injeta o JavaScript de pagamento automaticamente — nenhuma funcionalidade quebra.
+          </p>
+          <button class="btn-sm" style="width:100%;margin-bottom:12px;background:#7c3aed;color:white" onclick="copiarPromptCk()">
+            📋 Copiar prompt para o Claude
+          </button>
+          <div class="field" style="margin-bottom:0">
+            <label>HTML do design <span style="font-weight:400;color:var(--muted)">(opcional — deixe vazio para usar o padrão)</span></label>
+            <textarea id="ckeCustomHtml" rows="10" placeholder="Cole aqui o HTML que o Claude gerou..." style="font-family:monospace;font-size:11px;resize:vertical"></textarea>
+          </div>
+        </div>
+
         <div style="display:flex;gap:10px">
           <button class="btn-sm" style="background:var(--green);color:white;flex:1;padding:11px;font-size:14px" onclick="saveCk()">💾 Salvar e publicar</button>
           <button class="btn-sm" id="ckeDeleteBtn" style="background:#ff4d4d;color:white;display:none" onclick="deleteCk()">🗑</button>
@@ -3151,10 +3166,22 @@ function openCkEditor(slug) {
     document.getElementById('ckePixelId').value  = ck?.metaPixelId || '';
     _ckBumps = (ck?.bumps || []).map(b => ({...b}));
     document.getElementById('ckeDeleteBtn').style.display = '';
+    document.getElementById('ckeCustomHtml').value = '';
     updateCkUrlPreview();
+    // Carrega HTML customizado salvo (se tiver)
+    if (ck?.hasCustomHtml) {
+      ghGet(`checkouts/${slug}/index.html`).then(data => {
+        if (data) {
+          // Remove o bloco de script injetado para mostrar só o design original
+          let raw = decodeURIComponent(escape(atob(data.content.replace(/\n/g,''))));
+          raw = raw.replace(/<script>[\s\S]*?<\/script>\s*(?=<\/body>|$)/i, '').trim();
+          document.getElementById('ckeCustomHtml').value = raw;
+        }
+      });
+    }
   } else {
     document.getElementById('ckEditorTitle').textContent = 'Novo checkout';
-    ['ckeName','ckeSlug','ckeProduto','ckeValor','ckeDelivUrl','ckeDelivName','ckeFunnelId','ckePixelId'].forEach(id => document.getElementById(id).value = '');
+    ['ckeName','ckeSlug','ckeProduto','ckeValor','ckeDelivUrl','ckeDelivName','ckeFunnelId','ckePixelId','ckeCustomHtml'].forEach(id => document.getElementById(id).value = '');
     document.getElementById('ckeCor').value = '#128C7E';
     document.getElementById('ckeSlug').disabled = false;
     document.getElementById('ckeDeleteBtn').style.display = 'none';
@@ -3211,6 +3238,7 @@ async function saveCk() {
   const delivName  = document.getElementById('ckeDelivName').value.trim();
   const funnelId   = document.getElementById('ckeFunnelId').value.trim();
   const pixelId    = document.getElementById('ckePixelId').value.trim();
+  const customHtml = document.getElementById('ckeCustomHtml').value.trim();
   const statusEl   = document.getElementById('ckeSaveStatus');
 
   if (!name) { toast('Informe o nome', 'red'); return; }
@@ -3220,8 +3248,8 @@ async function saveCk() {
 
   statusEl.textContent = 'Publicando...';
   try {
-    const config = { name, slug, produto, valor, cor, deliveryUrl: delivUrl, deliveryName: delivName, funnelId, metaPixelId: pixelId, bumps: _ckBumps.filter(b => b.name) };
-    const html = _buildCkHtml(config);
+    const config = { name, slug, produto, valor, cor, deliveryUrl: delivUrl, deliveryName: delivName, funnelId, metaPixelId: pixelId, bumps: _ckBumps.filter(b => b.name), hasCustomHtml: !!customHtml };
+    const html = customHtml ? _injetarJsCk(customHtml, config) : _buildCkHtml(config);
 
     const existingHtml = await ghGet(`checkouts/${slug}/index.html`);
     await ghPut(`checkouts/${slug}/index.html`, strToBase64(html), `checkout: ${slug}`, existingHtml?.sha);
@@ -3268,6 +3296,146 @@ async function deleteCk() {
 function copyCkLink(slug) {
   const url = `https://funil-clara.pages.dev/checkouts/${slug}/`;
   navigator.clipboard.writeText(url).then(() => toast('Link copiado!', 'green')).catch(() => toast(url));
+}
+
+function copiarPromptCk() {
+  const produto   = document.getElementById('ckeProduto').value.trim() || 'Produto';
+  const valor     = document.getElementById('ckeValor').value.trim()   || '9,90';
+  const cor       = document.getElementById('ckeCor').value.trim()     || '#128C7E';
+  const bumps     = _ckBumps.filter(b => b.name);
+
+  const bumpIds = bumps.map((b, i) =>
+    `- \`#bump${i}\` — div clicável do bump "${b.name}" (toggle visual de seleção)\n- \`#bumpchk${i}\` — checkbox interno do bump ${i+1}`
+  ).join('\n');
+
+  const bumpDesc = bumps.map((b, i) =>
+    `  - Bump ${i+1}: "${b.name}" — R$ ${b.price}${b.description ? ' — '+b.description : ''}`
+  ).join('\n');
+
+  const prompt = `Crie o HTML de design de uma página de checkout.
+NÃO inclua nenhuma tag <script> — o JavaScript de pagamento será injetado automaticamente pelo sistema.
+
+## Produto
+- Nome: ${produto}
+- Valor: R$ ${valor}
+- Cor principal: ${cor}
+${bumps.length ? `\n## Order Bumps (ofertas adicionais antes do pagamento)\n${bumpDesc}` : ''}
+
+## IDs obrigatórios — mantenha EXATAMENTE esses IDs nos elementos HTML
+- \`#formCard\` — div/section que contém o formulário principal (some ao mostrar o PIX)
+- \`#inNome\` — input texto do nome completo
+- \`#inEmail\` — input email
+- \`#formErr\` — div para mensagem de erro (vazia por padrão)
+- \`#totalDisplay\` — elemento que exibe o valor total (ex: "R$ 9,90")
+- \`#payBtn\` — botão de gerar PIX
+${bumpIds ? bumpIds + '\n' : ''}- \`#pixBox\` — div que mostra o QR Code (oculto por padrão, display:none)
+- \`#qrImg\` — img do QR Code
+- \`#pixCode\` — div com o código PIX em texto (para copiar)
+- \`#successBox\` — div de sucesso após pagamento confirmado (oculto por padrão, display:none)
+
+## Regras
+1. NÃO adicione nenhuma tag <script> ou onclick nos elementos acima — o sistema gerencia tudo
+2. Pode usar qualquer design, animações CSS, Google Fonts, imagens
+3. A página deve ser responsiva para celular
+4. O HTML deve ser completo (<!DOCTYPE html> ... </html>)
+5. Os elementos #pixBox e #successBox devem começar com style="display:none"`;
+
+  navigator.clipboard.writeText(prompt)
+    .then(() => toast('Prompt copiado! Cole no Claude e peça o design.', 'green'))
+    .catch(() => toast('Copie manualmente: ' + prompt.substring(0, 50) + '...'));
+}
+
+function _injetarJsCk(htmlBase, config) {
+  const bumpsJson = JSON.stringify(config.bumps || []);
+  const pixelSnippet = config.metaPixelId ? `!function(f,b,e,v,n,t,s){if(f.fbq)return;n=f.fbq=function(){n.callMethod?n.callMethod.apply(n,arguments):n.queue.push(arguments)};if(!f._fbq)f._fbq=n;n.push=n;n.loaded=!0;n.version='2.0';n.queue=[];t=b.createElement(e);t.async=!0;t.src=v;s=b.getElementsByTagName(e)[0];s.parentNode.insertBefore(t,s)}(window,document,'script','https://connect.facebook.net/en_US/fbevents.js');fbq('init','${config.metaPixelId}');fbq('track','PageView');` : '';
+
+  const js = `
+<script>
+${pixelSnippet}
+const VALOR='${config.valor}';const PRODUTO='${config.produto}';const FUNNEL='${config.funnelId||''}';
+const DELIV_URL='${config.deliveryUrl||''}';const DELIV_NAME='${config.deliveryName||'Acessar produto'}';
+const BUMPS=${bumpsJson};
+let paymentId=null,pollTimer=null;
+function parseBRL(v){return parseFloat(String(v).replace(',','.'))||0;}
+function atualizarTotal(){
+  let t=parseBRL(VALOR);
+  BUMPS.forEach((_,i)=>{if(document.getElementById('bumpchk'+i)?.checked)t+=parseBRL(BUMPS[i].price);});
+  const d=document.getElementById('totalDisplay');if(d)d.textContent='R$ '+t.toFixed(2).replace('.',',');
+  const b=document.getElementById('payBtn');if(b)b.textContent='💚 Gerar PIX — R$ '+t.toFixed(2).replace('.',',');
+}
+function toggleBump(i){
+  const chk=document.getElementById('bumpchk'+i);
+  const card=document.getElementById('bump'+i);
+  if(!chk)return;chk.checked=!chk.checked;
+  if(card)card.classList.toggle('sel',chk.checked);
+  atualizarTotal();
+}
+// delegação de clique nos bump cards
+document.addEventListener('click',function(e){
+  const card=e.target.closest('[id^="bump"]');
+  if(card&&!/bumpchk/.test(card.id)){const i=card.id.replace('bump','');toggleBump(Number(i));}
+});
+async function iniciarPagamento(){
+  const nome=document.getElementById('inNome')?.value.trim();
+  const email=document.getElementById('inEmail')?.value.trim();
+  const errEl=document.getElementById('formErr');
+  if(errEl)errEl.textContent='';
+  if(!nome){if(errEl)errEl.textContent='Informe seu nome';return;}
+  if(!email||!email.includes('@')){if(errEl)errEl.textContent='Informe um e-mail válido';return;}
+  let total=parseBRL(VALOR);
+  const selBumps=BUMPS.filter((_,i)=>document.getElementById('bumpchk'+i)?.checked);
+  selBumps.forEach(b=>total+=parseBRL(b.price));
+  const btn=document.getElementById('payBtn');
+  if(btn){btn.disabled=true;btn.textContent='Gerando PIX...';}
+  try{
+    const eid='initiate_checkout_'+Date.now();
+    if(typeof fbq!=='undefined')fbq('track','InitiateCheckout',{currency:'BRL',value:total},{eventID:eid});
+    const res=await fetch('/api/pagamento',{method:'POST',headers:{'Content-Type':'application/json'},
+      body:JSON.stringify({email,nome,valor:total.toFixed(2).replace('.',','),produto:PRODUTO,
+        funnel_id:FUNNEL||undefined,delivery_url:DELIV_URL||undefined,delivery_name:DELIV_NAME||undefined,
+        bumps:selBumps.length?selBumps:undefined})});
+    const data=await res.json();
+    if(!res.ok||!data.qr_code)throw new Error(data.erro||'Erro ao gerar PIX');
+    paymentId=data.id;
+    const qi=document.getElementById('qrImg');if(qi)qi.src='data:image/png;base64,'+data.qr_code_base64;
+    const pc=document.getElementById('pixCode');if(pc)pc.textContent=data.qr_code;
+    const fc=document.getElementById('formCard');if(fc)fc.style.display='none';
+    const pb=document.getElementById('pixBox');if(pb)pb.style.display='block';
+    pollTimer=setInterval(verificarPagamento,4000);
+  }catch(err){
+    if(errEl)errEl.textContent=err.message;
+    if(btn){btn.disabled=false;btn.textContent='💚 Gerar PIX';}
+  }
+}
+async function verificarPagamento(){
+  if(!paymentId)return;
+  try{
+    const r=await fetch('/api/status?id='+paymentId);const d=await r.json();
+    if(d.status==='approved'){
+      clearInterval(pollTimer);
+      const pid='purchase_'+paymentId;
+      const tv=document.getElementById('totalDisplay');
+      const val=tv?parseFloat(tv.textContent.replace('R$ ','').replace(',','.')):parseBRL(VALOR);
+      if(typeof fbq!=='undefined')fbq('track','Purchase',{currency:'BRL',value:val},{eventID:pid});
+      const pb=document.getElementById('pixBox');if(pb)pb.style.display='none';
+      const sb=document.getElementById('successBox');if(sb)sb.style.display='block';
+    }
+  }catch{}
+}
+function copiarPix(){
+  const code=document.getElementById('pixCode')?.textContent||'';
+  navigator.clipboard.writeText(code).then(()=>{
+    const b=document.querySelector('[onclick="copiarPix()"]');
+    if(b){b.textContent='✅ Copiado!';setTimeout(()=>b.textContent='📋 Copiar código PIX',2000);}
+  }).catch(()=>{});
+}
+document.getElementById('payBtn')?.addEventListener('click',iniciarPagamento);
+atualizarTotal();
+<\/script>`;
+
+  // Injeta antes de </body>, ou no final se não tiver
+  if (htmlBase.includes('</body>')) return htmlBase.replace('</body>', js + '\n</body>');
+  return htmlBase + js;
 }
 
 // ── Gerador HTML ──
