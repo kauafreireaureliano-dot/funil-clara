@@ -8,13 +8,6 @@
   "deliveryName": "Acessar atividades",
   "funnelId": "Atividades Biblicas",
   "metaPixelId": "1723902288771399",
-  "bumps": [
-    {
-      "name": "TESTE",
-      "price": "1",
-      "description": "KAUA",
-      "deliveryUrl": "pixel: 1723902288771399 token: EAAQ1CY4y8DQBRSfh45IjsyUeup5Hh0APPaZBqHRnfTFegHuYD2M9MgYKGTbcotlzqyrZCf06iOnlzqY68WjGtS8X6aFSa8KX5TIC1IyMNA2xWxMkYqAZAZAs7ZAge3tEpKRLgf8giiEcyfMINAImTsuAxaVrQkF0wqSDaFky6mx6rinrug7bQayt4DqcsS1KiXwZDZD"
-    }
-  ],
+  "bumps": [],
   "hasCustomHtml": true
 }
