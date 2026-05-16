@@ -8,11 +8,12 @@
 
 <!-- Meta Pixel -->
 
+
 <script>
 !function(f,b,e,v,n,t,s){if(f.fbq)return;n=f.fbq=function(){n.callMethod?n.callMethod.apply(n,arguments):n.queue.push(arguments)};if(!f._fbq)f._fbq=n;n.push=n;n.loaded=!0;n.version='2.0';n.queue=[];t=b.createElement(e);t.async=!0;t.src=v;s=b.getElementsByTagName(e)[0];s.parentNode.insertBefore(t,s)}(window,document,'script','https://connect.facebook.net/en_US/fbevents.js');fbq('init','1723902288771399');fbq('track','PageView');
 const VALOR='5,00';const PRODUTO='Atividades Biblicas';const FUNNEL='Atividades Biblicas';
 const DELIV_URL='https://drive.google.com/drive/folders/1I2k48ROiiHve3usTAIhY36-DdI0RHDFU?usp=drive_link';const DELIV_NAME='Acessar atividades';
-const BUMPS=[{"name":"TESTE","price":"1","description":"KAUA","deliveryUrl":"pixel: 1723902288771399 token: EAAQ1CY4y8DQBRSfh45IjsyUeup5Hh0APPaZBqHRnfTFegHuYD2M9MgYKGTbcotlzqyrZCf06iOnlzqY68WjGtS8X6aFSa8KX5TIC1IyMNA2xWxMkYqAZAZAs7ZAge3tEpKRLgf8giiEcyfMINAImTsuAxaVrQkF0wqSDaFky6mx6rinrug7bQayt4DqcsS1KiXwZDZD"}];
+const BUMPS=[];
 let paymentId=null,pollTimer=null;
 function parseBRL(v){return parseFloat(String(v).replace(',','.'))||0;}
 function atualizarTotal(){
