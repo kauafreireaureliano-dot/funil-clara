@@ -3305,7 +3305,7 @@ function copiarPromptCk() {
   const bumps     = _ckBumps.filter(b => b.name);
 
   const bumpIds = bumps.map((b, i) =>
-    `- \`#bump${i}\` — div clicável do bump "${b.name}" (toggle visual de seleção)\n- \`#bumpchk${i}\` — checkbox interno do bump ${i+1}`
+    `- \`#bump${i}\` — div clicável do bump "${b.name}" com onclick="toggleBump(${i})" e classe .sel quando ativo\n- \`#bumpchk${i}\` — checkbox do bump (OBRIGATÓRIO: style="pointer-events:none")`
   ).join('\n');
 
   const bumpDesc = bumps.map((b, i) =>
@@ -3370,10 +3370,10 @@ function toggleBump(i){
   if(card)card.classList.toggle('sel',chk.checked);
   atualizarTotal();
 }
-// delegação de clique nos bump cards
+// delegação de clique nos bump cards (checkbox tem pointer-events:none no prompt)
 document.addEventListener('click',function(e){
-  const card=e.target.closest('[id^="bump"]');
-  if(card&&!/bumpchk/.test(card.id)){const i=card.id.replace('bump','');toggleBump(Number(i));}
+  const card=e.target.closest('[id^="bump"]:not([id*="chk"])');
+  if(card){const i=parseInt(card.id.replace(/\D/g,''));if(!isNaN(i))toggleBump(i);}
 });
 async function iniciarPagamento(){
   const nome=document.getElementById('inNome')?.value.trim();
@@ -3438,11 +3438,29 @@ atualizarTotal();
   return htmlBase + js;
 }
 
+function _escHtml(s) {
+  return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+}
+
 // ── Gerador HTML ──
 function _buildCkHtml(c) {
   const bumpsJson = JSON.stringify(c.bumps || []);
-  const pixelSnippet = c.metaPixelId ? `
-<script>!function(f,b,e,v,n,t,s){if(f.fbq)return;n=f.fbq=function(){n.callMethod?n.callMethod.apply(n,arguments):n.queue.push(arguments)};if(!f._fbq)f._fbq=n;n.push=n;n.loaded=!0;n.version='2.0';n.queue=[];t=b.createElement(e);t.async=!0;t.src=v;s=b.getElementsByTagName(e)[0];s.parentNode.insertBefore(t,s)}(window,document,'script','https://connect.facebook.net/en_US/fbevents.js');fbq('init','${c.metaPixelId}');fbq('track','PageView');<\/script>` : '';
+
+  // Bump HTML construído sem nesting de template literals
+  let bumpsHtml = '';
+  if ((c.bumps || []).length > 0) {
+    let cardsHtml = '';
+    c.bumps.forEach(function(b, i) {
+      cardsHtml += '<div class="bump-card" id="bump' + i + '" onclick="toggleBump(' + i + ')">'
+        + '<input type="checkbox" id="bumpchk' + i + '" style="pointer-events:none">'
+        + '<div class="bump-info"><strong>' + _escHtml(b.name) + '</strong>'
+        + '<span>' + _escHtml(b.description || '') + '</span></div>'
+        + '<div class="bump-price">+R$ ' + _escHtml(b.price) + '</div></div>';
+    });
+    bumpsHtml = '<div style="margin-bottom:16px"><label style="margin-bottom:10px">Adicionar ao pedido</label>' + cardsHtml + '</div>';
+  }
+
+  const pixelSnippet = c.metaPixelId ? '<script>!function(f,b,e,v,n,t,s){if(f.fbq)return;n=f.fbq=function(){n.callMethod?n.callMethod.apply(n,arguments):n.queue.push(arguments)};if(!f._fbq)f._fbq=n;n.push=n;n.loaded=!0;n.version=\'2.0\';n.queue=[];t=b.createElement(e);t.async=!0;t.src=v;s=b.getElementsByTagName(e)[0];s.parentNode.insertBefore(t,s)}(window,document,\'script\',\'https://connect.facebook.net/en_US/fbevents.js\');fbq(\'init\',\'' + c.metaPixelId + '\');fbq(\'track\',\'PageView\');<\/script>' : '';
   return `<!DOCTYPE html>
 <html lang="pt-BR">
 <head>
@@ -3496,20 +3514,7 @@ input:focus{border-color:${c.cor}}
   </div>
 
   <div class="card" id="formCard">
-    <!-- Bumps -->
-    ${(c.bumps||[]).length > 0 ? `
-    <div style="margin-bottom:16px">
-      <label style="margin-bottom:10px">Adicionar ao pedido</label>
-      ${(c.bumps||[]).map((b,i)=>`
-      <div class="bump-card" id="bump${i}" onclick="toggleBump(${i})">
-        <input type="checkbox" id="bumpchk${i}" onchange="atualizarTotal()">
-        <div class="bump-info">
-          <strong>${b.name}</strong>
-          <span>${b.description||''}</span>
-        </div>
-        <div class="bump-price">+R$ ${b.price}</div>
-      </div>`).join('')}
-    </div>` : ''}
+    ${bumpsHtml}
 
     <label>Nome completo</label>
     <input type="text" id="inNome" placeholder="Seu nome">
