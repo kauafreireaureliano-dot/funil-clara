@@ -42,8 +42,11 @@ export async function onRequestGet(context) {
     // Sales
     let totalRevenue   = 0;
     let salesCount     = 0;
+    let todaySalesCount = 0;
     const salesByDay   = {};
+    const recentSales  = [];
     const seenSales    = new Set(); // dedup por session_id (= payment_<id>)
+    const today        = new Date().toISOString().slice(0, 10);
 
     for (const e of events) {
       if (e.event_type === 'page_view') {
@@ -62,13 +65,46 @@ export async function onRequestGet(context) {
         conversions.add(e.session_id);
       }
       if (e.event_type === 'sale_confirmed') {
-        if (seenSales.has(e.session_id)) continue; // ignora duplicatas
+        if (seenSales.has(e.session_id)) continue;
         seenSales.add(e.session_id);
-        const amount = parseFloat(e.value) || 0;
+        // Parse value — pode ser JSON {amount,email,name} ou número legado
+        let amount = 0, buyerEmail = '', buyerName = '';
+        try {
+          const parsed = JSON.parse(e.value);
+          amount = parseFloat(parsed.amount) || 0;
+          buyerEmail = parsed.email || '';
+          buyerName  = parsed.name  || '';
+        } catch {
+          amount = parseFloat(e.value) || 0;
+        }
         totalRevenue += amount;
         salesCount++;
         const day = e.created_at.slice(0, 10);
         salesByDay[day] = (salesByDay[day] || 0) + amount;
+        if (day === today) todaySalesCount++;
+        recentSales.push({ amount, email: buyerEmail, name: buyerName, funnel: e.step_id, created_at: e.created_at });
+      }
+    }
+
+    // All-time sales (sem filtro de data)
+    const allRes = await fetch(
+      `${SUPA_URL}/rest/v1/funnel_events?event_type=eq.sale_confirmed&order=created_at.desc&limit=500`,
+      { headers: { 'Authorization': `Bearer ${SUPA_KEY}`, 'apikey': SUPA_KEY } }
+    );
+    const allSaleEvents = await allRes.json().catch(() => []);
+    let allTimeRevenue = 0, allTimeSales = 0;
+    const seenAll = new Set();
+    if (Array.isArray(allSaleEvents)) {
+      for (const e of allSaleEvents) {
+        if (seenAll.has(e.session_id)) continue;
+        seenAll.add(e.session_id);
+        try {
+          const p = JSON.parse(e.value);
+          allTimeRevenue += parseFloat(p.amount) || 0;
+        } catch {
+          allTimeRevenue += parseFloat(e.value) || 0;
+        }
+        allTimeSales++;
       }
     }
 
@@ -92,17 +128,21 @@ export async function onRequestGet(context) {
     const todayRevenue = salesByDay[today] || 0;
 
     return new Response(JSON.stringify({
-      total_sessions:    total,
-      total_conversions: conv,
-      conversion_rate:   total > 0 ? Math.round(conv / total * 1000) / 10 : 0,
-      total_revenue:     Math.round(totalRevenue * 100) / 100,
-      today_revenue:     Math.round(todayRevenue * 100) / 100,
-      sales_count:       salesCount,
-      sales_by_day:      salesByDay,
+      total_sessions:     total,
+      total_conversions:  conv,
+      conversion_rate:    total > 0 ? Math.round(conv / total * 1000) / 10 : 0,
+      total_revenue:      Math.round(totalRevenue * 100) / 100,
+      today_revenue:      Math.round((salesByDay[today] || 0) * 100) / 100,
+      today_sales_count:  todaySalesCount,
+      sales_count:        salesCount,
+      sales_by_day:       salesByDay,
+      all_time_revenue:   Math.round(allTimeRevenue * 100) / 100,
+      all_time_sales:     allTimeSales,
+      recent_sales:       recentSales.slice(-30).reverse(),
       steps,
-      captures:          captures.slice(-100).reverse(),
-      hours:             hourCounts,
-      peak_hour:         peakHour,
+      captures:           captures.slice(-100).reverse(),
+      hours:              hourCounts,
+      peak_hour:          peakHour,
     }), { headers });
 
   } catch (err) {

@@ -78,7 +78,7 @@ export async function onRequestPost(context) {
           step_id: funnelId,
           step_type: null,
           event_type: 'sale_confirmed',
-          value: String(payment.transaction_amount),
+          value: JSON.stringify({ amount: payment.transaction_amount, email, name: nomeComprador || '' }),
         }),
       }
     );

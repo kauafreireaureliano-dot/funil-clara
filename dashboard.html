@@ -763,87 +763,128 @@
 
     <!-- ══ ANALYTICS ══ -->
     <div class="section" id="sec-analytics">
-      <div class="section-title">📊 Análise do Funil</div>
-      <div class="section-desc">Dados em tempo real de acessos, conversões e comportamento dos usuários no funil.</div>
 
-      <div style="display:flex;gap:10px;margin-bottom:4px;flex-wrap:wrap">
+      <!-- Header -->
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px">
+        <div>
+          <div class="section-title" style="margin-bottom:2px">📊 Dashboard de Vendas</div>
+          <div style="font-size:11px;color:var(--muted)" id="analyticsLastUpdate"></div>
+        </div>
+        <button class="btn-sm" onclick="loadAnalytics()" style="flex-shrink:0">↻ Atualizar</button>
+      </div>
+
+      <!-- Top 4 cards -->
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:12px">
+        <div class="card" style="padding:16px;margin-bottom:0">
+          <div style="font-size:10px;color:var(--muted);font-weight:700;text-transform:uppercase;letter-spacing:.6px;margin-bottom:6px">🛒 Vendas hoje</div>
+          <div style="font-size:36px;font-weight:900;color:var(--text);line-height:1;margin-bottom:4px" id="mVendasHoje">—</div>
+          <div style="font-size:14px;color:var(--green);font-weight:700" id="mReceitaHoje">R$ 0,00</div>
+        </div>
+        <div class="card" style="padding:16px;margin-bottom:0;border:2px solid var(--green)">
+          <div style="font-size:10px;color:var(--muted);font-weight:700;text-transform:uppercase;letter-spacing:.6px;margin-bottom:6px">📅 Últimos 7 dias</div>
+          <div style="font-size:22px;font-weight:900;color:var(--green);line-height:1;margin-bottom:4px" id="mReceita7d">—</div>
+          <div style="font-size:12px;color:var(--muted)" id="mVendas7d">— vendas</div>
+        </div>
+        <div class="card" style="padding:16px;margin-bottom:0">
+          <div style="font-size:10px;color:var(--muted);font-weight:700;text-transform:uppercase;letter-spacing:.6px;margin-bottom:6px">📦 Total de vendas</div>
+          <div style="font-size:36px;font-weight:900;color:var(--text);line-height:1;margin-bottom:4px" id="mTotalSales">—</div>
+          <div style="font-size:11px;color:var(--muted)">desde o início</div>
+        </div>
+        <div class="card" style="padding:16px;margin-bottom:0">
+          <div style="font-size:10px;color:var(--muted);font-weight:700;text-transform:uppercase;letter-spacing:.6px;margin-bottom:6px">🏆 Receita total</div>
+          <div style="font-size:22px;font-weight:900;color:#f59e0b;line-height:1;margin-bottom:4px" id="mTotalRevenue">—</div>
+          <div style="font-size:11px;color:var(--muted)">desde o início</div>
+        </div>
+      </div>
+
+      <!-- Bar chart últimos 7 dias -->
+      <div class="card" style="margin-bottom:12px;padding:18px">
+        <div class="card-title" style="margin-bottom:18px">📈 Receita — últimos 7 dias</div>
+        <div id="revenueChart" style="display:flex;align-items:flex-end;gap:6px;height:90px;padding:0 2px"></div>
+        <div id="revenueChartLabels" style="display:flex;gap:6px;margin-top:6px;padding:0 2px"></div>
+      </div>
+
+      <!-- Meta -->
+      <div class="card" style="padding:16px;margin-bottom:12px">
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px">
+          <div style="font-size:13px;font-weight:700;color:var(--text)">🎯 Meta mensal — R$ 10.000</div>
+          <div style="font-size:20px;font-weight:800;color:var(--green)" id="goalTotal">R$ 0</div>
+        </div>
+        <div style="height:10px;background:var(--border);border-radius:5px;overflow:hidden;margin-bottom:8px">
+          <div id="goalBar" style="height:100%;width:0%;background:linear-gradient(90deg,var(--green-dark),var(--green));border-radius:5px;transition:width .6s"></div>
+        </div>
+        <div style="display:flex;justify-content:space-between;align-items:center;font-size:11px;color:var(--muted)">
+          <span id="goalPct" style="font-weight:600">0%</span>
+          <div style="display:flex;gap:12px">
+            <span id="goalSales"></span>
+            <button onclick="resetGoal()" style="background:none;border:none;color:var(--danger);cursor:pointer;font-size:11px">Zerar</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Por funil -->
+      <div class="card" style="margin-bottom:12px">
+        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:12px">
+          <div class="card-title" style="margin-bottom:0">💰 Por funil</div>
+          <button onclick="loadAllFunnelsSales()" style="background:none;border:none;cursor:pointer;font-size:12px;color:var(--muted)">↻</button>
+        </div>
+        <div id="allFunnelsSales"><div style="color:var(--muted);font-size:13px;text-align:center;padding:8px">Carregando...</div></div>
+      </div>
+
+      <!-- Vendas recentes -->
+      <div class="card" style="margin-bottom:12px">
+        <div class="card-title" style="margin-bottom:14px">🕐 Vendas recentes</div>
+        <div id="recentSalesList"><div style="color:var(--muted);font-size:13px;text-align:center;padding:16px">Carregando...</div></div>
+      </div>
+
+      <!-- Separador — analytics de funil -->
+      <div style="margin:4px 0 10px;display:flex;align-items:center;gap:10px">
+        <div style="flex:1;height:1px;background:var(--border)"></div>
+        <span style="font-size:11px;color:var(--muted);font-weight:600;text-transform:uppercase;letter-spacing:.5px">Análise do funil</span>
+        <div style="flex:1;height:1px;background:var(--border)"></div>
+      </div>
+      <div style="display:flex;gap:8px;margin-bottom:10px;align-items:center;flex-wrap:wrap">
         <select id="analyticsDays" onchange="loadAnalytics()" style="border:1px solid var(--border);border-radius:8px;padding:6px 12px;font-size:13px;color:var(--text);background:var(--card)">
           <option value="1">Hoje</option>
           <option value="7" selected>7 dias</option>
           <option value="30">30 dias</option>
         </select>
-        <button class="btn-sm" onclick="loadAnalytics()">↻ Atualizar</button>
-      </div>
-
-      <!-- Meta rumo aos R$10k -->
-      <div class="card" style="padding:18px">
-        <div style="display:flex;justify-content:space-between;align-items:baseline;margin-bottom:10px">
-          <div>
-            <div style="font-size:13px;color:var(--muted);margin-bottom:2px">🏆 Meta — R$ 10.000</div>
-            <div style="font-size:26px;font-weight:700;color:var(--green)" id="goalTotal">R$ 0,00</div>
-            <div style="font-size:12px;color:var(--muted)" id="goalSales">0 vendas acumuladas</div>
-          </div>
-          <div style="text-align:right">
-            <div style="font-size:12px;color:var(--muted);margin-bottom:2px">Hoje</div>
-            <div style="font-size:20px;font-weight:700;color:var(--text)" id="goalToday">R$ 0,00</div>
-          </div>
-        </div>
-        <div style="height:12px;background:var(--border);border-radius:6px;overflow:hidden;margin-bottom:6px">
-          <div id="goalBar" style="height:100%;width:0%;background:linear-gradient(90deg,var(--green-dark),var(--green));border-radius:6px;transition:width .6s"></div>
-        </div>
-        <div style="display:flex;justify-content:space-between;font-size:11px;color:var(--muted)">
-          <span id="goalPct">0%</span>
-          <span>Meta: R$ 10.000</span>
-        </div>
-        <div style="margin-top:10px;font-size:11px;color:var(--muted)">
-          💾 Total acumulado salvo localmente — dados do Supabase são mantidos por 30 dias.
-          <button onclick="resetGoal()" style="background:none;border:none;color:var(--danger);cursor:pointer;font-size:11px;margin-left:8px">Zerar meta</button>
-        </div>
-      </div>
-
-      <!-- Vendas por funil -->
-      <div class="card" style="margin-bottom:4px">
-        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:12px">
-          <div class="card-title" style="margin-bottom:0">💰 Vendas por funil (acumulado)</div>
-          <button onclick="loadAllFunnelsSales()" style="background:none;border:none;cursor:pointer;font-size:12px;color:var(--muted)">↻ atualizar</button>
-        </div>
-        <div id="allFunnelsSales"><div style="color:var(--muted);font-size:13px;text-align:center;padding:8px">Carregando...</div></div>
       </div>
 
       <!-- Stat cards -->
-      <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin-bottom:4px">
-        <div class="card" style="text-align:center;padding:16px 12px">
-          <div style="font-size:28px;font-weight:700;color:var(--text)" id="statSessions">—</div>
-          <div style="font-size:12px;color:var(--muted);margin-top:2px">Acessos</div>
+      <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-bottom:12px">
+        <div class="card" style="text-align:center;padding:14px 8px;margin-bottom:0">
+          <div style="font-size:24px;font-weight:800;color:var(--text)" id="statSessions">—</div>
+          <div style="font-size:11px;color:var(--muted);margin-top:2px">Acessos</div>
         </div>
-        <div class="card" style="text-align:center;padding:16px 12px">
-          <div style="font-size:24px;font-weight:700;color:var(--green)" id="statRevenue">—</div>
-          <div style="font-size:12px;color:var(--muted);margin-top:2px">Faturamento (período)</div>
+        <div class="card" style="text-align:center;padding:14px 8px;margin-bottom:0">
+          <div style="font-size:18px;font-weight:800;color:var(--green)" id="statRevenue">—</div>
+          <div style="font-size:11px;color:var(--muted);margin-top:2px">Faturamento</div>
         </div>
-        <div class="card" style="text-align:center;padding:16px 12px">
-          <div style="font-size:28px;font-weight:700;color:#f59e0b" id="statRate">—</div>
-          <div style="font-size:12px;color:var(--muted);margin-top:2px">Taxa de conversão</div>
+        <div class="card" style="text-align:center;padding:14px 8px;margin-bottom:0">
+          <div style="font-size:24px;font-weight:800;color:#f59e0b" id="statRate">—</div>
+          <div style="font-size:11px;color:var(--muted);margin-top:2px">Conversão</div>
         </div>
       </div>
 
       <!-- Funnel steps -->
-      <div class="card">
+      <div class="card" style="margin-bottom:12px">
         <div class="card-title">Funil por etapa</div>
         <div id="analyticsFunnel" style="display:flex;flex-direction:column;gap:10px">
           <div style="color:var(--muted);font-size:13px;text-align:center;padding:16px">Carregando...</div>
         </div>
       </div>
 
-      <!-- Insights automáticos -->
-      <div class="card" id="insightsCard" style="display:none">
+      <!-- Insights -->
+      <div class="card" id="insightsCard" style="display:none;margin-bottom:12px">
         <div class="card-title">💡 Insights do Funil</div>
         <div id="analyticsInsights"></div>
       </div>
 
       <!-- Hour chart -->
-      <div class="card">
+      <div class="card" style="margin-bottom:12px">
         <div class="card-title">Atividade por horário</div>
-        <div style="display:flex;align-items:flex-end;gap:3px;height:60px;padding:4px 0" id="analyticsHours"></div>
+        <div style="display:flex;align-items:flex-end;gap:3px;height:56px;padding:4px 0" id="analyticsHours"></div>
         <div style="display:flex;justify-content:space-between;font-size:10px;color:var(--muted);margin-top:4px">
           <span>0h</span><span>6h</span><span>12h</span><span>18h</span><span>23h</span>
         </div>
@@ -2459,19 +2500,74 @@ async function loadAnalytics() {
   document.getElementById('analyticsCaptures').innerHTML = '<div style="color:var(--muted);font-size:13px;text-align:center;padding:16px">Carregando...</div>';
 
   try {
-    const res = await fetch(`/api/analytics?days=${days}&v=${Date.now()}`);
+    const res = await fetch(`/api/analytics?days=7&v=${Date.now()}`);
     const data = await res.json();
     if (data.error) { throw new Error(data.error + (data.detail ? ': ' + JSON.stringify(data.detail) : '')); }
 
+    // ── Top cards ──
+    document.getElementById('mVendasHoje').textContent  = data.today_sales_count ?? 0;
+    document.getElementById('mReceitaHoje').textContent = fmtBRL(data.today_revenue || 0);
+    document.getElementById('mReceita7d').textContent   = fmtBRL(data.total_revenue || 0);
+    document.getElementById('mVendas7d').textContent    = (data.sales_count || 0) + ' vendas';
+    document.getElementById('mTotalSales').textContent  = data.all_time_sales ?? data.sales_count ?? '—';
+    document.getElementById('mTotalRevenue').textContent = fmtBRL(data.all_time_revenue || 0);
+    document.getElementById('analyticsLastUpdate').textContent = 'Atualizado ' + new Date().toLocaleTimeString('pt-BR', {hour:'2-digit',minute:'2-digit'});
+
+    // ── Stats funil (usa days selecionado se diferente) ──
     document.getElementById('statSessions').textContent = data.total_sessions;
     document.getElementById('statRevenue').textContent  = fmtBRL(data.total_revenue || 0);
     document.getElementById('statRate').textContent     = data.conversion_rate + '%';
+
+    // ── Bar chart 7 dias ──
+    const chartEl  = document.getElementById('revenueChart');
+    const labelEl  = document.getElementById('revenueChartLabels');
+    const last7    = [];
+    for (let i = 6; i >= 0; i--) {
+      const d = new Date(); d.setDate(d.getDate() - i);
+      const key = d.toISOString().slice(0, 10);
+      last7.push({ key, val: data.sales_by_day?.[key] || 0, label: d.toLocaleDateString('pt-BR', {day:'2-digit',month:'2-digit'}) });
+    }
+    const maxBar = Math.max(...last7.map(d => d.val), 0.01);
+    const todayKey = new Date().toISOString().slice(0, 10);
+    chartEl.innerHTML = last7.map(d => {
+      const h = Math.max(Math.round(d.val / maxBar * 100), d.val > 0 ? 4 : 1);
+      const isToday = d.key === todayKey;
+      const valLabel = d.val > 0 ? '<div style="font-size:9px;color:var(--muted);text-align:center;margin-bottom:3px;white-space:nowrap">' + fmtBRL(d.val).replace('R$ ','R$') + '</div>' : '<div style="font-size:9px;color:transparent;margin-bottom:3px">.</div>';
+      return '<div style="flex:1;display:flex;flex-direction:column;align-items:center;justify-content:flex-end">'
+        + valLabel
+        + '<div style="width:100%;height:' + h + '%;background:' + (isToday ? 'var(--green)' : 'var(--green-dark,#075e54)') + ';border-radius:4px 4px 0 0;opacity:' + (isToday ? '1' : '.65') + ';min-height:2px"></div>'
+        + '</div>';
+    }).join('');
+    labelEl.innerHTML = last7.map(d => '<div style="flex:1;text-align:center;font-size:9px;color:var(--muted)">' + d.label + '</div>').join('');
+
+    // ── Vendas recentes ──
+    const recentEl = document.getElementById('recentSalesList');
+    if (!data.recent_sales || data.recent_sales.length === 0) {
+      recentEl.innerHTML = '<div style="color:var(--muted);font-size:13px;text-align:center;padding:16px">Nenhuma venda ainda.</div>';
+    } else {
+      recentEl.innerHTML = data.recent_sales.slice(0, 20).map(s => {
+        const nome  = s.name  || '—';
+        const email = s.email || '';
+        const timeAgo = _timeAgo(s.created_at);
+        return '<div style="display:flex;align-items:center;gap:10px;padding:10px 0;border-bottom:1px solid var(--border)">'
+          + '<div style="width:34px;height:34px;border-radius:50%;background:var(--green);display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:700;color:white;flex-shrink:0">'
+          + (nome !== '—' ? nome.charAt(0).toUpperCase() : '?') + '</div>'
+          + '<div style="flex:1;min-width:0">'
+          + '<div style="font-size:13px;font-weight:600;color:var(--text);white-space:nowrap;overflow:hidden;text-overflow:ellipsis">' + _escHtml(nome) + '</div>'
+          + '<div style="font-size:11px;color:var(--muted);white-space:nowrap;overflow:hidden;text-overflow:ellipsis">' + _escHtml(email) + '</div>'
+          + '</div>'
+          + '<div style="text-align:right;flex-shrink:0">'
+          + '<div style="font-size:13px;font-weight:700;color:var(--green)">' + fmtBRL(s.amount) + '</div>'
+          + '<div style="font-size:10px;color:var(--muted)">' + timeAgo + '</div>'
+          + '</div></div>';
+      }).join('');
+    }
 
     // ── Salva snapshot diário no localStorage ──
     if (data.sales_by_day && Object.keys(data.sales_by_day).length > 0) {
       const log = getRevenueLog();
       for (const [day, rev] of Object.entries(data.sales_by_day)) {
-        log[day] = rev; // atualiza com valor mais recente do Supabase
+        log[day] = rev;
       }
       saveRevenueLog(log);
       renderGoal();
@@ -3440,6 +3536,16 @@ atualizarTotal();
 
 function _escHtml(s) {
   return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+}
+
+function _timeAgo(iso) {
+  const diff = Date.now() - new Date(iso).getTime();
+  const m = Math.floor(diff / 60000);
+  if (m < 1)   return 'agora';
+  if (m < 60)  return m + 'min';
+  const h = Math.floor(m / 60);
+  if (h < 24)  return h + 'h atrás';
+  return new Date(iso).toLocaleDateString('pt-BR', {day:'2-digit',month:'2-digit',hour:'2-digit',minute:'2-digit'});
 }
 
 // ── Gerador HTML ──
