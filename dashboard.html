@@ -456,6 +456,7 @@
       <button class="nav-item" onclick="goTo('analytics')"><span class="ni">📊</span> Análises</button>
       <button class="nav-item" onclick="goTo('funil')"><span class="ni">💬</span> Funil</button>
       <button class="nav-item" onclick="goTo('integracoes')"><span class="ni">🔌</span> Integrações</button>
+      <button class="nav-item" onclick="goTo('checkouts')"><span class="ni">🛒</span> Checkouts</button>
       <button class="nav-item" onclick="goTo('pages')"><span class="ni">🌐</span> Páginas</button>
     </nav>
 
@@ -484,6 +485,7 @@
     <button class="nav-item" onclick="goTo('analytics')"><span class="ni">📊</span> Análises</button>
     <button class="nav-item" onclick="goTo('funil')"><span class="ni">💬</span> Funil</button>
     <button class="nav-item" onclick="goTo('integracoes')"><span class="ni">🔌</span> API</button>
+    <button class="nav-item" onclick="goTo('checkouts')"><span class="ni">🛒</span> Checkouts</button>
     <button class="nav-item" onclick="goTo('pages')"><span class="ni">🌐</span> Páginas</button>
     <button class="nav-item" style="background:var(--green);color:white" onclick="deploy()"><span class="ni">🚀</span> Publicar</button>
   </div>
@@ -1233,6 +1235,95 @@
       </div>
     </div>
 
+    <!-- ══ CHECKOUTS ══ -->
+    <div class="section" id="sec-checkouts">
+      <div class="section-title">🛒 Checkouts</div>
+      <div class="section-desc">Crie páginas de checkout independentes com PIX, order bumps, entrega e rastreamento. Só copiar o link e pronto.</div>
+
+      <div id="ckListArea">
+        <button class="btn-sm" style="background:var(--green);color:white;width:100%;padding:10px;margin-bottom:16px" onclick="openCkEditor(null)">+ Novo checkout</button>
+        <div id="ckListWrap"><div style="color:var(--muted);font-size:13px;text-align:center;padding:20px">Carregando...</div></div>
+      </div>
+
+      <!-- Editor -->
+      <div id="ckEditorArea" style="display:none">
+        <div style="display:flex;align-items:center;gap:10px;margin-bottom:16px">
+          <button class="btn-sm" onclick="closeCkEditor()">← Voltar</button>
+          <span id="ckEditorTitle" style="font-weight:700;font-size:15px">Novo checkout</span>
+        </div>
+
+        <!-- Identificação -->
+        <div class="card" style="margin-bottom:10px">
+          <div class="card-title" style="margin-bottom:10px">📋 Identificação</div>
+          <div class="field" style="margin-bottom:10px">
+            <label>Nome interno</label>
+            <input type="text" id="ckeName" placeholder="Ex: Atividades Bíblicas – Checkout">
+          </div>
+          <div class="field">
+            <label>Slug (URL)</label>
+            <div style="display:flex;align-items:center;gap:6px">
+              <span style="font-size:11px;color:var(--muted);white-space:nowrap">/checkouts/</span>
+              <input type="text" id="ckeSlug" placeholder="atividades-biblicas" style="flex:1" oninput="sanitizeCkSlug(this)">
+            </div>
+            <div id="ckeUrlPreview" style="font-size:11px;color:var(--green);margin-top:4px"></div>
+          </div>
+        </div>
+
+        <!-- Produto -->
+        <div class="card" style="margin-bottom:10px">
+          <div class="card-title" style="margin-bottom:10px">🛍 Produto principal</div>
+          <div class="field" style="margin-bottom:10px">
+            <label>Nome do produto</label>
+            <input type="text" id="ckeProduto" placeholder="Ex: Apostilas de Atividades Bíblicas">
+          </div>
+          <div style="display:flex;gap:10px">
+            <div class="field" style="flex:1;margin-bottom:10px">
+              <label>Valor (R$)</label>
+              <input type="text" id="ckeValor" placeholder="9,90" oninput="atualizarTotalCk()">
+            </div>
+            <div class="field" style="flex:1;margin-bottom:10px">
+              <label>Cor da página</label>
+              <input type="text" id="ckeCor" placeholder="#128C7E" value="#128C7E">
+            </div>
+          </div>
+          <div class="field" style="margin-bottom:10px">
+            <label>URL de entrega</label>
+            <input type="url" id="ckeDelivUrl" placeholder="https://drive.google.com/...">
+          </div>
+          <div class="field" style="margin-bottom:0">
+            <label>Texto do botão de entrega</label>
+            <input type="text" id="ckeDelivName" placeholder="Ex: Acessar Atividades">
+          </div>
+        </div>
+
+        <!-- Order Bumps -->
+        <div class="card" style="margin-bottom:10px">
+          <div class="card-title" style="margin-bottom:10px">📦 Order Bumps</div>
+          <div id="ckeBumpsList"></div>
+          <button class="btn-sm" style="width:100%;margin-top:6px" onclick="addCkBump()">+ Adicionar bump</button>
+        </div>
+
+        <!-- Rastreamento -->
+        <div class="card" style="margin-bottom:14px">
+          <div class="card-title" style="margin-bottom:10px">📊 Rastreamento</div>
+          <div class="field" style="margin-bottom:10px">
+            <label>Funnel ID (para analytics)</label>
+            <input type="text" id="ckeFunnelId" placeholder="Ex: atividades-biblicas">
+          </div>
+          <div class="field" style="margin-bottom:0">
+            <label>Meta Pixel ID</label>
+            <input type="text" id="ckePixelId" placeholder="Ex: 1234567890123456">
+          </div>
+        </div>
+
+        <div style="display:flex;gap:10px">
+          <button class="btn-sm" style="background:var(--green);color:white;flex:1;padding:11px;font-size:14px" onclick="saveCk()">💾 Salvar e publicar</button>
+          <button class="btn-sm" id="ckeDeleteBtn" style="background:#ff4d4d;color:white;display:none" onclick="deleteCk()">🗑</button>
+        </div>
+        <div id="ckeSaveStatus" style="font-size:12px;color:var(--muted);text-align:center;margin-top:8px"></div>
+      </div>
+    </div>
+
     <!-- ══ PÁGINAS ══ -->
     <div class="section" id="sec-pages">
       <div class="section-title">🌐 Páginas</div>
@@ -1253,22 +1344,64 @@
           <span id="pageEditorTitle" style="font-weight:700;font-size:15px">Nova página</span>
         </div>
 
-        <div class="card">
+        <div class="card" style="margin-bottom:12px">
           <div class="field" style="margin-bottom:12px">
             <label>Nome da página</label>
-            <input type="text" id="pageNameInput" placeholder="Ex: Página de Vendas – Atividades Bíblicas">
+            <input type="text" id="pageNameInput" placeholder="Ex: Atividades Bíblicas – Checkout">
           </div>
-          <div class="field" style="margin-bottom:12px">
+          <div class="field">
             <label>Slug (aparece na URL)</label>
             <div style="display:flex;align-items:center;gap:6px">
-              <span style="font-size:12px;color:var(--muted);white-space:nowrap">funil-clara.pages.dev/pages/</span>
+              <span style="font-size:12px;color:var(--muted);white-space:nowrap">pages.dev/pages/</span>
               <input type="text" id="pageSlugInput" placeholder="atividades-biblicas" style="flex:1" oninput="sanitizeSlug(this)">
             </div>
             <div id="pageUrlPreview" style="font-size:11px;color:var(--green);margin-top:4px"></div>
           </div>
-          <div class="field" style="margin-bottom:16px">
+        </div>
+
+        <!-- Gerador de checkout -->
+        <details class="card" style="margin-bottom:12px">
+          <summary style="cursor:pointer;font-weight:700;font-size:13px;padding:2px 0;list-style:none;display:flex;align-items:center;gap:6px">
+            <span>🛒</span> Gerar HTML de checkout automático
+            <span style="font-size:11px;color:var(--muted);font-weight:400;margin-left:4px">(opcional)</span>
+          </summary>
+          <div style="margin-top:14px;display:flex;flex-direction:column;gap:10px">
+            <div class="field">
+              <label>Nome do produto</label>
+              <input type="text" id="ckProduto" placeholder="Ex: Apostilas de Atividades Bíblicas">
+            </div>
+            <div style="display:flex;gap:10px">
+              <div class="field" style="flex:1">
+                <label>Valor (R$)</label>
+                <input type="text" id="ckValor" placeholder="Ex: 9,90">
+              </div>
+              <div class="field" style="flex:1">
+                <label>Funnel ID (rastreamento)</label>
+                <input type="text" id="ckFunnelId" placeholder="Ex: atividades-biblicas">
+              </div>
+            </div>
+            <div class="field">
+              <label>URL de entrega (link do produto)</label>
+              <input type="url" id="ckDeliveryUrl" placeholder="https://drive.google.com/...">
+            </div>
+            <div class="field">
+              <label>Nome do botão de entrega</label>
+              <input type="text" id="ckDeliveryName" placeholder="Ex: Acessar Atividades">
+            </div>
+            <div class="field">
+              <label>Cor principal (hex)</label>
+              <input type="text" id="ckCor" placeholder="#128C7E" value="#128C7E">
+            </div>
+            <button class="btn-sm" style="background:#7c3aed;color:white;width:100%;padding:9px" onclick="gerarHtmlCheckout()">
+              ✨ Gerar HTML e preencher abaixo
+            </button>
+          </div>
+        </details>
+
+        <div class="card">
+          <div class="field" style="margin-bottom:14px">
             <label>Código HTML</label>
-            <textarea id="pageHtmlInput" rows="18" placeholder="Cole aqui o HTML completo da sua página..." style="font-family:monospace;font-size:12px;resize:vertical"></textarea>
+            <textarea id="pageHtmlInput" rows="16" placeholder="Cole aqui seu HTML personalizado, ou use o gerador acima para criar um checkout completo..." style="font-family:monospace;font-size:12px;resize:vertical"></textarea>
           </div>
           <div style="display:flex;gap:10px">
             <button class="btn-sm" style="background:var(--green);color:white;flex:1;padding:10px" onclick="savePage()">💾 Publicar página</button>
@@ -1484,7 +1617,8 @@ function goTo(id) {
   if (id === 'analytics') { loadAnalytics(); loadAllFunnelsSales(); }
   if (id === 'meusfunis') loadFunnelList();
   if (id === 'funil') updatePreview();
-  if (id === 'pages') { loadPagesList(); }
+  if (id === 'pages') loadPagesList();
+  if (id === 'checkouts') loadCkList();
 }
 
 /* ════════════════════════════════════════════════
@@ -2951,6 +3085,381 @@ function funnelCancelEdit() {
 }
 
 /* ════════════════════════════════════════════════
+   ▌ CHECKOUTS
+════════════════════════════════════════════════ */
+let _ckList = [];
+let _editingCkSlug = null;
+let _ckBumps = [];
+
+async function loadCkList() {
+  const wrap = document.getElementById('ckListWrap');
+  wrap.innerHTML = '<div style="color:var(--muted);font-size:13px;text-align:center;padding:20px">Carregando...</div>';
+  document.getElementById('ckEditorArea').style.display = 'none';
+  document.getElementById('ckListArea').style.display = 'block';
+
+  const data = await ghGet('checkouts.json');
+  if (data) {
+    try { _ckList = JSON.parse(atob(data.content.replace(/\n/g, ''))); } catch { _ckList = []; }
+  } else { _ckList = []; }
+  renderCkList();
+}
+
+function renderCkList() {
+  const wrap = document.getElementById('ckListWrap');
+  if (_ckList.length === 0) {
+    wrap.innerHTML = '<div style="color:var(--muted);font-size:13px;text-align:center;padding:20px">Nenhum checkout ainda.</div>';
+    return;
+  }
+  let html = '';
+  for (const c of _ckList) {
+    const url = `https://funil-clara.pages.dev/checkouts/${c.slug}/`;
+    html += `
+      <div class="card" style="display:flex;align-items:center;justify-content:space-between;gap:10px;padding:14px 16px;margin-bottom:10px">
+        <div style="flex:1;min-width:0">
+          <div style="font-weight:700;font-size:14px;color:var(--text);margin-bottom:2px">${c.name}</div>
+          <div style="font-size:12px;color:var(--muted)">${c.produto || ''} · R$ ${c.valor || '—'}</div>
+          <a href="${url}" target="_blank" style="font-size:11px;color:var(--green);word-break:break-all">${url}</a>
+        </div>
+        <div style="display:flex;gap:6px;flex-shrink:0">
+          <button class="btn-sm" onclick="copyCkLink('${c.slug}')" title="Copiar link">🔗</button>
+          <button class="btn-sm" onclick="openCkEditor('${c.slug}')">✏️</button>
+        </div>
+      </div>`;
+  }
+  wrap.innerHTML = html;
+}
+
+function openCkEditor(slug) {
+  _editingCkSlug = slug;
+  _ckBumps = [];
+  document.getElementById('ckListArea').style.display = 'none';
+  document.getElementById('ckEditorArea').style.display = 'block';
+  document.getElementById('ckeSaveStatus').textContent = '';
+
+  if (slug) {
+    const ck = _ckList.find(c => c.slug === slug);
+    document.getElementById('ckEditorTitle').textContent = ck?.name || 'Editar checkout';
+    document.getElementById('ckeName').value     = ck?.name       || '';
+    document.getElementById('ckeSlug').value     = slug;
+    document.getElementById('ckeSlug').disabled  = true;
+    document.getElementById('ckeProduto').value  = ck?.produto    || '';
+    document.getElementById('ckeValor').value    = ck?.valor      || '';
+    document.getElementById('ckeCor').value      = ck?.cor        || '#128C7E';
+    document.getElementById('ckeDelivUrl').value = ck?.deliveryUrl  || '';
+    document.getElementById('ckeDelivName').value= ck?.deliveryName || '';
+    document.getElementById('ckeFunnelId').value = ck?.funnelId   || '';
+    document.getElementById('ckePixelId').value  = ck?.metaPixelId || '';
+    _ckBumps = (ck?.bumps || []).map(b => ({...b}));
+    document.getElementById('ckeDeleteBtn').style.display = '';
+    updateCkUrlPreview();
+  } else {
+    document.getElementById('ckEditorTitle').textContent = 'Novo checkout';
+    ['ckeName','ckeSlug','ckeProduto','ckeValor','ckeDelivUrl','ckeDelivName','ckeFunnelId','ckePixelId'].forEach(id => document.getElementById(id).value = '');
+    document.getElementById('ckeCor').value = '#128C7E';
+    document.getElementById('ckeSlug').disabled = false;
+    document.getElementById('ckeDeleteBtn').style.display = 'none';
+    document.getElementById('ckeUrlPreview').textContent = '';
+  }
+  renderCkBumps();
+}
+
+function closeCkEditor() {
+  document.getElementById('ckEditorArea').style.display = 'none';
+  document.getElementById('ckListArea').style.display = 'block';
+}
+
+function sanitizeCkSlug(input) {
+  input.value = input.value.toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g,'').replace(/[^a-z0-9-]/g,'-').replace(/-+/g,'-');
+  updateCkUrlPreview();
+}
+
+function updateCkUrlPreview() {
+  const slug = document.getElementById('ckeSlug').value.trim();
+  document.getElementById('ckeUrlPreview').textContent = slug ? `https://funil-clara.pages.dev/checkouts/${slug}/` : '';
+}
+
+// ── Bumps ──
+function renderCkBumps() {
+  const wrap = document.getElementById('ckeBumpsList');
+  if (_ckBumps.length === 0) { wrap.innerHTML = '<div style="color:var(--muted);font-size:12px;margin-bottom:6px">Nenhum bump ainda.</div>'; return; }
+  wrap.innerHTML = _ckBumps.map((b, i) => `
+    <div style="background:#f0f2f5;border-radius:8px;padding:10px 12px;margin-bottom:8px">
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px">
+        <span style="font-weight:700;font-size:13px">Bump ${i+1}</span>
+        <button class="btn-sm" style="padding:3px 10px;font-size:12px;background:#ff4d4d;color:white" onclick="removeCkBump(${i})">✕</button>
+      </div>
+      <div style="display:flex;gap:8px;margin-bottom:6px">
+        <input style="flex:2" type="text" placeholder="Nome do bump" value="${b.name||''}" oninput="_ckBumps[${i}].name=this.value">
+        <input style="flex:1" type="text" placeholder="R$ valor" value="${b.price||''}" oninput="_ckBumps[${i}].price=this.value">
+      </div>
+      <input style="width:100%;margin-bottom:6px" type="text" placeholder="Descrição (opcional)" value="${b.description||''}" oninput="_ckBumps[${i}].description=this.value">
+      <input style="width:100%" type="url" placeholder="URL de entrega do bump" value="${b.deliveryUrl||''}" oninput="_ckBumps[${i}].deliveryUrl=this.value">
+    </div>`).join('');
+}
+
+function addCkBump() { _ckBumps.push({ name:'', price:'', description:'', deliveryUrl:'' }); renderCkBumps(); }
+function removeCkBump(i) { _ckBumps.splice(i, 1); renderCkBumps(); }
+
+// ── Salvar ──
+async function saveCk() {
+  const name       = document.getElementById('ckeName').value.trim();
+  const slug       = document.getElementById('ckeSlug').value.trim();
+  const produto    = document.getElementById('ckeProduto').value.trim();
+  const valor      = document.getElementById('ckeValor').value.trim();
+  const cor        = document.getElementById('ckeCor').value.trim() || '#128C7E';
+  const delivUrl   = document.getElementById('ckeDelivUrl').value.trim();
+  const delivName  = document.getElementById('ckeDelivName').value.trim();
+  const funnelId   = document.getElementById('ckeFunnelId').value.trim();
+  const pixelId    = document.getElementById('ckePixelId').value.trim();
+  const statusEl   = document.getElementById('ckeSaveStatus');
+
+  if (!name) { toast('Informe o nome', 'red'); return; }
+  if (!slug) { toast('Informe o slug', 'red'); return; }
+  if (!produto || !valor) { toast('Informe produto e valor', 'red'); return; }
+  if (!/^[a-z0-9-]+$/.test(slug)) { toast('Slug inválido', 'red'); return; }
+
+  statusEl.textContent = 'Publicando...';
+  try {
+    const config = { name, slug, produto, valor, cor, deliveryUrl: delivUrl, deliveryName: delivName, funnelId, metaPixelId: pixelId, bumps: _ckBumps.filter(b => b.name) };
+    const html = _buildCkHtml(config);
+
+    const existingHtml = await ghGet(`checkouts/${slug}/index.html`);
+    await ghPut(`checkouts/${slug}/index.html`, strToBase64(html), `checkout: ${slug}`, existingHtml?.sha);
+
+    const existingCfg = await ghGet(`checkouts/${slug}/config.json`);
+    await ghPut(`checkouts/${slug}/config.json`, strToBase64(JSON.stringify(config, null, 2)), `checkout config: ${slug}`, existingCfg?.sha);
+
+    const existing = _ckList.find(c => c.slug === slug);
+    if (existing) Object.assign(existing, config);
+    else _ckList.push(config);
+    const indexData = await ghGet('checkouts.json');
+    await ghPut('checkouts.json', strToBase64(JSON.stringify(_ckList, null, 2)), `checkouts index: ${slug}`, indexData?.sha);
+
+    statusEl.textContent = '';
+    toast('Checkout publicado!', 'green');
+    _editingCkSlug = slug;
+    document.getElementById('ckeSlug').disabled = true;
+    document.getElementById('ckeDeleteBtn').style.display = '';
+    document.getElementById('ckEditorTitle').textContent = name;
+    renderCkList();
+  } catch (err) {
+    statusEl.textContent = 'Erro: ' + err.message;
+    toast('Erro: ' + err.message, 'red');
+  }
+}
+
+async function deleteCk() {
+  const slug = _editingCkSlug;
+  if (!slug || !confirm(`Excluir checkout "${slug}"?`)) return;
+  try {
+    _ckList = _ckList.filter(c => c.slug !== slug);
+    const indexData = await ghGet('checkouts.json');
+    await ghPut('checkouts.json', strToBase64(JSON.stringify(_ckList, null, 2)), `remove checkout: ${slug}`, indexData?.sha);
+    for (const file of ['index.html', 'config.json']) {
+      const fd = await ghGet(`checkouts/${slug}/${file}`);
+      if (fd) await fetch(`${API}/repos/${OWNER}/${REPO}/contents/checkouts/${slug}/${file}`, { method:'DELETE', headers:ghHeaders(), body: JSON.stringify({ message:`delete checkout: ${slug}`, sha:fd.sha, branch:BRANCH }) });
+    }
+    toast('Checkout excluído', 'green');
+    closeCkEditor();
+    renderCkList();
+  } catch(err) { toast('Erro: ' + err.message, 'red'); }
+}
+
+function copyCkLink(slug) {
+  const url = `https://funil-clara.pages.dev/checkouts/${slug}/`;
+  navigator.clipboard.writeText(url).then(() => toast('Link copiado!', 'green')).catch(() => toast(url));
+}
+
+// ── Gerador HTML ──
+function _buildCkHtml(c) {
+  const bumpsJson = JSON.stringify(c.bumps || []);
+  const pixelSnippet = c.metaPixelId ? `
+<script>!function(f,b,e,v,n,t,s){if(f.fbq)return;n=f.fbq=function(){n.callMethod?n.callMethod.apply(n,arguments):n.queue.push(arguments)};if(!f._fbq)f._fbq=n;n.push=n;n.loaded=!0;n.version='2.0';n.queue=[];t=b.createElement(e);t.async=!0;t.src=v;s=b.getElementsByTagName(e)[0];s.parentNode.insertBefore(t,s)}(window,document,'script','https://connect.facebook.net/en_US/fbevents.js');fbq('init','${c.metaPixelId}');fbq('track','PageView');<\/script>` : '';
+  return `<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>${c.produto}</title>
+${pixelSnippet}
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;background:#f0f2f5;min-height:100vh;display:flex;align-items:flex-start;justify-content:center;padding:20px 12px}
+.wrap{max-width:440px;width:100%}
+.card{background:white;border-radius:14px;padding:22px 20px;margin-bottom:12px;box-shadow:0 2px 16px rgba(0,0,0,.07)}
+.hero{background:${c.cor};border-radius:14px;padding:24px 20px;margin-bottom:12px;text-align:center;color:white}
+.hero h1{font-size:21px;font-weight:800;margin-bottom:6px}
+.hero .preco{font-size:30px;font-weight:900}
+.hero .preco small{font-size:14px;font-weight:400;opacity:.85}
+label{display:block;font-size:12px;font-weight:700;color:#555;margin-bottom:5px;text-transform:uppercase;letter-spacing:.4px}
+input[type=text],input[type=email]{width:100%;border:1.5px solid #e0e0e0;border-radius:9px;padding:11px 13px;font-size:14px;outline:none;transition:border .2s;margin-bottom:12px}
+input:focus{border-color:${c.cor}}
+.bump-card{border:1.5px solid #e0e0e0;border-radius:10px;padding:12px 14px;margin-bottom:10px;cursor:pointer;transition:border .2s,background .2s;display:flex;gap:10px;align-items:flex-start}
+.bump-card.sel{border-color:${c.cor};background:#f0fff8}
+.bump-card input[type=checkbox]{margin-top:2px;accent-color:${c.cor};width:16px;height:16px;flex-shrink:0}
+.bump-info strong{font-size:13px;color:#111;display:block;margin-bottom:2px}
+.bump-info span{font-size:12px;color:#667781}
+.bump-price{margin-left:auto;font-weight:800;color:${c.cor};font-size:14px;white-space:nowrap}
+.total-bar{background:#f0f2f5;border-radius:9px;padding:10px 14px;display:flex;justify-content:space-between;align-items:center;margin-bottom:16px}
+.total-bar span{font-size:13px;color:#555;font-weight:600}
+.total-bar strong{font-size:20px;color:${c.cor};font-weight:900}
+.btn{width:100%;background:${c.cor};color:white;border:none;border-radius:11px;padding:14px;font-size:16px;font-weight:800;cursor:pointer;transition:opacity .2s}
+.btn:hover{opacity:.88}.btn:disabled{opacity:.5;cursor:not-allowed}
+.err{color:#e53935;font-size:12px;margin-bottom:10px}
+.pix-box{display:none;text-align:center}
+.pix-box img{width:190px;height:190px;border-radius:10px;border:1.5px solid #e0e0e0;margin-bottom:12px}
+.pix-code{background:#f0f2f5;border-radius:8px;padding:10px;font-size:11px;word-break:break-all;color:#333;margin-bottom:10px;text-align:left}
+.copy-btn{background:#f0f2f5;border:none;border-radius:8px;padding:8px 20px;font-size:13px;font-weight:700;cursor:pointer}
+.copy-btn:hover{background:#e0e0e0}
+.pix-status{margin-top:10px;font-size:13px;font-weight:700;color:${c.cor}}
+.success-box{display:none;text-align:center;padding:16px 0}
+.success-box .icon{font-size:60px;margin-bottom:10px}
+.success-box h2{font-size:20px;font-weight:900;color:#111;margin-bottom:8px}
+.success-box p{font-size:13px;color:#667781;margin-bottom:18px;line-height:1.6}
+.access-btn{display:inline-block;background:${c.cor};color:white;text-decoration:none;border-radius:11px;padding:13px 28px;font-size:15px;font-weight:800}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <div class="hero">
+    <div style="font-size:40px;margin-bottom:8px">🎉</div>
+    <h1>${c.produto}</h1>
+    <div class="preco"><small>R$ </small>${c.valor}</div>
+  </div>
+
+  <div class="card" id="formCard">
+    <!-- Bumps -->
+    ${(c.bumps||[]).length > 0 ? `
+    <div style="margin-bottom:16px">
+      <label style="margin-bottom:10px">Adicionar ao pedido</label>
+      ${(c.bumps||[]).map((b,i)=>`
+      <div class="bump-card" id="bump${i}" onclick="toggleBump(${i})">
+        <input type="checkbox" id="bumpchk${i}" onchange="atualizarTotal()">
+        <div class="bump-info">
+          <strong>${b.name}</strong>
+          <span>${b.description||''}</span>
+        </div>
+        <div class="bump-price">+R$ ${b.price}</div>
+      </div>`).join('')}
+    </div>` : ''}
+
+    <label>Nome completo</label>
+    <input type="text" id="inNome" placeholder="Seu nome">
+    <label>E-mail</label>
+    <input type="email" id="inEmail" placeholder="seu@email.com">
+    <div class="total-bar">
+      <span>Total</span>
+      <strong id="totalDisplay">R$ ${c.valor}</strong>
+    </div>
+    <div id="formErr" class="err"></div>
+    <button class="btn" id="payBtn" onclick="iniciarPagamento()">💚 Gerar PIX</button>
+  </div>
+
+  <div class="card pix-box" id="pixBox">
+    <p style="font-weight:800;font-size:15px;margin-bottom:14px">Escaneie o QR Code ou copie o código PIX</p>
+    <img id="qrImg" src="" alt="QR Code">
+    <div class="pix-code" id="pixCode"></div>
+    <button class="copy-btn" onclick="copiarPix()">📋 Copiar código PIX</button>
+    <div class="pix-status" id="pixStatus">⏳ Aguardando pagamento...</div>
+  </div>
+
+  <div class="card success-box" id="successBox">
+    <div class="icon">✅</div>
+    <h2>Pagamento confirmado!</h2>
+    <p>Obrigada pela compra! Você receberá os detalhes no seu e-mail em instantes.</p>
+    ${c.deliveryUrl ? `<a class="access-btn" href="${c.deliveryUrl}" target="_blank">🔗 ${c.deliveryName||'Acessar produto'}</a>` : ''}
+  </div>
+</div>
+
+<script>
+const VALOR    = '${c.valor}';
+const PRODUTO  = '${c.produto}';
+const FUNNEL   = '${c.funnelId||''}';
+const DELIV_URL  = '${c.deliveryUrl||''}';
+const DELIV_NAME = '${c.deliveryName||'Acessar produto'}';
+const BUMPS = ${bumpsJson};
+let paymentId = null, pollTimer = null;
+
+function parseBRL(v){ return parseFloat(String(v).replace(',','.')) || 0; }
+
+function atualizarTotal() {
+  let total = parseBRL(VALOR);
+  BUMPS.forEach((_,i) => { if (document.getElementById('bumpchk'+i)?.checked) total += parseBRL(BUMPS[i].price); });
+  document.getElementById('totalDisplay').textContent = 'R$ ' + total.toFixed(2).replace('.',',');
+  document.getElementById('payBtn').textContent = '💚 Gerar PIX — R$ ' + total.toFixed(2).replace('.',',');
+}
+
+function toggleBump(i) {
+  const chk = document.getElementById('bumpchk'+i);
+  const card = document.getElementById('bump'+i);
+  chk.checked = !chk.checked;
+  card.classList.toggle('sel', chk.checked);
+  atualizarTotal();
+}
+
+async function iniciarPagamento() {
+  const nome  = document.getElementById('inNome').value.trim();
+  const email = document.getElementById('inEmail').value.trim();
+  const errEl = document.getElementById('formErr');
+  errEl.textContent = '';
+  if (!nome)  { errEl.textContent = 'Informe seu nome'; return; }
+  if (!email||!email.includes('@')) { errEl.textContent = 'Informe um e-mail válido'; return; }
+
+  let total = parseBRL(VALOR);
+  const selectedBumps = BUMPS.filter((_,i) => document.getElementById('bumpchk'+i)?.checked);
+  selectedBumps.forEach(b => total += parseBRL(b.price));
+
+  const btn = document.getElementById('payBtn');
+  btn.disabled = true; btn.textContent = 'Gerando PIX...';
+
+  try {
+    const eventId = 'initiate_checkout_' + Date.now();
+    if (typeof fbq !== 'undefined') fbq('track','InitiateCheckout',{currency:'BRL',value:total},{eventID:eventId});
+    const res = await fetch('/api/pagamento', {
+      method:'POST', headers:{'Content-Type':'application/json'},
+      body: JSON.stringify({ email, nome, valor: total.toFixed(2).replace('.',','), produto: PRODUTO, funnel_id: FUNNEL||undefined, delivery_url: DELIV_URL||undefined, delivery_name: DELIV_NAME||undefined, bumps: selectedBumps.length ? selectedBumps : undefined }),
+    });
+    const data = await res.json();
+    if (!res.ok || !data.qr_code) throw new Error(data.erro || 'Erro ao gerar PIX');
+    paymentId = data.id;
+    document.getElementById('qrImg').src = 'data:image/png;base64,' + data.qr_code_base64;
+    document.getElementById('pixCode').textContent = data.qr_code;
+    document.getElementById('formCard').style.display = 'none';
+    document.getElementById('pixBox').style.display = 'block';
+    pollTimer = setInterval(verificarPagamento, 4000);
+  } catch(err) {
+    errEl.textContent = err.message;
+    btn.disabled = false; btn.textContent = '💚 Gerar PIX';
+  }
+}
+
+async function verificarPagamento() {
+  if (!paymentId) return;
+  try {
+    const r = await fetch('/api/status?id='+paymentId);
+    const d = await r.json();
+    if (d.status === 'approved') {
+      clearInterval(pollTimer);
+      const purchaseId = 'purchase_'+paymentId;
+      if (typeof fbq !== 'undefined') fbq('track','Purchase',{currency:'BRL',value:parseFloat(document.getElementById('totalDisplay').textContent.replace('R$ ','').replace(',','.'))},{eventID:purchaseId});
+      document.getElementById('pixBox').style.display = 'none';
+      document.getElementById('successBox').style.display = 'block';
+    }
+  } catch {}
+}
+
+function copiarPix() {
+  navigator.clipboard.writeText(document.getElementById('pixCode').textContent)
+    .then(()=>{ const b=document.querySelector('.copy-btn'); b.textContent='✅ Copiado!'; setTimeout(()=>b.textContent='📋 Copiar código PIX',2000); }).catch(()=>{});
+}
+
+atualizarTotal();
+<\/script>
+</body>
+</html>`;
+}
+
+/* ════════════════════════════════════════════════
    ▌ PÁGINAS
 ════════════════════════════════════════════════ */
 let _pagesList = [];
@@ -3118,6 +3627,157 @@ async function deleteCustomPage() {
 function copyPageLink(slug) {
   const url = `https://funil-clara.pages.dev/pages/${slug}/`;
   navigator.clipboard.writeText(url).then(() => toast('Link copiado!', 'green')).catch(() => toast(url));
+}
+
+function gerarHtmlCheckout() {
+  const produto   = document.getElementById('ckProduto').value.trim()   || 'Produto';
+  const valor     = document.getElementById('ckValor').value.trim()     || '9,90';
+  const funnelId  = document.getElementById('ckFunnelId').value.trim()  || '';
+  const delivUrl  = document.getElementById('ckDeliveryUrl').value.trim();
+  const delivName = document.getElementById('ckDeliveryName').value.trim() || 'Acessar produto';
+  const cor       = document.getElementById('ckCor').value.trim()       || '#128C7E';
+
+  const html = `<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>${produto}</title>
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; background: #f0f2f5; min-height: 100vh; display: flex; align-items: center; justify-content: center; padding: 16px; }
+  .card { background: white; border-radius: 16px; padding: 28px 24px; max-width: 420px; width: 100%; box-shadow: 0 4px 24px rgba(0,0,0,.08); }
+  h1 { font-size: 22px; font-weight: 800; color: #111; margin-bottom: 4px; }
+  .sub { font-size: 14px; color: #667781; margin-bottom: 24px; }
+  label { display: block; font-size: 13px; font-weight: 600; color: #333; margin-bottom: 6px; }
+  input { width: 100%; border: 1.5px solid #e0e0e0; border-radius: 10px; padding: 11px 14px; font-size: 14px; margin-bottom: 14px; outline: none; transition: border .2s; }
+  input:focus { border-color: ${cor}; }
+  .preco { background: #f0fdf4; border-radius: 10px; padding: 14px 16px; display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; }
+  .preco span { font-size: 13px; color: #1b5e20; font-weight: 600; }
+  .preco strong { font-size: 22px; color: ${cor}; font-weight: 800; }
+  .btn { width: 100%; background: ${cor}; color: white; border: none; border-radius: 12px; padding: 14px; font-size: 16px; font-weight: 700; cursor: pointer; transition: opacity .2s; }
+  .btn:hover { opacity: .88; }
+  .btn:disabled { opacity: .5; cursor: not-allowed; }
+  .pix-box { display: none; text-align: center; margin-top: 20px; }
+  .pix-box img { width: 180px; height: 180px; border: 2px solid #e0e0e0; border-radius: 12px; margin-bottom: 12px; }
+  .pix-code { background: #f0f2f5; border-radius: 8px; padding: 10px 12px; font-size: 11px; word-break: break-all; color: #333; margin-bottom: 10px; }
+  .copy-btn { background: #f0f2f5; border: none; border-radius: 8px; padding: 8px 18px; font-size: 13px; font-weight: 600; cursor: pointer; }
+  .copy-btn:hover { background: #e0e0e0; }
+  .status { margin-top: 12px; font-size: 13px; color: ${cor}; font-weight: 600; min-height: 20px; }
+  .success-box { display: none; text-align: center; padding: 20px 0; }
+  .success-box .icon { font-size: 56px; margin-bottom: 12px; }
+  .success-box h2 { font-size: 20px; font-weight: 800; color: #111; margin-bottom: 8px; }
+  .success-box p { font-size: 14px; color: #667781; margin-bottom: 20px; }
+  .access-btn { display: inline-block; background: ${cor}; color: white; text-decoration: none; border-radius: 12px; padding: 12px 28px; font-size: 15px; font-weight: 700; }
+  .err { color: #e53935; font-size: 12px; margin-top: -10px; margin-bottom: 10px; }
+</style>
+</head>
+<body>
+<div class="card">
+  <div id="formArea">
+    <h1>${produto}</h1>
+    <p class="sub">Preencha seus dados e pague via PIX</p>
+    <label>Nome completo</label>
+    <input type="text" id="inNome" placeholder="Seu nome">
+    <label>E-mail</label>
+    <input type="email" id="inEmail" placeholder="seu@email.com">
+    <div class="preco">
+      <span>Total a pagar</span>
+      <strong>R$ ${valor}</strong>
+    </div>
+    <div id="formErr" class="err"></div>
+    <button class="btn" id="payBtn" onclick="iniciarPagamento()">💚 Gerar PIX — R$ ${valor}</button>
+  </div>
+
+  <div class="pix-box" id="pixBox">
+    <p style="font-weight:700;font-size:15px;margin-bottom:12px">Escaneie o QR Code ou copie o código</p>
+    <img id="qrImg" src="" alt="QR Code PIX">
+    <div class="pix-code" id="pixCode"></div>
+    <button class="copy-btn" onclick="copiarPix()">📋 Copiar código PIX</button>
+    <div class="status" id="pixStatus">⏳ Aguardando pagamento...</div>
+  </div>
+
+  <div class="success-box" id="successBox">
+    <div class="icon">🎉</div>
+    <h2>Pagamento confirmado!</h2>
+    <p>Você também receberá os detalhes no seu e-mail.</p>
+    ${delivUrl ? `<a class="access-btn" href="${delivUrl}" target="_blank">🔗 ${delivName}</a>` : ''}
+  </div>
+</div>
+
+<script>
+const VALOR    = '${valor}';
+const PRODUTO  = '${produto}';
+const FUNNEL_ID = '${funnelId}';
+const DELIV_URL  = '${delivUrl}';
+const DELIV_NAME = '${delivName}';
+let paymentId = null;
+let pollTimer = null;
+
+async function iniciarPagamento() {
+  const nome  = document.getElementById('inNome').value.trim();
+  const email = document.getElementById('inEmail').value.trim();
+  const errEl = document.getElementById('formErr');
+  errEl.textContent = '';
+  if (!nome)  { errEl.textContent = 'Informe seu nome'; return; }
+  if (!email || !email.includes('@')) { errEl.textContent = 'Informe um e-mail válido'; return; }
+
+  const btn = document.getElementById('payBtn');
+  btn.disabled = true;
+  btn.textContent = 'Gerando PIX...';
+
+  try {
+    const res = await fetch('/api/pagamento', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        email, nome, valor: VALOR, produto: PRODUTO,
+        funnel_id: FUNNEL_ID || undefined,
+        delivery_url: DELIV_URL || undefined,
+        delivery_name: DELIV_NAME || undefined,
+      }),
+    });
+    const data = await res.json();
+    if (!res.ok || !data.qr_code) throw new Error(data.erro || 'Erro ao gerar PIX');
+
+    paymentId = data.id;
+    document.getElementById('qrImg').src = 'data:image/png;base64,' + data.qr_code_base64;
+    document.getElementById('pixCode').textContent = data.qr_code;
+    document.getElementById('formArea').style.display = 'none';
+    document.getElementById('pixBox').style.display = 'block';
+    pollTimer = setInterval(verificarPagamento, 4000);
+  } catch (err) {
+    errEl.textContent = err.message;
+    btn.disabled = false;
+    btn.textContent = '💚 Gerar PIX — R$ ' + VALOR;
+  }
+}
+
+async function verificarPagamento() {
+  if (!paymentId) return;
+  try {
+    const res = await fetch('/api/status?id=' + paymentId);
+    const data = await res.json();
+    if (data.status === 'approved') {
+      clearInterval(pollTimer);
+      document.getElementById('pixBox').style.display = 'none';
+      document.getElementById('successBox').style.display = 'block';
+    }
+  } catch {}
+}
+
+function copiarPix() {
+  const code = document.getElementById('pixCode').textContent;
+  navigator.clipboard.writeText(code)
+    .then(() => { const b = document.querySelector('.copy-btn'); b.textContent = '✅ Copiado!'; setTimeout(() => b.textContent = '📋 Copiar código PIX', 2000); })
+    .catch(() => {});
+}
+<\/script>
+</body>
+</html>`;
+
+  document.getElementById('pageHtmlInput').value = html;
+  toast('HTML gerado! Edite à vontade e clique em Publicar.', 'green');
 }
 
 /* ════════════════════════════════════════════════
