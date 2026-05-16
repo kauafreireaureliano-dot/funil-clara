@@ -1,0 +1,171 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Atividades Biblicas</title>
+
+<script>!function(f,b,e,v,n,t,s){if(f.fbq)return;n=f.fbq=function(){n.callMethod?n.callMethod.apply(n,arguments):n.queue.push(arguments)};if(!f._fbq)f._fbq=n;n.push=n;n.loaded=!0;n.version='2.0';n.queue=[];t=b.createElement(e);t.async=!0;t.src=v;s=b.getElementsByTagName(e)[0];s.parentNode.insertBefore(t,s)}(window,document,'script','https://connect.facebook.net/en_US/fbevents.js');fbq('init','1723902288771399');fbq('track','PageView');</script>
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;background:#f0f2f5;min-height:100vh;display:flex;align-items:flex-start;justify-content:center;padding:20px 12px}
+.wrap{max-width:440px;width:100%}
+.card{background:white;border-radius:14px;padding:22px 20px;margin-bottom:12px;box-shadow:0 2px 16px rgba(0,0,0,.07)}
+.hero{background:#128C7E;border-radius:14px;padding:24px 20px;margin-bottom:12px;text-align:center;color:white}
+.hero h1{font-size:21px;font-weight:800;margin-bottom:6px}
+.hero .preco{font-size:30px;font-weight:900}
+.hero .preco small{font-size:14px;font-weight:400;opacity:.85}
+label{display:block;font-size:12px;font-weight:700;color:#555;margin-bottom:5px;text-transform:uppercase;letter-spacing:.4px}
+input[type=text],input[type=email]{width:100%;border:1.5px solid #e0e0e0;border-radius:9px;padding:11px 13px;font-size:14px;outline:none;transition:border .2s;margin-bottom:12px}
+input:focus{border-color:#128C7E}
+.bump-card{border:1.5px solid #e0e0e0;border-radius:10px;padding:12px 14px;margin-bottom:10px;cursor:pointer;transition:border .2s,background .2s;display:flex;gap:10px;align-items:flex-start}
+.bump-card.sel{border-color:#128C7E;background:#f0fff8}
+.bump-card input[type=checkbox]{margin-top:2px;accent-color:#128C7E;width:16px;height:16px;flex-shrink:0}
+.bump-info strong{font-size:13px;color:#111;display:block;margin-bottom:2px}
+.bump-info span{font-size:12px;color:#667781}
+.bump-price{margin-left:auto;font-weight:800;color:#128C7E;font-size:14px;white-space:nowrap}
+.total-bar{background:#f0f2f5;border-radius:9px;padding:10px 14px;display:flex;justify-content:space-between;align-items:center;margin-bottom:16px}
+.total-bar span{font-size:13px;color:#555;font-weight:600}
+.total-bar strong{font-size:20px;color:#128C7E;font-weight:900}
+.btn{width:100%;background:#128C7E;color:white;border:none;border-radius:11px;padding:14px;font-size:16px;font-weight:800;cursor:pointer;transition:opacity .2s}
+.btn:hover{opacity:.88}.btn:disabled{opacity:.5;cursor:not-allowed}
+.err{color:#e53935;font-size:12px;margin-bottom:10px}
+.pix-box{display:none;text-align:center}
+.pix-box img{width:190px;height:190px;border-radius:10px;border:1.5px solid #e0e0e0;margin-bottom:12px}
+.pix-code{background:#f0f2f5;border-radius:8px;padding:10px;font-size:11px;word-break:break-all;color:#333;margin-bottom:10px;text-align:left}
+.copy-btn{background:#f0f2f5;border:none;border-radius:8px;padding:8px 20px;font-size:13px;font-weight:700;cursor:pointer}
+.copy-btn:hover{background:#e0e0e0}
+.pix-status{margin-top:10px;font-size:13px;font-weight:700;color:#128C7E}
+.success-box{display:none;text-align:center;padding:16px 0}
+.success-box .icon{font-size:60px;margin-bottom:10px}
+.success-box h2{font-size:20px;font-weight:900;color:#111;margin-bottom:8px}
+.success-box p{font-size:13px;color:#667781;margin-bottom:18px;line-height:1.6}
+.access-btn{display:inline-block;background:#128C7E;color:white;text-decoration:none;border-radius:11px;padding:13px 28px;font-size:15px;font-weight:800}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <div class="hero">
+    <div style="font-size:40px;margin-bottom:8px">🎉</div>
+    <h1>Atividades Biblicas</h1>
+    <div class="preco"><small>R$ </small>5,00</div>
+  </div>
+
+  <div class="card" id="formCard">
+    <!-- Bumps -->
+    
+
+    <label>Nome completo</label>
+    <input type="text" id="inNome" placeholder="Seu nome">
+    <label>E-mail</label>
+    <input type="email" id="inEmail" placeholder="seu@email.com">
+    <div class="total-bar">
+      <span>Total</span>
+      <strong id="totalDisplay">R$ 5,00</strong>
+    </div>
+    <div id="formErr" class="err"></div>
+    <button class="btn" id="payBtn" onclick="iniciarPagamento()">💚 Gerar PIX</button>
+  </div>
+
+  <div class="card pix-box" id="pixBox">
+    <p style="font-weight:800;font-size:15px;margin-bottom:14px">Escaneie o QR Code ou copie o código PIX</p>
+    <img id="qrImg" src="" alt="QR Code">
+    <div class="pix-code" id="pixCode"></div>
+    <button class="copy-btn" onclick="copiarPix()">📋 Copiar código PIX</button>
+    <div class="pix-status" id="pixStatus">⏳ Aguardando pagamento...</div>
+  </div>
+
+  <div class="card success-box" id="successBox">
+    <div class="icon">✅</div>
+    <h2>Pagamento confirmado!</h2>
+    <p>Obrigada pela compra! Você receberá os detalhes no seu e-mail em instantes.</p>
+    <a class="access-btn" href="https://drive.google.com/drive/folders/1I2k48ROiiHve3usTAIhY36-DdI0RHDFU?usp=drive_link" target="_blank">🔗 Acessar atividades</a>
+  </div>
+</div>
+
+<script>
+const VALOR    = '5,00';
+const PRODUTO  = 'Atividades Biblicas';
+const FUNNEL   = 'Atividades Biblicas';
+const DELIV_URL  = 'https://drive.google.com/drive/folders/1I2k48ROiiHve3usTAIhY36-DdI0RHDFU?usp=drive_link';
+const DELIV_NAME = 'Acessar atividades';
+const BUMPS = [];
+let paymentId = null, pollTimer = null;
+
+function parseBRL(v){ return parseFloat(String(v).replace(',','.')) || 0; }
+
+function atualizarTotal() {
+  let total = parseBRL(VALOR);
+  BUMPS.forEach((_,i) => { if (document.getElementById('bumpchk'+i)?.checked) total += parseBRL(BUMPS[i].price); });
+  document.getElementById('totalDisplay').textContent = 'R$ ' + total.toFixed(2).replace('.',',');
+  document.getElementById('payBtn').textContent = '💚 Gerar PIX — R$ ' + total.toFixed(2).replace('.',',');
+}
+
+function toggleBump(i) {
+  const chk = document.getElementById('bumpchk'+i);
+  const card = document.getElementById('bump'+i);
+  chk.checked = !chk.checked;
+  card.classList.toggle('sel', chk.checked);
+  atualizarTotal();
+}
+
+async function iniciarPagamento() {
+  const nome  = document.getElementById('inNome').value.trim();
+  const email = document.getElementById('inEmail').value.trim();
+  const errEl = document.getElementById('formErr');
+  errEl.textContent = '';
+  if (!nome)  { errEl.textContent = 'Informe seu nome'; return; }
+  if (!email||!email.includes('@')) { errEl.textContent = 'Informe um e-mail válido'; return; }
+
+  let total = parseBRL(VALOR);
+  const selectedBumps = BUMPS.filter((_,i) => document.getElementById('bumpchk'+i)?.checked);
+  selectedBumps.forEach(b => total += parseBRL(b.price));
+
+  const btn = document.getElementById('payBtn');
+  btn.disabled = true; btn.textContent = 'Gerando PIX...';
+
+  try {
+    const eventId = 'initiate_checkout_' + Date.now();
+    if (typeof fbq !== 'undefined') fbq('track','InitiateCheckout',{currency:'BRL',value:total},{eventID:eventId});
+    const res = await fetch('/api/pagamento', {
+      method:'POST', headers:{'Content-Type':'application/json'},
+      body: JSON.stringify({ email, nome, valor: total.toFixed(2).replace('.',','), produto: PRODUTO, funnel_id: FUNNEL||undefined, delivery_url: DELIV_URL||undefined, delivery_name: DELIV_NAME||undefined, bumps: selectedBumps.length ? selectedBumps : undefined }),
+    });
+    const data = await res.json();
+    if (!res.ok || !data.qr_code) throw new Error(data.erro || 'Erro ao gerar PIX');
+    paymentId = data.id;
+    document.getElementById('qrImg').src = 'data:image/png;base64,' + data.qr_code_base64;
+    document.getElementById('pixCode').textContent = data.qr_code;
+    document.getElementById('formCard').style.display = 'none';
+    document.getElementById('pixBox').style.display = 'block';
+    pollTimer = setInterval(verificarPagamento, 4000);
+  } catch(err) {
+    errEl.textContent = err.message;
+    btn.disabled = false; btn.textContent = '💚 Gerar PIX';
+  }
+}
+
+async function verificarPagamento() {
+  if (!paymentId) return;
+  try {
+    const r = await fetch('/api/status?id='+paymentId);
+    const d = await r.json();
+    if (d.status === 'approved') {
+      clearInterval(pollTimer);
+      const purchaseId = 'purchase_'+paymentId;
+      if (typeof fbq !== 'undefined') fbq('track','Purchase',{currency:'BRL',value:parseFloat(document.getElementById('totalDisplay').textContent.replace('R$ ','').replace(',','.'))},{eventID:purchaseId});
+      document.getElementById('pixBox').style.display = 'none';
+      document.getElementById('successBox').style.display = 'block';
+    }
+  } catch {}
+}
+
+function copiarPix() {
+  navigator.clipboard.writeText(document.getElementById('pixCode').textContent)
+    .then(()=>{ const b=document.querySelector('.copy-btn'); b.textContent='✅ Copiado!'; setTimeout(()=>b.textContent='📋 Copiar código PIX',2000); }).catch(()=>{});
+}
+
+atualizarTotal();
+</script>
+</body>
+</html>
