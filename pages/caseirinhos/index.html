@@ -1,0 +1,872 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Caseirinhos Irresistíveis — Clara Aureliano</title>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700;900&family=Nunito:wght@400;600;700;800&display=swap" rel="stylesheet">
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  :root {
+    --cream: #FDF6EC;
+    --caramel: #C8742A;
+    --caramel-dark: #A05A18;
+    --chocolate: #3D1F0A;
+    --gold: #E8A020;
+    --green: #2A7A3B;
+    --red: #CC2200;
+    --red-dark: #A81B00;
+    --white: #FFFFFF;
+    --text: #2A1A0A;
+    --muted: #6B5040;
+  }
+
+  html { scroll-behavior: smooth; }
+
+  body {
+    font-family: 'Nunito', sans-serif;
+    background-color: var(--cream);
+    color: var(--text);
+    overflow-x: hidden;
+  }
+
+  /* ── HERO ── */
+  .hero {
+    background: linear-gradient(170deg, #FDF0D8 0%, #F5E0B0 60%, #EDD090 100%);
+    padding: 56px 20px 48px;
+    text-align: center;
+    position: relative;
+    overflow: hidden;
+  }
+  .hero::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: radial-gradient(ellipse at 70% 10%, rgba(232,160,32,.18) 0%, transparent 65%),
+                radial-gradient(ellipse at 15% 90%, rgba(200,116,42,.12) 0%, transparent 60%);
+    pointer-events: none;
+  }
+
+  .badge-top {
+    display: inline-block;
+    background: var(--caramel);
+    color: #fff;
+    font-size: 12px;
+    font-weight: 800;
+    letter-spacing: 1.5px;
+    text-transform: uppercase;
+    padding: 6px 18px;
+    border-radius: 50px;
+    margin-bottom: 22px;
+  }
+
+  .hero h1 {
+    font-family: 'Playfair Display', serif;
+    font-size: clamp(30px, 7vw, 52px);
+    font-weight: 900;
+    line-height: 1.15;
+    color: var(--chocolate);
+    max-width: 560px;
+    margin: 0 auto 14px;
+  }
+  .hero h1 span { color: var(--caramel); }
+
+  .hero-sub {
+    font-size: clamp(14px, 3.5vw, 17px);
+    color: var(--muted);
+    font-weight: 600;
+    max-width: 420px;
+    margin: 0 auto 10px;
+    line-height: 1.5;
+  }
+
+  .hero-even {
+    font-size: 13px;
+    color: var(--muted);
+    margin-bottom: 28px;
+    font-weight: 600;
+    font-style: italic;
+  }
+
+  /* Produto fotos */
+  .product-imgs {
+    display: flex;
+    justify-content: center;
+    gap: 12px;
+    margin-bottom: 28px;
+    flex-wrap: wrap;
+  }
+  .product-imgs .img-item {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 6px;
+  }
+  .product-imgs img {
+    width: 72px; height: 72px;
+    border-radius: 50%;
+    object-fit: cover;
+    border: 3px solid var(--caramel);
+    box-shadow: 0 4px 12px rgba(61,31,10,.2);
+  }
+  .product-imgs span {
+    font-size: 11px;
+    font-weight: 700;
+    color: var(--muted);
+  }
+
+  /* Preço hero */
+  .price-block {
+    margin-bottom: 22px;
+  }
+  .old-price {
+    font-size: 14px;
+    text-decoration: line-through;
+    color: var(--muted);
+    font-weight: 700;
+  }
+  .new-price {
+    font-family: 'Playfair Display', serif;
+    font-size: clamp(38px, 10vw, 56px);
+    font-weight: 900;
+    color: var(--red);
+    line-height: 1;
+  }
+  .price-note {
+    font-size: 12px;
+    font-weight: 700;
+    color: var(--green);
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    margin-top: 4px;
+  }
+
+  /* CTA button */
+  .btn-cta {
+    display: block;
+    width: 100%;
+    max-width: 480px;
+    margin: 0 auto 14px;
+    background: linear-gradient(135deg, #CC2200, #E03010);
+    color: #fff;
+    font-family: 'Nunito', sans-serif;
+    font-size: clamp(16px, 4vw, 20px);
+    font-weight: 800;
+    padding: 18px 24px;
+    border: none;
+    border-radius: 14px;
+    cursor: pointer;
+    text-decoration: none;
+    text-align: center;
+    box-shadow: 0 6px 20px rgba(204,34,0,.35);
+    letter-spacing: .3px;
+    transition: transform .15s, box-shadow .15s;
+  }
+  .btn-cta:hover { transform: translateY(-2px); box-shadow: 0 10px 28px rgba(204,34,0,.4); }
+  .btn-cta:active { transform: translateY(0); }
+
+  .guarantee-line {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
+    font-size: 12px;
+    color: var(--green);
+    font-weight: 700;
+  }
+  .guarantee-line svg { flex-shrink: 0; }
+
+  /* ── SECTION BASE ── */
+  section { padding: 48px 20px; }
+  .section-inner { max-width: 560px; margin: 0 auto; }
+
+  /* ── DOR ── */
+  .pain-section {
+    background: var(--chocolate);
+    padding: 48px 20px;
+  }
+  .pain-section .section-inner { text-align: center; }
+  .pain-section h2 {
+    font-family: 'Playfair Display', serif;
+    font-size: clamp(22px, 6vw, 34px);
+    color: var(--gold);
+    margin-bottom: 24px;
+    line-height: 1.25;
+  }
+  .pain-list {
+    list-style: none;
+    display: flex;
+    flex-direction: column;
+    gap: 14px;
+    text-align: left;
+  }
+  .pain-list li {
+    display: flex;
+    align-items: flex-start;
+    gap: 12px;
+    color: #F5E5CC;
+    font-size: 15px;
+    font-weight: 600;
+    line-height: 1.45;
+  }
+  .pain-list .icon { font-size: 20px; flex-shrink: 0; margin-top: 1px; }
+
+  /* ── FEATURES ── */
+  .features-section { background: #fff; }
+  .features-section h2 {
+    font-family: 'Playfair Display', serif;
+    font-size: clamp(22px, 6vw, 32px);
+    color: var(--chocolate);
+    text-align: center;
+    margin-bottom: 28px;
+    line-height: 1.25;
+  }
+  .features-section h2 em { color: var(--caramel); font-style: normal; }
+  .feat-grid {
+    display: flex;
+    flex-direction: column;
+    gap: 14px;
+  }
+  .feat-card {
+    display: flex;
+    align-items: flex-start;
+    gap: 14px;
+    background: var(--cream);
+    border-radius: 14px;
+    padding: 16px;
+    border-left: 4px solid var(--caramel);
+  }
+  .feat-icon { font-size: 26px; flex-shrink: 0; }
+  .feat-card h3 { font-size: 15px; font-weight: 800; color: var(--chocolate); margin-bottom: 4px; }
+  .feat-card p { font-size: 13px; color: var(--muted); font-weight: 600; line-height: 1.45; }
+
+  /* ── O QUE VOCÊ RECEBE ── */
+  .receive-section { background: var(--cream); }
+  .receive-section h2 {
+    font-family: 'Playfair Display', serif;
+    font-size: clamp(24px, 6vw, 34px);
+    color: var(--chocolate);
+    text-align: center;
+    margin-bottom: 28px;
+  }
+  .receive-card {
+    background: #fff;
+    border-radius: 18px;
+    border: 2px solid var(--caramel);
+    padding: 28px 22px;
+    box-shadow: 0 4px 20px rgba(200,116,42,.12);
+  }
+  .receive-list {
+    list-style: none;
+    display: flex;
+    flex-direction: column;
+    gap: 13px;
+    margin-bottom: 28px;
+  }
+  .receive-list li {
+    display: flex;
+    align-items: flex-start;
+    gap: 10px;
+    font-size: 15px;
+    font-weight: 700;
+    color: var(--text);
+    line-height: 1.4;
+  }
+  .check {
+    width: 22px; height: 22px;
+    background: var(--green);
+    border-radius: 50%;
+    display: flex; align-items: center; justify-content: center;
+    flex-shrink: 0;
+    margin-top: 1px;
+  }
+  .check svg { width: 12px; height: 12px; }
+  .receive-list .highlight { color: var(--caramel); }
+
+  .price-box {
+    background: linear-gradient(135deg, #FEF5E0, #FDECC5);
+    border-radius: 14px;
+    padding: 22px;
+    text-align: center;
+    margin-bottom: 20px;
+  }
+  .price-box .old { font-size: 14px; text-decoration: line-through; color: var(--muted); font-weight: 700; }
+  .price-box .new {
+    font-family: 'Playfair Display', serif;
+    font-size: 52px;
+    font-weight: 900;
+    color: var(--red);
+    line-height: 1;
+  }
+  .price-box .type { font-size: 13px; color: var(--muted); font-weight: 700; margin-top: 4px; }
+
+  /* ── DEPOIMENTOS ── */
+  .testimonials-section { background: #fff; }
+  .testimonials-section h2 {
+    font-family: 'Playfair Display', serif;
+    font-size: clamp(22px, 5vw, 30px);
+    text-align: center;
+    color: var(--chocolate);
+    margin-bottom: 28px;
+  }
+  .testi-grid { display: flex; flex-direction: column; gap: 14px; }
+  .testi-card {
+    background: var(--cream);
+    border-radius: 14px;
+    padding: 18px;
+    border-left: 4px solid var(--gold);
+    position: relative;
+  }
+  .testi-card::before {
+    content: '"';
+    font-family: 'Playfair Display', serif;
+    font-size: 60px;
+    color: var(--gold);
+    opacity: .3;
+    position: absolute;
+    top: 6px; left: 12px;
+    line-height: 1;
+  }
+  .testi-card p {
+    font-size: 14px;
+    font-weight: 600;
+    color: var(--text);
+    line-height: 1.6;
+    padding-left: 8px;
+  }
+  .testi-name { font-size: 12px; font-weight: 800; color: var(--muted); margin-top: 10px; padding-left: 8px; }
+
+  /* ── GARANTIA ── */
+  .guarantee-section {
+    background: #EAF5EC;
+    padding: 40px 20px;
+  }
+  .guarantee-box {
+    max-width: 480px;
+    margin: 0 auto;
+    display: flex;
+    align-items: center;
+    gap: 18px;
+    background: #fff;
+    border-radius: 18px;
+    padding: 22px 20px;
+    border: 2px solid var(--green);
+    box-shadow: 0 4px 16px rgba(42,122,59,.1);
+  }
+  .guarantee-icon { font-size: 44px; flex-shrink: 0; }
+  .guarantee-box h3 { font-size: 16px; font-weight: 800; color: var(--green); margin-bottom: 6px; }
+  .guarantee-box p { font-size: 13px; font-weight: 600; color: var(--muted); line-height: 1.5; }
+
+  /* ── FAQ ── */
+  .faq-section { background: var(--cream); }
+  .faq-section h2 {
+    font-family: 'Playfair Display', serif;
+    font-size: clamp(22px, 5vw, 30px);
+    text-align: center;
+    color: var(--chocolate);
+    margin-bottom: 24px;
+  }
+  .faq-list { display: flex; flex-direction: column; gap: 12px; }
+  .faq-item {
+    background: #fff;
+    border-radius: 12px;
+    overflow: hidden;
+    border: 1px solid rgba(200,116,42,.2);
+  }
+  .faq-q {
+    width: 100%;
+    text-align: left;
+    background: none;
+    border: none;
+    padding: 16px 18px;
+    font-family: 'Nunito', sans-serif;
+    font-size: 14px;
+    font-weight: 800;
+    color: var(--chocolate);
+    cursor: pointer;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 10px;
+  }
+  .faq-q .arrow { font-size: 18px; transition: transform .2s; flex-shrink: 0; }
+  .faq-item.open .faq-q .arrow { transform: rotate(90deg); }
+  .faq-a {
+    max-height: 0;
+    overflow: hidden;
+    transition: max-height .3s ease;
+    font-size: 14px;
+    font-weight: 600;
+    color: var(--muted);
+    line-height: 1.6;
+    padding: 0 18px;
+  }
+  .faq-item.open .faq-a { max-height: 200px; padding: 0 18px 16px; }
+
+  /* ── CTA FINAL ── */
+  .cta-final {
+    background: linear-gradient(160deg, var(--chocolate) 0%, #5A2A0A 100%);
+    padding: 56px 20px;
+    text-align: center;
+  }
+  .cta-final h2 {
+    font-family: 'Playfair Display', serif;
+    font-size: clamp(24px, 7vw, 40px);
+    color: var(--gold);
+    margin-bottom: 12px;
+    line-height: 1.2;
+  }
+  .cta-final p {
+    color: #F5E5CC;
+    font-size: 15px;
+    font-weight: 600;
+    margin-bottom: 30px;
+    line-height: 1.5;
+    max-width: 400px;
+    margin-left: auto;
+    margin-right: auto;
+  }
+
+  /* ── WHATSAPP ── */
+  .whatsapp-btn {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+    width: fit-content;
+    margin: 0 auto 16px;
+    background: #25D366;
+    color: #fff;
+    font-size: 15px;
+    font-weight: 800;
+    padding: 14px 28px;
+    border-radius: 50px;
+    text-decoration: none;
+    box-shadow: 0 4px 16px rgba(37,211,102,.35);
+    transition: transform .15s;
+  }
+  .whatsapp-btn:hover { transform: translateY(-2px); }
+
+  /* ── FOOTER ── */
+  footer {
+    background: var(--chocolate);
+    padding: 24px 20px;
+    text-align: center;
+  }
+  .verse {
+    font-family: 'Playfair Display', serif;
+    font-style: italic;
+    font-size: 13px;
+    color: var(--gold);
+    margin-bottom: 6px;
+  }
+  footer small { font-size: 11px; color: rgba(255,255,255,.4); }
+
+  /* pulse animation on CTA */
+  @keyframes pulse-btn {
+    0%, 100% { box-shadow: 0 6px 20px rgba(204,34,0,.35); }
+    50% { box-shadow: 0 6px 32px rgba(204,34,0,.60); }
+  }
+  .btn-cta { animation: pulse-btn 2.5s ease-in-out infinite; }
+  .btn-cta:hover { animation: none; }
+</style>
+</head>
+<body>
+
+<!-- ══ HERO ══ -->
+<section class="hero">
+  <div class="badge-top">🍬 Receita que fatura</div>
+
+  <h1>O segredo dos <span>Caseirinhos</span> que esgotam todo dia</h1>
+
+  <p class="hero-sub">Aprenda a fazer caseirinhos irresistíveis com recheios que fidelizam clientes — e descubra como precificar para lucrar de verdade em casa.</p>
+  <p class="hero-even">Mesmo se você nunca fez nenhum antes</p>
+
+  <div class="product-imgs">
+    <div class="img-item">
+      <img src="https://i.imgur.com/vVm2pmW.jpeg" alt="Caseirinho chocolate">
+      <span>Chocolate</span>
+    </div>
+    <div class="img-item">
+      <img src="https://i.imgur.com/QpW8o74.jpeg" alt="Caseirinho leite ninho">
+      <span>Leite Ninho</span>
+    </div>
+    <div class="img-item">
+      <img src="https://i.imgur.com/4sEheYz.jpeg" alt="Caseirinho morango">
+      <span>Morango</span>
+    </div>
+  </div>
+
+  <div class="price-block">
+    <div class="old-price">De R$ 29,90</div>
+    <div class="new-price">R$ 1,99</div>
+    <div class="price-note">pagamento único • acesso imediato</div>
+  </div>
+
+  <a href="#checkout" class="btn-cta open-popup">🍬 Quero aprender agora por R$ 1,99</a>
+
+  <div class="guarantee-line">
+    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+    Garantia de 7 dias • Acesso imediato no e-mail
+  </div>
+</section>
+
+<!-- ══ DOR ══ -->
+<section class="pain-section">
+  <div class="section-inner">
+    <h2>Você reconhece alguma dessas situações?</h2>
+    <ul class="pain-list">
+      <li><span class="icon">😞</span><span>Já tentou fazer caseirinho e ficou duro, murcho ou sem gosto — mas não entendeu onde errou</span></li>
+      <li><span class="icon">😤</span><span>Acha vídeo gratuito na internet, mas ninguém explica a cobertura, o recheio, a embalagem e o preço certo</span></li>
+      <li><span class="icon">😟</span><span>Precisa de uma renda extra mas não quer depender de patrão nem gastar em curso caro</span></li>
+      <li><span class="icon">😰</span><span>Tem medo de começar a vender e não lucrar — ou pior, vender barato e trabalhar de graça</span></li>
+    </ul>
+  </div>
+</section>
+
+<!-- ══ FEATURES ══ -->
+<section class="features-section">
+  <div class="section-inner">
+    <h2>Tudo que você precisa — <em>sem enrolação</em></h2>
+    <div class="feat-grid">
+      <div class="feat-card">
+        <div class="feat-icon">🍫</div>
+        <div>
+          <h3>Massa que não erra</h3>
+          <p>Passo a passo completo com pesos, medidas e tempo certo para sair perfeito na primeira vez.</p>
+        </div>
+      </div>
+      <div class="feat-card">
+        <div class="feat-icon">🍓</div>
+        <div>
+          <h3>Recheios que vendem sozinhos</h3>
+          <p>Os recheios mais procurados — do clássico leite ninho ao morango irresistível — que fazem o cliente pedir de novo.</p>
+        </div>
+      </div>
+      <div class="feat-card">
+        <div class="feat-icon">🎁</div>
+        <div>
+          <h3>Cobertura + embalagem certa</h3>
+          <p>O que a maioria esquece. O visual bonito é o que faz o cliente tirar foto e compartilhar — publicidade gratuita pra você.</p>
+        </div>
+      </div>
+      <div class="feat-card">
+        <div class="feat-icon">💰</div>
+        <div>
+          <h3>Como precificar e lucrar de verdade</h3>
+          <p>Descubra quanto cobrar, como calcular seu lucro real e montar uma produção que valha a pena.</p>
+        </div>
+      </div>
+      <div class="feat-card">
+        <div class="feat-icon">⚡</div>
+        <div>
+          <h3>Ingredientes simples de mercado</h3>
+          <p>Sem ingredientes exóticos ou equipamentos caros. O que você precisa já tem na sua cidade.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ══ O QUE VOCÊ RECEBE ══ -->
+<section class="receive-section" id="checkout">
+  <div class="section-inner">
+    <h2>O que você recebe</h2>
+    <div class="receive-card">
+      <ul class="receive-list">
+        <li>
+          <div class="check"><svg viewBox="0 0 12 12" fill="none"><path d="M2 6l3 3 5-5" stroke="#fff" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg></div>
+          <span>20 Receitas de Caseirinhos irresistíveis</span>
+        </li>
+        <li>
+          <div class="check"><svg viewBox="0 0 12 12" fill="none"><path d="M2 6l3 3 5-5" stroke="#fff" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg></div>
+          <span>Acesso imediato após o pagamento</span>
+        </li>
+        <li>
+          <div class="check"><svg viewBox="0 0 12 12" fill="none"><path d="M2 6l3 3 5-5" stroke="#fff" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg></div>
+          <span>Uso liberado para venda</span>
+        </li>
+      </ul>
+
+      <div class="price-box">
+        <div class="old">De R$ 29,90</div>
+        <div class="new">R$ 1,99</div>
+        <div class="type">pagamento único</div>
+      </div>
+
+      <a href="#" class="btn-cta open-popup">🍬 Garantir acesso agora por R$ 1,99</a>
+    </div>
+  </div>
+</section>
+
+
+<!-- ══ GARANTIA ══ -->
+<section class="guarantee-section">
+  <div class="guarantee-box">
+    <div class="guarantee-icon">🛡️</div>
+    <div>
+      <h3>Garantia de 7 dias</h3>
+      <p>Se por qualquer motivo você não ficar satisfeita, devolvemos 100% do seu dinheiro. Sem perguntas. Você não tem nada a perder.</p>
+    </div>
+  </div>
+</section>
+
+<!-- ══ FAQ ══ -->
+<section class="faq-section">
+  <div class="section-inner">
+    <h2>Perguntas frequentes</h2>
+    <div class="faq-list">
+      <div class="faq-item">
+        <button class="faq-q">Como recebo o material? <span class="arrow">›</span></button>
+        <div class="faq-a">Imediatamente após o pagamento confirmado, o acesso é enviado para o seu e-mail. É só abrir e começar.</div>
+      </div>
+      <div class="faq-item">
+        <button class="faq-q">Serve para iniciantes? <span class="arrow">›</span></button>
+        <div class="faq-a">Sim. As receitas são simples, com passo a passo fácil de seguir. Você não precisa de nenhuma experiência prévia.</div>
+      </div>
+      <div class="faq-item">
+        <button class="faq-q">Posso usar as receitas para vender? <span class="arrow">›</span></button>
+        <div class="faq-a">Sim! O uso é totalmente liberado para venda. Você pode usar essas receitas para montar seu próprio negócio de caseirinhos.</div>
+      </div>
+      <div class="faq-item">
+        <button class="faq-q">Preciso de equipamentos especiais? <span class="arrow">›</span></button>
+        <div class="faq-a">Não. Tudo é feito com ingredientes e utensílios básicos que você encontra em qualquer mercado ou já tem em casa.</div>
+      </div>
+      <div class="faq-item">
+        <button class="faq-q">Por quanto tempo tenho acesso? <span class="arrow">›</span></button>
+        <div class="faq-a">Acesso permanente. Pague uma única vez e o material é seu para sempre.</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ══ CTA FINAL ══ -->
+<section class="cta-final">
+  <h2>Comece hoje. Já.</h2>
+  <p>Por R$ 1,99 você tem tudo que precisa para fazer caseirinhos que vendem — com técnica, recheio, cobertura, embalagem e precificação.</p>
+  <a href="#checkout" class="btn-cta open-popup" style="max-width:440px; margin-bottom:24px;">🍬 Quero meus caseirinhos por R$ 1,99</a>
+  <a href="https://wa.me/558797009597" class="whatsapp-btn" target="_blank">
+    <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/></svg>
+    Tirar dúvidas no WhatsApp
+  </a>
+</section>
+
+<!-- ══ FOOTER ══ -->
+<footer>
+  <div class="verse">Jesus Cristo é o mesmo ontem, hoje e para sempre.<br><small style="font-style:normal;color:rgba(255,255,255,.5)">— Hebreus 13:8</small></div>
+  <br>
+  <small>© 2025 Recheios Secretos — Clara Aureliano. Todos os direitos reservados.</small>
+</footer>
+
+<!-- ══ POPUP UPSELL ══ -->
+<div id="upsell-overlay" style="display:none; position:fixed; inset:0; background:rgba(0,0,0,.75); z-index:9999; overflow-y:auto; padding:20px 0;">
+  <div id="upsell-box" style="
+    background:#fff;
+    max-width:480px;
+    margin:0 auto;
+    border-radius:20px;
+    overflow:hidden;
+    font-family:'Nunito',sans-serif;
+    box-shadow:0 20px 60px rgba(0,0,0,.4);
+    position:relative;
+  ">
+    <!-- Topo vermelho -->
+    <div style="background:linear-gradient(135deg,#CC2200,#E03010); padding:28px 24px 22px; text-align:center;">
+      <div style="font-size:36px; margin-bottom:6px;">🤯</div>
+      <div style="font-size:26px; font-weight:900; color:#fff; letter-spacing:2px; font-family:'Playfair Display',serif;">ESPERA!</div>
+      <div style="font-size:14px; color:rgba(255,255,255,.9); font-weight:700; margin-top:6px;">Você está prestes a perder isso...</div>
+
+      <!-- Timer -->
+      <div style="margin-top:16px;">
+        <div style="font-size:11px; color:rgba(255,255,255,.8); font-weight:700; text-transform:uppercase; letter-spacing:1px; margin-bottom:6px;">Oferta expira em</div>
+        <div style="
+          display:inline-block;
+          background:#fff;
+          color:#CC2200;
+          font-size:32px;
+          font-weight:900;
+          font-family:'Playfair Display',serif;
+          padding:8px 24px;
+          border-radius:10px;
+          letter-spacing:3px;
+          box-shadow:0 4px 14px rgba(0,0,0,.2);
+        " id="popup-timer">07:00</div>
+      </div>
+    </div>
+
+    <!-- Corpo -->
+    <div style="padding:24px 22px;">
+
+      <!-- Pitch principal -->
+      <p style="text-align:center; font-size:16px; font-weight:700; color:#3D1F0A; margin-bottom:18px; line-height:1.45;">
+        Imagine ter acesso a <strong style="color:#CC2200;">250 receitas</strong> em vez de apenas 20...
+      </p>
+      <p style="text-align:center; font-size:13px; color:#6B5040; font-weight:700; margin-bottom:22px;">Por menos de <strong>R$ 0,03 por receita</strong></p>
+
+      <!-- Comparação BÁSICO vs PREMIUM -->
+      <div style="display:flex; gap:10px; margin-bottom:22px;">
+        <div style="flex:1; border:2px solid #ddd; border-radius:14px; padding:16px 12px; text-align:center; background:#f9f9f9;">
+          <div style="font-size:11px; font-weight:800; color:#999; text-transform:uppercase; letter-spacing:1px; margin-bottom:8px;">BÁSICO</div>
+          <div style="font-size:42px; font-weight:900; color:#ccc; line-height:1; font-family:'Playfair Display',serif;">20</div>
+          <div style="font-size:12px; color:#aaa; font-weight:700; margin-top:4px;">receitas</div>
+        </div>
+        <div style="flex:1; border:3px solid #CC2200; border-radius:14px; padding:16px 12px; text-align:center; background:#FFF5F3; position:relative;">
+          <div style="position:absolute; top:-12px; left:50%; transform:translateX(-50%); background:#CC2200; color:#fff; font-size:10px; font-weight:800; padding:4px 12px; border-radius:50px; white-space:nowrap;">🔥 MELHOR OPÇÃO</div>
+          <div style="font-size:11px; font-weight:800; color:#CC2200; text-transform:uppercase; letter-spacing:1px; margin-bottom:8px;">PREMIUM</div>
+          <div style="font-size:42px; font-weight:900; color:#CC2200; line-height:1; font-family:'Playfair Display',serif;">+250</div>
+          <div style="font-size:12px; color:#CC2200; font-weight:700; margin-top:4px;">receitas + bônus</div>
+        </div>
+      </div>
+
+      <!-- Preço premium -->
+      <div style="text-align:center; margin-bottom:20px;">
+        <span style="font-size:13px; text-decoration:line-through; color:#999; font-weight:700;">De R$ 47,00</span>
+        <div style="font-size:46px; font-weight:900; color:#CC2200; font-family:'Playfair Display',serif; line-height:1.1;">R$ 7,99</div>
+        <div style="font-size:12px; color:#CC2200; font-weight:800;">🔥 Apenas nesta tela</div>
+      </div>
+
+      <!-- O que recebe -->
+      <div style="background:#FFF8F0; border-radius:14px; padding:18px; margin-bottom:20px; border:1px solid rgba(200,116,42,.2);">
+        <div style="font-size:13px; font-weight:800; color:#3D1F0A; margin-bottom:14px; text-align:center;">🎁 Tudo que você vai receber:</div>
+        <div style="display:flex; flex-direction:column; gap:11px;">
+          <div style="display:flex; align-items:flex-start; gap:10px;">
+            <span style="font-size:16px; flex-shrink:0;">🍫</span>
+            <div><div style="font-size:13px; font-weight:800; color:#3D1F0A;">100 Receitas de Recheios Secretos</div><div style="font-size:12px; color:#6B5040; font-weight:600;">50 com fogo + 50 sem fogo</div></div>
+          </div>
+          <div style="display:flex; align-items:flex-start; gap:10px;">
+            <span style="font-size:16px; flex-shrink:0;">🥪</span>
+            <div><div style="font-size:13px; font-weight:800; color:#3D1F0A;">50 Receitas de Lanches</div><div style="font-size:12px; color:#6B5040; font-weight:600;">Para variar seu cardápio</div></div>
+          </div>
+          <div style="display:flex; align-items:flex-start; gap:10px;">
+            <span style="font-size:16px; flex-shrink:0;">🍮</span>
+            <div><div style="font-size:13px; font-weight:800; color:#3D1F0A;">50 Receitas de Sobremesas</div><div style="font-size:12px; color:#6B5040; font-weight:600;">Deixe seus clientes encantados</div></div>
+          </div>
+          <div style="display:flex; align-items:flex-start; gap:10px;">
+            <span style="font-size:16px; flex-shrink:0;">🍯</span>
+            <div><div style="font-size:13px; font-weight:800; color:#3D1F0A;">20 Receitas de Caldas</div><div style="font-size:12px; color:#6B5040; font-weight:600;">Finalize suas criações</div></div>
+          </div>
+          <div style="display:flex; align-items:flex-start; gap:10px;">
+            <span style="font-size:16px; flex-shrink:0;">🥧</span>
+            <div><div style="font-size:13px; font-weight:800; color:#3D1F0A;">20 Receitas de Tortas</div><div style="font-size:12px; color:#6B5040; font-weight:600;">Amplie suas vendas</div></div>
+          </div>
+          <div style="display:flex; align-items:flex-start; gap:10px;">
+            <span style="font-size:16px; flex-shrink:0;">💬</span>
+            <div><div style="font-size:13px; font-weight:800; color:#3D1F0A;">Suporte via WhatsApp</div><div style="font-size:12px; color:#6B5040; font-weight:600;">Tire dúvidas direto comigo</div></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Botão SIM -->
+      <a href="#" id="btn-upgrade" style="
+        display:block;
+        width:100%;
+        background:linear-gradient(135deg,#CC2200,#E03010);
+        color:#fff;
+        font-family:'Nunito',sans-serif;
+        font-size:16px;
+        font-weight:800;
+        padding:18px 16px;
+        border-radius:14px;
+        text-align:center;
+        text-decoration:none;
+        box-shadow:0 6px 20px rgba(204,34,0,.35);
+        margin-bottom:12px;
+        animation: pulse-btn 2.5s ease-in-out infinite;
+      ">✅ SIM! Quero +250 receitas por R$ 7,99</a>
+
+      <!-- Botão NÃO -->
+      <a href="#" id="btn-decline" style="
+        display:block;
+        width:100%;
+        text-align:center;
+        font-size:12px;
+        color:#999;
+        font-weight:600;
+        text-decoration:underline;
+        padding:8px;
+      ">Não, prefiro continuar só as receitas básicas por R$ 1,99</a>
+    </div>
+  </div>
+</div>
+
+<script>
+  // FAQ accordion
+  document.querySelectorAll('.faq-q').forEach(btn => {
+    btn.addEventListener('click', () => {
+      const item = btn.parentElement;
+      const isOpen = item.classList.contains('open');
+      document.querySelectorAll('.faq-item').forEach(i => i.classList.remove('open'));
+      if (!isOpen) item.classList.add('open');
+    });
+  });
+
+  // Popup
+  const overlay = document.getElementById('upsell-overlay');
+  const timerEl = document.getElementById('popup-timer');
+
+  let timerInterval = null;
+  let seconds = 7 * 60; // 7 minutos
+
+  function formatTime(s) {
+    const m = Math.floor(s / 60);
+    const sec = s % 60;
+    return String(m).padStart(2,'0') + ':' + String(sec).padStart(2,'0');
+  }
+
+  function startTimer() {
+    clearInterval(timerInterval);
+    timerEl.textContent = formatTime(seconds);
+    timerInterval = setInterval(() => {
+      seconds--;
+      if (seconds <= 0) {
+        seconds = 0;
+        clearInterval(timerInterval);
+        timerEl.textContent = '00:00';
+        timerEl.style.color = '#fff';
+        timerEl.style.background = '#CC2200';
+      }
+      timerEl.textContent = formatTime(seconds);
+    }, 1000);
+  }
+
+  function openPopup() {
+    overlay.style.display = 'block';
+    document.body.style.overflow = 'hidden';
+    startTimer();
+  }
+
+  function closePopup() {
+    overlay.style.display = 'none';
+    document.body.style.overflow = '';
+    clearInterval(timerInterval);
+  }
+
+  // Abrir popup em qualquer botão de compra
+  document.querySelectorAll('.open-popup').forEach(btn => {
+    btn.addEventListener('click', e => {
+      e.preventDefault();
+      openPopup();
+    });
+  });
+
+  // Botão upgrade — redireciona pro checkout premium (troque a URL)
+  document.getElementById('btn-upgrade').addEventListener('click', e => {
+    e.preventDefault();
+    window.location.href = 'https://ggcheckout.app/checkout/v5/bsb933zsfjab5WKDU0PV';
+  });
+
+  // Botão declinar — redireciona pro checkout básico
+  document.getElementById('btn-decline').addEventListener('click', e => {
+    e.preventDefault();
+    closePopup();
+    window.location.href = 'https://ggcheckout.app/checkout/v5/fvgzvfE5b81i1y2aV5Wj';
+  });
+
+  // Fechar clicando fora
+  overlay.addEventListener('click', e => {
+    if (e.target === overlay) closePopup();
+  });
+</script>
+</body>
+</html>
