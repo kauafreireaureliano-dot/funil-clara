@@ -1,0 +1,829 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Solar do Zero — Aprenda a Instalar Energia Solar</title>
+<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Syne:wght@400;600;700;800&family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500;1,9..40,300&display=swap" rel="stylesheet">
+<style>
+:root {
+  --verde: #1a6b3a;
+  --verde-escuro: #0d3d20;
+  --verde-neon: #22c55e;
+  --laranja: #f97316;
+  --laranja-escuro: #ea580c;
+  --preto: #070d0a;
+  --cinza-escuro: #0f1a13;
+  --cinza-meio: #1c2e21;
+  --cinza-claro: #8aab93;
+  --branco: #f0f7f2;
+  --texto: #d4e8da;
+}
+
+*, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+html { scroll-behavior: smooth; font-size: 16px; }
+body { font-family: 'DM Sans', sans-serif; background: var(--preto); color: var(--texto); overflow-x: hidden; -webkit-font-smoothing: antialiased; }
+img { max-width: 100%; display: block; }
+a { text-decoration: none; }
+button { border: none; background: none; cursor: pointer; font-family: inherit; }
+
+/* ======= QUIZ OVERLAY ======= */
+.quiz-overlay {
+  position: fixed; inset: 0;
+  background: rgba(0,0,0,0.93);
+  z-index: 9999;
+  display: flex; align-items: center; justify-content: center;
+  padding: 16px;
+  backdrop-filter: blur(10px);
+  animation: fadeIn 0.4s ease;
+}
+.quiz-overlay.hidden { display: none !important; }
+
+.quiz-box {
+  background: var(--cinza-escuro);
+  border: 1px solid rgba(34,197,94,0.25);
+  border-radius: 20px;
+  width: 100%; max-width: 540px;
+  max-height: 90vh;
+  overflow-y: auto;
+  padding: 36px 32px;
+  box-shadow: 0 0 80px rgba(34,197,94,0.07), 0 40px 80px rgba(0,0,0,0.7);
+  animation: slideUp 0.4s ease;
+}
+
+@keyframes slideUp { from { transform: translateY(32px); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
+@keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+@keyframes fadeStep { from { opacity: 0; transform: translateX(16px); } to { opacity: 1; transform: translateX(0); } }
+@keyframes pulse { 0%,100% { opacity:1; transform:scale(1); } 50% { opacity:.5; transform:scale(.8); } }
+@keyframes float { 0%,100% { transform:translateY(0); } 50% { transform:translateY(-8px); } }
+
+.quiz-logo { display: flex; align-items: center; gap: 10px; margin-bottom: 28px; }
+.quiz-logo-text { font-family: 'Syne', sans-serif; font-weight: 800; font-size: 15px; color: var(--verde-neon); letter-spacing: 2px; text-transform: uppercase; }
+
+.quiz-progress { display: flex; gap: 6px; margin-bottom: 28px; }
+.quiz-progress-bar { height: 3px; flex: 1; background: rgba(255,255,255,0.08); border-radius: 2px; transition: background 0.4s; }
+.quiz-progress-bar.active { background: var(--laranja); }
+.quiz-progress-bar.done { background: var(--verde-neon); }
+
+.quiz-step { display: none; }
+.quiz-step.active { display: block; animation: fadeStep 0.35s ease; }
+
+.quiz-tag { font-size: 11px; font-weight: 600; letter-spacing: 3px; text-transform: uppercase; color: var(--laranja); margin-bottom: 10px; }
+.quiz-question { font-family: 'Syne', sans-serif; font-size: 22px; font-weight: 800; color: var(--branco); line-height: 1.3; margin-bottom: 24px; }
+
+.quiz-options { display: flex; flex-direction: column; gap: 10px; }
+.quiz-option {
+  background: rgba(255,255,255,0.04); border: 1px solid rgba(255,255,255,0.1); border-radius: 12px;
+  padding: 14px 18px; cursor: pointer; display: flex; align-items: center; gap: 12px;
+  transition: all 0.2s; font-size: 14px; color: var(--texto); text-align: left; width: 100%;
+}
+.quiz-option:hover { border-color: var(--verde-neon); background: rgba(34,197,94,0.08); color: var(--branco); transform: translateX(3px); }
+.quiz-option .opt-icon { font-size: 20px; min-width: 28px; text-align: center; }
+
+/* Result */
+.quiz-result { text-align: center; }
+.result-badge {
+  display: inline-block; background: linear-gradient(135deg, var(--laranja), var(--laranja-escuro));
+  color: white; font-family: 'Syne', sans-serif; font-weight: 800; font-size: 11px;
+  letter-spacing: 3px; text-transform: uppercase; padding: 6px 16px; border-radius: 100px; margin-bottom: 18px;
+}
+.result-title { font-family: 'Bebas Neue', sans-serif; font-size: 38px; letter-spacing: 2px; color: var(--branco); line-height: 1.1; margin-bottom: 14px; }
+.result-title span { color: var(--verde-neon); }
+.result-desc { font-size: 14px; color: var(--cinza-claro); line-height: 1.65; margin-bottom: 24px; font-style: italic; }
+.result-offer { background: rgba(34,197,94,0.06); border: 1px solid rgba(34,197,94,0.2); border-radius: 14px; padding: 18px; margin-bottom: 20px; text-align: left; }
+.result-offer-label { font-size: 10px; font-weight: 600; letter-spacing: 3px; text-transform: uppercase; color: var(--verde-neon); margin-bottom: 6px; }
+.result-offer-name { font-family: 'Syne', sans-serif; font-weight: 800; font-size: 16px; color: var(--branco); margin-bottom: 8px; }
+.result-offer-price { display: flex; align-items: baseline; gap: 8px; flex-wrap: wrap; }
+.result-offer-price .de { font-size: 13px; color: var(--cinza-claro); text-decoration: line-through; }
+.result-offer-price .por { font-family: 'Bebas Neue', sans-serif; font-size: 36px; color: var(--laranja); letter-spacing: 1px; }
+.result-offer-price .cents { font-size: 13px; color: var(--cinza-claro); }
+
+.btn-quiz-cta {
+  display: block; width: 100%;
+  background: linear-gradient(135deg, var(--laranja), var(--laranja-escuro));
+  color: white; font-family: 'Syne', sans-serif; font-weight: 800; font-size: 15px;
+  letter-spacing: 1px; text-transform: uppercase; padding: 18px 24px; border-radius: 12px;
+  cursor: pointer; transition: all 0.3s; text-align: center;
+  box-shadow: 0 8px 30px rgba(249,115,22,0.35);
+}
+.btn-quiz-cta:hover { transform: translateY(-2px); box-shadow: 0 12px 40px rgba(249,115,22,0.55); }
+
+/* ======= TOP RIBBON ======= */
+.top-ribbon { background: var(--laranja); text-align: center; padding: 10px 16px; font-size: 13px; font-weight: 600; color: white; position: relative; z-index: 200; }
+
+/* ======= HEADER ======= */
+header {
+  position: fixed; top: 0; left: 0; right: 0; z-index: 100;
+  padding: 14px 24px; display: flex; align-items: center; justify-content: space-between;
+  background: rgba(7,13,10,0.88); backdrop-filter: blur(20px);
+  border-bottom: 1px solid rgba(34,197,94,0.08);
+}
+.header-logo { display: flex; align-items: center; gap: 10px; }
+.header-logo-text { font-family: 'Syne', sans-serif; font-weight: 800; font-size: 13px; letter-spacing: 3px; text-transform: uppercase; color: var(--branco); }
+.header-logo-text span { color: var(--verde-neon); }
+.header-badge { background: linear-gradient(135deg, var(--laranja), var(--laranja-escuro)); color: white; font-family: 'Syne', sans-serif; font-weight: 700; font-size: 11px; letter-spacing: 1px; padding: 6px 14px; border-radius: 100px; text-transform: uppercase; white-space: nowrap; }
+
+/* ======= HERO ======= */
+.hero { min-height: 100vh; display: flex; align-items: center; padding: 120px 24px 80px; position: relative; overflow: hidden; }
+.hero-bg { position: absolute; inset: 0; background: radial-gradient(ellipse 80% 60% at 70% 50%, rgba(26,107,58,0.15) 0%, transparent 70%), radial-gradient(ellipse 40% 40% at 80% 80%, rgba(249,115,22,0.07) 0%, transparent 60%), linear-gradient(180deg, var(--preto) 0%, var(--cinza-escuro) 100%); }
+.hero-grid { position: absolute; inset: 0; background-image: linear-gradient(rgba(34,197,94,0.04) 1px, transparent 1px), linear-gradient(90deg, rgba(34,197,94,0.04) 1px, transparent 1px); background-size: 60px 60px; mask-image: radial-gradient(ellipse 80% 80% at 50% 50%, black 0%, transparent 100%); }
+.hero-content { position: relative; max-width: 1160px; margin: 0 auto; width: 100%; display: grid; grid-template-columns: 1fr 1fr; gap: 64px; align-items: center; }
+
+.hero-eyebrow { display: inline-flex; align-items: center; gap: 8px; background: rgba(34,197,94,0.1); border: 1px solid rgba(34,197,94,0.2); border-radius: 100px; padding: 6px 16px 6px 8px; margin-bottom: 22px; }
+.hero-eyebrow-dot { width: 6px; height: 6px; background: var(--verde-neon); border-radius: 50%; animation: pulse 2s infinite; }
+.hero-eyebrow-text { font-size: 11px; font-weight: 600; letter-spacing: 2px; text-transform: uppercase; color: var(--verde-neon); }
+
+.hero-title { font-family: 'Bebas Neue', sans-serif; font-size: clamp(52px, 7vw, 88px); letter-spacing: 2px; line-height: 0.95; color: var(--branco); margin-bottom: 22px; }
+.hero-title .highlight { color: var(--verde-neon); }
+.hero-title .accent { color: var(--laranja); }
+
+.hero-subtitle { font-size: 16px; line-height: 1.7; color: var(--cinza-claro); margin-bottom: 32px; font-weight: 300; }
+.hero-subtitle strong { color: var(--branco); font-weight: 500; }
+
+.hero-cta-group { display: flex; flex-direction: column; gap: 12px; align-items: flex-start; }
+.btn-primary { display: inline-flex; align-items: center; gap: 10px; background: linear-gradient(135deg, var(--laranja), var(--laranja-escuro)); color: white; font-family: 'Syne', sans-serif; font-weight: 800; font-size: 14px; letter-spacing: 1px; text-transform: uppercase; padding: 16px 28px; border-radius: 12px; transition: all 0.3s; box-shadow: 0 8px 30px rgba(249,115,22,0.3); }
+.btn-primary:hover { transform: translateY(-2px); box-shadow: 0 12px 40px rgba(249,115,22,0.5); }
+.btn-arrow { display: inline-flex; align-items: center; justify-content: center; width: 22px; height: 22px; background: rgba(255,255,255,0.2); border-radius: 6px; font-size: 13px; }
+.hero-guarantee { font-size: 12px; color: rgba(255,255,255,0.35); display: flex; align-items: center; gap: 6px; }
+
+/* Hero visual */
+.hero-visual { position: relative; }
+.hero-card-main { background: var(--cinza-meio); border: 1px solid rgba(34,197,94,0.15); border-radius: 20px; overflow: hidden; }
+.hero-card-header { background: linear-gradient(135deg, var(--verde-escuro), var(--cinza-meio)); padding: 20px; display: flex; align-items: center; gap: 14px; border-bottom: 1px solid rgba(34,197,94,0.1); }
+.hero-card-icon { width: 44px; height: 44px; background: rgba(34,197,94,0.15); border-radius: 12px; display: flex; align-items: center; justify-content: center; font-size: 22px; flex-shrink: 0; }
+.hero-card-label { font-family: 'Syne', sans-serif; font-weight: 700; font-size: 15px; color: var(--branco); }
+.hero-card-sub { font-size: 11px; color: var(--cinza-claro); margin-top: 2px; }
+.hero-card-body { padding: 20px; }
+.hero-modules { display: flex; flex-direction: column; gap: 10px; }
+.hero-module { display: flex; align-items: center; gap: 10px; padding: 11px 13px; background: rgba(255,255,255,0.03); border-radius: 10px; border-left: 3px solid var(--verde-neon); font-size: 13px; color: var(--texto); }
+.hero-module:nth-child(even) { border-left-color: var(--laranja); }
+.hero-module-num { font-family: 'Bebas Neue', sans-serif; font-size: 18px; color: rgba(255,255,255,0.18); min-width: 20px; }
+.hero-stats { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-top: 10px; }
+.hero-stat { background: rgba(34,197,94,0.06); border: 1px solid rgba(34,197,94,0.12); border-radius: 12px; padding: 14px; text-align: center; }
+.hero-stat-num { font-family: 'Bebas Neue', sans-serif; font-size: 28px; color: var(--verde-neon); line-height: 1; letter-spacing: 1px; }
+.hero-stat-label { font-size: 11px; color: var(--cinza-claro); margin-top: 4px; line-height: 1.3; }
+
+.hero-float-badge { position: absolute; top: -18px; right: -10px; background: linear-gradient(135deg, var(--laranja), var(--laranja-escuro)); color: white; border-radius: 14px; padding: 12px 16px; text-align: center; box-shadow: 0 8px 30px rgba(249,115,22,0.4); animation: float 3s ease-in-out infinite; z-index: 2; }
+.hero-float-badge .price-de { font-size: 11px; text-decoration: line-through; opacity: 0.7; }
+.hero-float-badge .price-por { font-family: 'Bebas Neue', sans-serif; font-size: 32px; letter-spacing: 1px; line-height: 1; }
+.hero-float-badge .price-label { font-size: 10px; opacity: 0.8; font-weight: 600; letter-spacing: 1px; text-transform: uppercase; }
+
+/* ======= SECTION BASE ======= */
+section { padding: 90px 24px; }
+.section-inner { max-width: 1160px; margin: 0 auto; }
+.section-tag { font-size: 11px; font-weight: 600; letter-spacing: 4px; text-transform: uppercase; color: var(--laranja); margin-bottom: 12px; display: flex; align-items: center; gap: 10px; }
+.section-tag::before { content: ''; width: 20px; height: 2px; background: var(--laranja); flex-shrink: 0; }
+.section-title { font-family: 'Bebas Neue', sans-serif; font-size: clamp(36px, 5vw, 60px); letter-spacing: 2px; color: var(--branco); line-height: 1.0; margin-bottom: 14px; }
+.section-title span { color: var(--verde-neon); }
+.section-title .orange { color: var(--laranja); }
+.section-subtitle { font-size: 15px; color: var(--cinza-claro); line-height: 1.7; max-width: 540px; font-weight: 300; }
+
+/* ======= PROBLEMAS ======= */
+.problems { background: var(--cinza-escuro); position: relative; overflow: hidden; }
+.problems::before { content: ''; position: absolute; top: 0; left: 0; right: 0; height: 1px; background: linear-gradient(90deg, transparent, rgba(34,197,94,0.3), transparent); }
+.problems-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 20px; margin-top: 52px; }
+.problem-card { background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.07); border-radius: 16px; padding: 26px; position: relative; overflow: hidden; transition: all 0.3s; }
+.problem-card:hover { border-color: rgba(249,115,22,0.3); transform: translateY(-4px); }
+.problem-card::before { content: ''; position: absolute; top: 0; left: 0; right: 0; height: 3px; background: linear-gradient(90deg, var(--laranja), transparent); }
+.problem-emoji { font-size: 30px; margin-bottom: 14px; }
+.problem-title { font-family: 'Syne', sans-serif; font-weight: 700; font-size: 15px; color: var(--branco); margin-bottom: 8px; }
+.problem-desc { font-size: 13px; color: var(--cinza-claro); line-height: 1.65; }
+
+/* ======= SOLUÇÃO ======= */
+.solution { background: var(--preto); }
+.solution-header { display: grid; grid-template-columns: 1fr 1fr; gap: 64px; align-items: center; margin-bottom: 64px; }
+.quote-box { background: rgba(249,115,22,0.06); border: 1px solid rgba(249,115,22,0.2); border-radius: 16px; padding: 26px; }
+.quote-label { font-size: 12px; color: var(--laranja); font-weight: 600; letter-spacing: 2px; text-transform: uppercase; margin-bottom: 10px; }
+.quote-text { font-size: 15px; color: var(--branco); line-height: 1.8; font-style: italic; font-weight: 300; }
+.modules-list { display: flex; flex-direction: column; gap: 14px; }
+.module-item { display: grid; grid-template-columns: 56px 1fr; gap: 18px; align-items: start; background: rgba(255,255,255,0.02); border: 1px solid rgba(255,255,255,0.06); border-radius: 16px; padding: 22px; transition: all 0.3s; }
+.module-item:hover { border-color: rgba(34,197,94,0.25); background: rgba(34,197,94,0.04); }
+.module-num { font-family: 'Bebas Neue', sans-serif; font-size: 44px; color: rgba(34,197,94,0.15); line-height: 1; text-align: center; padding-top: 2px; }
+.module-title { font-family: 'Syne', sans-serif; font-weight: 700; font-size: 15px; color: var(--branco); margin-bottom: 5px; }
+.module-desc { font-size: 13px; color: var(--cinza-claro); line-height: 1.65; }
+.module-tag { display: inline-block; margin-top: 8px; font-size: 10px; font-weight: 600; letter-spacing: 2px; text-transform: uppercase; padding: 3px 10px; border-radius: 100px; background: rgba(34,197,94,0.1); color: var(--verde-neon); border: 1px solid rgba(34,197,94,0.2); }
+.module-tag.orange { background: rgba(249,115,22,0.1); color: var(--laranja); border-color: rgba(249,115,22,0.2); }
+
+/* ======= MENTOR ======= */
+.mentor { background: var(--cinza-escuro); position: relative; overflow: hidden; }
+.mentor-content { display: grid; grid-template-columns: 1fr 1fr; gap: 64px; align-items: center; }
+.mentor-photo-wrap { position: relative; }
+.mentor-photo-bg { width: 100%; aspect-ratio: 1; max-width: 400px; background: linear-gradient(135deg, var(--verde-escuro), var(--cinza-meio)); border-radius: 24px; display: flex; align-items: center; justify-content: center; position: relative; overflow: hidden; border: 1px solid rgba(34,197,94,0.15); }
+.mentor-photo-bg img { width: 100%; height: 100%; object-fit: cover; border-radius: 24px; }
+.mentor-badge { position: absolute; bottom: -16px; left: 16px; right: 16px; background: var(--cinza-meio); border: 1px solid rgba(34,197,94,0.2); border-radius: 14px; padding: 14px 18px; display: flex; align-items: center; gap: 12px; }
+.mentor-badge-icon { width: 38px; height: 38px; background: var(--laranja); border-radius: 10px; display: flex; align-items: center; justify-content: center; font-size: 18px; flex-shrink: 0; }
+.mentor-badge-text { font-family: 'Syne', sans-serif; font-weight: 700; font-size: 13px; color: var(--branco); }
+.mentor-badge-sub { font-size: 11px; color: var(--cinza-claro); margin-top: 2px; }
+.mentor-info { padding-bottom: 24px; }
+.mentor-name { font-family: 'Bebas Neue', sans-serif; font-size: 50px; letter-spacing: 2px; color: var(--branco); line-height: 1; margin-bottom: 4px; }
+.mentor-role { font-size: 13px; color: var(--verde-neon); font-weight: 500; margin-bottom: 20px; letter-spacing: 1px; }
+.mentor-bio { font-size: 14px; color: var(--cinza-claro); line-height: 1.8; margin-bottom: 28px; font-weight: 300; }
+.mentor-bio strong { color: var(--branco); font-weight: 500; }
+.mentor-stats { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; }
+.mentor-stat { text-align: center; padding: 14px 10px; background: rgba(255,255,255,0.03); border-radius: 12px; border: 1px solid rgba(255,255,255,0.06); }
+.mentor-stat-num { font-family: 'Bebas Neue', sans-serif; font-size: 22px; color: var(--laranja); letter-spacing: 1px; line-height: 1; }
+.mentor-stat-label { font-size: 10px; color: var(--cinza-claro); margin-top: 4px; line-height: 1.4; }
+
+/* ======= PLANOS ======= */
+.offer { background: var(--preto); position: relative; overflow: hidden; }
+.offer::before { content: ''; position: absolute; top: -200px; left: 50%; transform: translateX(-50%); width: 600px; height: 600px; background: radial-gradient(circle, rgba(249,115,22,0.06) 0%, transparent 70%); pointer-events: none; }
+.offer-header { text-align: center; margin-bottom: 56px; }
+.offer-header .section-tag { justify-content: center; }
+.offer-header .section-tag::before { display: none; }
+.plans-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 20px; align-items: start; }
+.plan-card { background: var(--cinza-meio); border: 1px solid rgba(255,255,255,0.08); border-radius: 20px; padding: 32px 24px; position: relative; transition: all 0.3s; }
+.plan-card:hover { transform: translateY(-4px); }
+.plan-card.featured { background: linear-gradient(180deg, rgba(26,107,58,0.2) 0%, var(--cinza-meio) 100%); border-color: rgba(34,197,94,0.35); transform: scale(1.04); }
+.plan-card.featured:hover { transform: scale(1.04) translateY(-4px); }
+.plan-popular { position: absolute; top: -12px; left: 50%; transform: translateX(-50%); background: var(--verde-neon); color: var(--preto); font-family: 'Syne', sans-serif; font-weight: 800; font-size: 10px; letter-spacing: 2px; text-transform: uppercase; padding: 5px 16px; border-radius: 100px; white-space: nowrap; }
+.plan-name { font-family: 'Syne', sans-serif; font-weight: 800; font-size: 12px; letter-spacing: 2px; text-transform: uppercase; color: var(--cinza-claro); margin-bottom: 6px; }
+.plan-title { font-family: 'Bebas Neue', sans-serif; font-size: 26px; letter-spacing: 1px; color: var(--branco); margin-bottom: 18px; line-height: 1.1; }
+.plan-price-area { margin-bottom: 24px; padding-bottom: 20px; border-bottom: 1px solid rgba(255,255,255,0.06); }
+.plan-price-de { font-size: 12px; color: var(--cinza-claro); text-decoration: line-through; margin-bottom: 4px; }
+.plan-price { display: flex; align-items: baseline; gap: 4px; }
+.plan-price-label { font-size: 14px; color: var(--cinza-claro); }
+.plan-price-value { font-family: 'Bebas Neue', sans-serif; font-size: 48px; color: var(--laranja); letter-spacing: 1px; line-height: 1; }
+.plan-features { list-style: none; display: flex; flex-direction: column; gap: 10px; margin-bottom: 24px; }
+.plan-feature { display: flex; align-items: flex-start; gap: 9px; font-size: 13px; color: var(--texto); line-height: 1.4; }
+.plan-feature .check { color: var(--verde-neon); font-size: 14px; margin-top: 1px; flex-shrink: 0; }
+.plan-feature.locked { opacity: 0.3; }
+.plan-feature.locked .check { color: var(--cinza-claro); }
+.btn-plan { display: block; width: 100%; background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.12); color: var(--branco); font-family: 'Syne', sans-serif; font-weight: 700; font-size: 12px; letter-spacing: 1px; text-transform: uppercase; padding: 14px; border-radius: 10px; cursor: pointer; transition: all 0.3s; text-align: center; }
+.btn-plan:hover { background: rgba(255,255,255,0.1); transform: translateY(-1px); }
+.btn-plan.primary { background: linear-gradient(135deg, var(--laranja), var(--laranja-escuro)); border-color: transparent; box-shadow: 0 8px 30px rgba(249,115,22,0.3); }
+.btn-plan.primary:hover { box-shadow: 0 12px 40px rgba(249,115,22,0.5); }
+
+/* ======= DEPOIMENTOS ======= */
+.testimonials { background: var(--cinza-escuro); }
+.testimonials-header { margin-bottom: 48px; }
+.testimonials-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 18px; }
+.testimonial-card { background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.06); border-radius: 16px; padding: 26px; transition: all 0.3s; }
+.testimonial-card:hover { border-color: rgba(34,197,94,0.2); transform: translateY(-2px); }
+.testimonial-stars { color: var(--laranja); font-size: 15px; margin-bottom: 12px; letter-spacing: 2px; }
+.testimonial-text { font-size: 13px; color: var(--cinza-claro); line-height: 1.7; margin-bottom: 18px; font-style: italic; }
+.testimonial-author { display: flex; align-items: center; gap: 10px; }
+.testimonial-avatar { width: 38px; height: 38px; border-radius: 50%; background: linear-gradient(135deg, var(--verde), var(--verde-escuro)); display: flex; align-items: center; justify-content: center; font-size: 15px; font-weight: 700; color: white; font-family: 'Syne', sans-serif; flex-shrink: 0; }
+.testimonial-name { font-family: 'Syne', sans-serif; font-weight: 700; font-size: 13px; color: var(--branco); }
+.testimonial-city { font-size: 11px; color: var(--cinza-claro); margin-top: 2px; }
+
+/* ======= GARANTIA ======= */
+.guarantee { background: var(--preto); padding: 80px 24px; }
+.guarantee-inner { max-width: 700px; margin: 0 auto; background: rgba(34,197,94,0.05); border: 1px solid rgba(34,197,94,0.2); border-radius: 24px; padding: 52px 40px; text-align: center; }
+.guarantee-icon { font-size: 56px; margin-bottom: 20px; display: block; }
+.guarantee-title { font-family: 'Bebas Neue', sans-serif; font-size: 44px; letter-spacing: 2px; color: var(--branco); margin-bottom: 14px; }
+.guarantee-title span { color: var(--verde-neon); }
+.guarantee-text { font-size: 14px; color: var(--cinza-claro); line-height: 1.8; max-width: 500px; margin: 0 auto; font-weight: 300; }
+
+/* ======= FAQ ======= */
+.faq { background: var(--cinza-escuro); }
+.faq-header { text-align: center; margin-bottom: 48px; }
+.faq-header .section-tag { justify-content: center; }
+.faq-header .section-tag::before { display: none; }
+.faq-list { max-width: 720px; margin: 0 auto; display: flex; flex-direction: column; gap: 10px; }
+.faq-item { background: var(--cinza-meio); border: 1px solid rgba(255,255,255,0.06); border-radius: 14px; overflow: hidden; }
+.faq-question { padding: 18px 22px; display: flex; align-items: center; justify-content: space-between; cursor: pointer; font-family: 'Syne', sans-serif; font-weight: 600; font-size: 14px; color: var(--branco); transition: color 0.2s; gap: 14px; }
+.faq-question:hover { color: var(--verde-neon); }
+.faq-toggle { width: 26px; height: 26px; background: rgba(255,255,255,0.06); border-radius: 8px; display: flex; align-items: center; justify-content: center; font-size: 18px; flex-shrink: 0; transition: all 0.3s; color: var(--verde-neon); }
+.faq-answer { max-height: 0; overflow: hidden; transition: max-height 0.4s ease, padding 0.3s; font-size: 13px; color: var(--cinza-claro); line-height: 1.75; padding: 0 22px; }
+.faq-item.open .faq-answer { max-height: 300px; padding: 0 22px 18px; }
+.faq-item.open .faq-toggle { transform: rotate(45deg); background: rgba(34,197,94,0.1); }
+
+/* ======= CTA FINAL ======= */
+.final-cta { background: var(--preto); padding: 110px 24px; text-align: center; position: relative; overflow: hidden; }
+.final-cta::before { content: ''; position: absolute; inset: 0; background: radial-gradient(ellipse 80% 60% at 50% 50%, rgba(26,107,58,0.12) 0%, transparent 70%); }
+.final-cta-inner { position: relative; }
+.final-cta-title { font-family: 'Bebas Neue', sans-serif; font-size: clamp(42px, 6vw, 76px); letter-spacing: 2px; color: var(--branco); line-height: 1; margin-bottom: 18px; }
+.final-cta-title span { color: var(--laranja); }
+.final-cta-subtitle { font-size: 15px; color: var(--cinza-claro); margin-bottom: 36px; font-weight: 300; }
+.final-price-display { margin-bottom: 28px; }
+.final-price-de { font-size: 13px; color: var(--cinza-claro); text-decoration: line-through; margin-bottom: 4px; }
+.final-price-value { font-family: 'Bebas Neue', sans-serif; font-size: 72px; color: var(--laranja); letter-spacing: 2px; line-height: 1; }
+.final-price-label { font-size: 13px; color: var(--cinza-claro); margin-top: 4px; }
+.btn-final { display: inline-flex; align-items: center; gap: 10px; background: linear-gradient(135deg, var(--laranja), var(--laranja-escuro)); color: white; font-family: 'Syne', sans-serif; font-weight: 800; font-size: 16px; letter-spacing: 1px; text-transform: uppercase; padding: 20px 44px; border: none; border-radius: 14px; cursor: pointer; transition: all 0.3s; box-shadow: 0 12px 40px rgba(249,115,22,0.4); }
+.btn-final:hover { transform: translateY(-3px); box-shadow: 0 20px 60px rgba(249,115,22,0.55); }
+.final-security { display: flex; align-items: center; justify-content: center; gap: 20px; margin-top: 22px; font-size: 12px; color: rgba(255,255,255,0.3); flex-wrap: wrap; }
+.final-security-item { display: flex; align-items: center; gap: 5px; }
+
+/* ======= FOOTER ======= */
+footer { background: var(--cinza-escuro); border-top: 1px solid rgba(255,255,255,0.06); padding: 36px 24px; text-align: center; }
+.footer-logo { font-family: 'Syne', sans-serif; font-weight: 800; font-size: 18px; letter-spacing: 3px; color: var(--branco); text-transform: uppercase; margin-bottom: 6px; }
+.footer-logo span { color: var(--verde-neon); }
+.footer-sub { font-size: 12px; color: var(--cinza-claro); margin-bottom: 20px; }
+.footer-links { display: flex; justify-content: center; gap: 20px; flex-wrap: wrap; font-size: 12px; color: rgba(255,255,255,0.3); }
+.footer-links a { color: inherit; }
+.footer-links a:hover { color: var(--verde-neon); }
+
+/* ======= RESPONSIVO ======= */
+@media (max-width: 900px) {
+  .hero-content { grid-template-columns: 1fr; gap: 40px; }
+  .hero-visual { order: -1; }
+  .hero-float-badge { top: -14px; right: 0; }
+  .hero-title { font-size: clamp(48px, 10vw, 72px); }
+  .solution-header { grid-template-columns: 1fr; gap: 32px; }
+  .mentor-content { grid-template-columns: 1fr; gap: 56px; }
+  .mentor-photo-bg { max-width: 320px; }
+  .plans-grid { grid-template-columns: 1fr; max-width: 400px; margin: 0 auto; }
+  .plan-card.featured { transform: scale(1); }
+  .plan-card.featured:hover { transform: translateY(-4px); }
+  .problems-grid { grid-template-columns: 1fr; }
+  .testimonials-grid { grid-template-columns: 1fr; }
+  .mentor-stats { grid-template-columns: repeat(3, 1fr); }
+}
+
+@media (max-width: 600px) {
+  section { padding: 64px 16px; }
+  .hero { padding: 100px 16px 56px; }
+  .guarantee { padding: 64px 16px; }
+  .final-cta { padding: 80px 16px; }
+  .guarantee-inner { padding: 32px 20px; }
+  .quiz-box { padding: 28px 20px; }
+  .quiz-question { font-size: 19px; }
+  .result-title { font-size: 32px; }
+  header { padding: 12px 16px; }
+  .header-logo-text { font-size: 12px; }
+  .hero-title { font-size: clamp(44px, 12vw, 64px); }
+  .module-item { grid-template-columns: 40px 1fr; gap: 12px; }
+  .module-num { font-size: 34px; }
+  .mentor-stats { grid-template-columns: repeat(3, 1fr); gap: 8px; }
+  .mentor-stat { padding: 10px 6px; }
+  .mentor-stat-num { font-size: 16px; }
+  .btn-final { font-size: 14px; padding: 18px 28px; }
+  .final-security { gap: 12px; }
+  .top-ribbon { font-size: 12px; padding: 8px 12px; }
+}
+</style>
+</head>
+<body>
+
+<!-- QUIZ OVERLAY -->
+<div class="quiz-overlay" id="quizOverlay">
+  <div class="quiz-box">
+    <div class="quiz-logo">
+      <img src="https://i.imgur.com/v9WA7Ig.jpeg" alt="Engemaia" style="width:36px;height:36px;border-radius:50%;object-fit:cover;border:2px solid rgba(34,197,94,0.4);">
+      <span class="quiz-logo-text">Solar do Zero</span>
+    </div>
+
+    <div class="quiz-progress" id="quizProgress">
+      <div class="quiz-progress-bar active" id="bar0"></div>
+      <div class="quiz-progress-bar" id="bar1"></div>
+      <div class="quiz-progress-bar" id="bar2"></div>
+      <div class="quiz-progress-bar" id="bar3"></div>
+    </div>
+
+    <!-- STEP 1 -->
+    <div class="quiz-step active" id="step0">
+      <p class="quiz-tag">Pergunta 1 de 4</p>
+      <h2 class="quiz-question">Qual é a sua maior dor com a conta de luz hoje?</h2>
+      <div class="quiz-options">
+        <button class="quiz-option" onclick="nextStep(0)"><span class="opt-icon">💸</span><span>Minha conta chegou absurda e preciso economizar urgente</span></button>
+        <button class="quiz-option" onclick="nextStep(0)"><span class="opt-icon">🤔</span><span>Tenho curiosidade mas ainda não sei se vale a pena pra mim</span></button>
+        <button class="quiz-option" onclick="nextStep(0)"><span class="opt-icon">💼</span><span>Quero montar um negócio nessa área e entender o mercado</span></button>
+        <button class="quiz-option" onclick="nextStep(0)"><span class="opt-icon">🔧</span><span>Já sou eletricista e quero adicionar solar nos meus serviços</span></button>
+      </div>
+    </div>
+
+    <!-- STEP 2 -->
+    <div class="quiz-step" id="step1">
+      <p class="quiz-tag">Pergunta 2 de 4</p>
+      <h2 class="quiz-question">Quanto você paga de conta de luz por mês?</h2>
+      <div class="quiz-options">
+        <button class="quiz-option" onclick="nextStep(1)"><span class="opt-icon">📊</span><span>Menos de R$ 200 — é pouco mas quero economizar</span></button>
+        <button class="quiz-option" onclick="nextStep(1)"><span class="opt-icon">⚡</span><span>Entre R$ 200 e R$ 500 — já está pesando no bolso</span></button>
+        <button class="quiz-option" onclick="nextStep(1)"><span class="opt-icon">🔥</span><span>Entre R$ 500 e R$ 1.000 — preciso resolver isso agora</span></button>
+        <button class="quiz-option" onclick="nextStep(1)"><span class="opt-icon">💀</span><span>Mais de R$ 1.000 — minha conta tá uma calamidade</span></button>
+      </div>
+    </div>
+
+    <!-- STEP 3 -->
+    <div class="quiz-step" id="step2">
+      <p class="quiz-tag">Pergunta 3 de 4</p>
+      <h2 class="quiz-question">Você já pesquisou sobre energia solar antes?</h2>
+      <div class="quiz-options">
+        <button class="quiz-option" onclick="nextStep(2)"><span class="opt-icon">🆕</span><span>Zero — hoje estou descobrindo pela primeira vez</span></button>
+        <button class="quiz-option" onclick="nextStep(2)"><span class="opt-icon">👀</span><span>Já vi alguma coisa mas achei complicado demais</span></button>
+        <button class="quiz-option" onclick="nextStep(2)"><span class="opt-icon">📚</span><span>Pesquisei bastante mas não tive coragem de começar</span></button>
+        <button class="quiz-option" onclick="nextStep(2)"><span class="opt-icon">🛠️</span><span>Já tenho algum conhecimento técnico na área</span></button>
+      </div>
+    </div>
+
+    <!-- STEP 4 -->
+    <div class="quiz-step" id="step3">
+      <p class="quiz-tag">Pergunta 4 de 4</p>
+      <h2 class="quiz-question">Se aprendesse hoje, o que mudaria na sua vida?</h2>
+      <div class="quiz-options">
+        <button class="quiz-option" onclick="showResult()"><span class="opt-icon">🏠</span><span>Instalaria na minha casa e pararia de pagar conta</span></button>
+        <button class="quiz-option" onclick="showResult()"><span class="opt-icon">💰</span><span>Cobraria por instalações e teria uma renda extra</span></button>
+        <button class="quiz-option" onclick="showResult()"><span class="opt-icon">🚀</span><span>Montaria uma empresa e escalaria o negócio</span></button>
+        <button class="quiz-option" onclick="showResult()"><span class="opt-icon">🌱</span><span>Contribuiria com o meio ambiente e teria orgulho disso</span></button>
+      </div>
+    </div>
+
+    <!-- RESULTADO -->
+    <div class="quiz-step" id="stepResult">
+      <div class="quiz-result">
+        <div class="result-badge">✅ Seu perfil identificado</div>
+        <h2 class="result-title">Você está <span>pronto</span> para começar do zero</h2>
+        <p class="result-desc">Baseado nas suas respostas, o Solar do Zero foi feito exatamente para onde você está agora — sem enrolação, sem jargão técnico, do começo ao fim.</p>
+        <div class="result-offer">
+          <div class="result-offer-label">Sua oferta especial</div>
+          <div class="result-offer-name">☀️ Solar do Zero — Curso Completo</div>
+          <div class="result-offer-price">
+            <span class="de">R$ 97</span>
+            <span class="por">R$ 27</span>
+            <span class="cents">acesso imediato</span>
+          </div>
+        </div>
+        <button class="btn-quiz-cta" onclick="closeQuizAndReveal()">
+          QUERO MEU ACESSO AGORA →
+        </button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- TOP RIBBON -->
+<div class="top-ribbon">🔥 Oferta por tempo limitado — Acesso completo por apenas R$ 27</div>
+
+<!-- HEADER -->
+<header>
+  <div class="header-logo">
+    <img src="https://i.imgur.com/v9WA7Ig.jpeg" alt="Engemaia" style="width:32px;height:32px;border-radius:50%;object-fit:cover;border:2px solid rgba(34,197,94,0.35);">
+    <span class="header-logo-text">Solar do <span>Zero</span></span>
+  </div>
+  <div class="header-badge">Engemaia</div>
+</header>
+
+<!-- HERO -->
+<section class="hero" id="hero-section">
+  <div class="hero-bg"></div>
+  <div class="hero-grid"></div>
+  <div class="hero-content">
+    <div class="hero-text">
+      <div class="hero-eyebrow">
+        <div class="hero-eyebrow-dot"></div>
+        <span class="hero-eyebrow-text">Curso Online — Engemaia</span>
+      </div>
+      <h1 class="hero-title">INSTALE<br><span class="highlight">ENERGIA</span><br><span class="accent">SOLAR</span><br>DO ZERO</h1>
+      <p class="hero-subtitle">Aprenda com quem <strong>fatura 6 dígitos por mês</strong> no mercado solar. Do básico à instalação completa — sem precisar ser técnico, sem gastar uma fortuna.</p>
+      <div class="hero-cta-group">
+        <a href="#planos" class="btn-primary">
+          Quero aprender agora
+          <span class="btn-arrow">→</span>
+        </a>
+        <p class="hero-guarantee">
+          <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="#22c55e" stroke-width="2"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+          7 dias de garantia — sem perguntas
+        </p>
+      </div>
+    </div>
+    <div class="hero-visual">
+      <div class="hero-float-badge">
+        <div class="price-de">R$ 97</div>
+        <div class="price-por">R$27</div>
+        <div class="price-label">acesso vitalício</div>
+      </div>
+      <div class="hero-card-main">
+        <div class="hero-card-header">
+          <div class="hero-card-icon">☀️</div>
+          <div>
+            <div class="hero-card-label">Solar do Zero</div>
+            <div class="hero-card-sub">Módulos disponíveis imediatamente</div>
+          </div>
+        </div>
+        <div class="hero-card-body">
+          <div class="hero-modules">
+            <div class="hero-module"><span class="hero-module-num">01</span><span>Fundamentos de energia solar fotovoltaica</span></div>
+            <div class="hero-module"><span class="hero-module-num">02</span><span>Como dimensionar um sistema para sua casa</span></div>
+            <div class="hero-module"><span class="hero-module-num">03</span><span>Passo a passo da instalação completa</span></div>
+            <div class="hero-module"><span class="hero-module-num">04</span><span>Como economizar até 95% na conta de luz</span></div>
+          </div>
+          <div class="hero-stats">
+            <div class="hero-stat"><div class="hero-stat-num">+10</div><div class="hero-stat-label">Anos de experiência do mentor</div></div>
+            <div class="hero-stat"><div class="hero-stat-num">95%</div><div class="hero-stat-label">De redução na conta possível</div></div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- PROBLEMAS -->
+<section class="problems">
+  <div class="section-inner">
+    <div class="section-tag">Você se identifica?</div>
+    <h2 class="section-title">A CONTA DE LUZ<br>NÃO <span>PARA</span> DE SUBIR</h2>
+    <p class="section-subtitle">Todo mês a mesma história. Você trabalha, paga as contas, e a distribuidora sorri enquanto reajusta as tarifas.</p>
+    <div class="problems-grid">
+      <div class="problem-card">
+        <div class="problem-emoji">😤</div>
+        <h3 class="problem-title">Conta absurda todo mês</h3>
+        <p class="problem-desc">Você abre o boleto e sente aquele aperto no peito. E sabe que vai aumentar no próximo mês.</p>
+      </div>
+      <div class="problem-card">
+        <div class="problem-emoji">🤯</div>
+        <h3 class="problem-title">Parece complicado demais</h3>
+        <p class="problem-desc">Inversor, módulo, string box… você pesquisa e se perde em termos técnicos que parecem de outro mundo.</p>
+      </div>
+      <div class="problem-card">
+        <div class="problem-emoji">💸</div>
+        <h3 class="problem-title">Orçamentos caríssimos</h3>
+        <p class="problem-desc">Pediu orçamento e tomou um susto? R$ 15.000, R$ 30.000… Parece completamente fora da realidade.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- SOLUÇÃO -->
+<section class="solution">
+  <div class="section-inner">
+    <div class="solution-header">
+      <div>
+        <div class="section-tag">A Solução</div>
+        <h2 class="section-title">O QUE VOCÊ<br>VAI <span>APRENDER</span></h2>
+        <p class="section-subtitle">Um curso direto ao ponto, desenvolvido por quem já instalou centenas de sistemas no Brasil inteiro.</p>
+      </div>
+      <div class="quote-box">
+        <div class="quote-label">Bruno Maia diz:</div>
+        <p class="quote-text">"Aprendi tudo na prática, errando e acertando por anos. Nesse curso eu condensei o essencial pra você não perder tempo nem dinheiro achando o caminho sozinho."</p>
+      </div>
+    </div>
+    <div class="modules-list">
+      <div class="module-item">
+        <div class="module-num">01</div>
+        <div>
+          <h3 class="module-title">Como Funciona a Energia Solar</h3>
+          <p class="module-desc">Entenda de forma simples e visual como os painéis captam o sol e transformam em energia elétrica na sua tomada. Sem enrolação técnica.</p>
+          <span class="module-tag">Fundamentos</span>
+        </div>
+      </div>
+      <div class="module-item">
+        <div class="module-num">02</div>
+        <div>
+          <h3 class="module-title">Dimensionamento do Sistema</h3>
+          <p class="module-desc">Descubra exatamente quantos painéis você precisa, qual inversor comprar e quanto vai custar — calculando pela sua conta de luz atual.</p>
+          <span class="module-tag">Prático</span>
+        </div>
+      </div>
+      <div class="module-item">
+        <div class="module-num">03</div>
+        <div>
+          <h3 class="module-title">Instalação Completa Passo a Passo</h3>
+          <p class="module-desc">Do telhado à conexão com a rede — vídeos detalhados mostrando cada etapa da instalação, como um profissional faria.</p>
+          <span class="module-tag orange">Instalação</span>
+        </div>
+      </div>
+      <div class="module-item">
+        <div class="module-num">04</div>
+        <div>
+          <h3 class="module-title">Conexão com a Distribuidora</h3>
+          <p class="module-desc">Como solicitar aprovação e fazer a homologação do sistema junto à concessionária de energia da sua cidade.</p>
+          <span class="module-tag">Burocracia</span>
+        </div>
+      </div>
+      <div class="module-item">
+        <div class="module-num">05</div>
+        <div>
+          <h3 class="module-title">Manutenção e Monitoramento</h3>
+          <p class="module-desc">Como manter seu sistema funcionando no máximo desempenho por décadas e monitorar a geração pelo celular.</p>
+          <span class="module-tag">Manutenção</span>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- MENTOR -->
+<section class="mentor">
+  <div class="section-inner">
+    <div class="mentor-content">
+      <div class="mentor-photo-wrap">
+        <div class="mentor-photo-bg" style="background:none; border:none;">
+          <img src="https://i.imgur.com/qbWxSyn.jpeg" alt="Bruno Maia — Fundador da Engemaia" style="width:100%;height:100%;object-fit:cover;object-position:center top;border-radius:24px;">
+        </div>
+        <div class="mentor-badge">
+          <div class="mentor-badge-icon" style="background:white;padding:4px;">
+            <img src="https://i.imgur.com/v9WA7Ig.jpeg" alt="Engemaia" style="width:100%;height:100%;object-fit:contain;border-radius:6px;">
+          </div>
+          <div>
+            <div class="mentor-badge-text">CEO da Engemaia</div>
+            <div class="mentor-badge-sub">Especialista em Energia Solar</div>
+          </div>
+        </div>
+      </div>
+      <div class="mentor-info">
+        <div class="section-tag">Seu Mentor</div>
+        <h2 class="mentor-name">BRUNO MAIA</h2>
+        <p class="mentor-role">Fundador da Engemaia · +10 anos no mercado solar</p>
+        <p class="mentor-bio">Bruno começou do zero no mercado de energia solar e construiu uma das empresas referência da região. Hoje a <strong>Engemaia fatura 6 dígitos por mês</strong>, com uma carteira sólida de clientes e projetos em diferentes estados.<br><br>Cristão, casado e com dois pés no chão — Bruno acredita que <strong>o conhecimento que gera riqueza deve ser compartilhado</strong>. É por isso que decidiu ensinar o que sabe para quem está começando.</p>
+        <div class="mentor-stats">
+          <div class="mentor-stat"><div class="mentor-stat-num">+10</div><div class="mentor-stat-label">Anos de experiência</div></div>
+          <div class="mentor-stat"><div class="mentor-stat-num">6 díg.</div><div class="mentor-stat-label">Faturamento mensal</div></div>
+          <div class="mentor-stat"><div class="mentor-stat-num">100s</div><div class="mentor-stat-label">Projetos instalados</div></div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- PLANOS -->
+<section class="offer" id="planos">
+  <div class="section-inner">
+    <div class="offer-header">
+      <div class="section-tag">Escolha seu Plano</div>
+      <h2 class="section-title">COMECE <span>HOJE</span> PELO<br>PREÇO DE UMA <span class="orange">PIZZA</span></h2>
+      <p class="section-subtitle" style="margin:0 auto;text-align:center;">Escolha o plano que faz mais sentido pra onde você está agora</p>
+    </div>
+    <div class="plans-grid">
+      <div class="plan-card">
+        <p class="plan-name">Plano Básico</p>
+        <h3 class="plan-title">Instale Você Mesmo</h3>
+        <div class="plan-price-area">
+          <div class="plan-price-de">De R$ 97</div>
+          <div class="plan-price"><span class="plan-price-label">R$</span><span class="plan-price-value">27</span></div>
+        </div>
+        <ul class="plan-features">
+          <li class="plan-feature"><span class="check">✓</span> Fundamentos de energia solar</li>
+          <li class="plan-feature"><span class="check">✓</span> Como dimensionar seu sistema</li>
+          <li class="plan-feature"><span class="check">✓</span> Instalação passo a passo</li>
+          <li class="plan-feature"><span class="check">✓</span> Conexão com a distribuidora</li>
+          <li class="plan-feature locked"><span class="check">✗</span> Como cobrar e precificar</li>
+          <li class="plan-feature locked"><span class="check">✗</span> Script de vendas completo</li>
+          <li class="plan-feature locked"><span class="check">✗</span> Como montar sua empresa</li>
+        </ul>
+        <a href="https://ggcheckout.app/checkout/v2/hlevuoHNfAb98n4Cvp9E" target="_blank" class="btn-plan">COMEÇAR AGORA</a>
+      </div>
+
+      <div class="plan-card featured">
+        <div class="plan-popular">⭐ Mais Popular</div>
+        <p class="plan-name">Plano Profissional</p>
+        <h3 class="plan-title">Instale e Lucre</h3>
+        <div class="plan-price-area">
+          <div class="plan-price-de">De R$ 197</div>
+          <div class="plan-price"><span class="plan-price-label">R$</span><span class="plan-price-value">67</span></div>
+        </div>
+        <ul class="plan-features">
+          <li class="plan-feature"><span class="check">✓</span> Tudo do Plano Básico</li>
+          <li class="plan-feature"><span class="check">✓</span> Como cobrar e precificar projetos</li>
+          <li class="plan-feature"><span class="check">✓</span> Como conseguir seus primeiros clientes</li>
+          <li class="plan-feature"><span class="check">✓</span> Script de vendas completo</li>
+          <li class="plan-feature"><span class="check">✓</span> Precificação de projetos</li>
+          <li class="plan-feature locked"><span class="check">✗</span> Como montar sua empresa solar</li>
+          <li class="plan-feature locked"><span class="check">✗</span> Mentoria com Bruno Maia</li>
+        </ul>
+        <a href="https://ggcheckout.app/checkout/v2/vgeUVvrk4doHGVqxNnGI" target="_blank" class="btn-plan primary">QUERO ESSE PLANO →</a>
+      </div>
+
+      <div class="plan-card">
+        <p class="plan-name">Plano Elite</p>
+        <h3 class="plan-title">Negócio Solar Lucrativo</h3>
+        <div class="plan-price-area">
+          <div class="plan-price-de">De R$ 497</div>
+          <div class="plan-price"><span class="plan-price-label">R$</span><span class="plan-price-value">97</span></div>
+        </div>
+        <ul class="plan-features">
+          <li class="plan-feature"><span class="check">✓</span> Tudo dos planos anteriores</li>
+          <li class="plan-feature"><span class="check">✓</span> Como montar uma empresa solar</li>
+          <li class="plan-feature"><span class="check">✓</span> Gestão de equipe e operação</li>
+          <li class="plan-feature"><span class="check">✓</span> Escala e tráfego pago</li>
+          <li class="plan-feature"><span class="check">✓</span> Acesso ao grupo VIP</li>
+          <li class="plan-feature"><span class="check">✓</span> Q&amp;A mensal com Bruno Maia</li>
+        </ul>
+        <a href="https://ggcheckout.app/checkout/v2/HrRAtP4bsAkXydUXfc9I" target="_blank" class="btn-plan">QUERO O ELITE</a>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- DEPOIMENTOS -->
+<section class="testimonials">
+  <div class="section-inner">
+    <div class="testimonials-header">
+      <div class="section-tag">Resultados Reais</div>
+      <h2 class="section-title">QUEM JÁ APLICOU<br>ESTÁ <span>ECONOMIZANDO</span></h2>
+    </div>
+    <div class="testimonials-grid">
+      <div class="testimonial-card">
+        <div class="testimonial-stars">★★★★★</div>
+        <p class="testimonial-text">"Nunca pensei que ia conseguir instalar sozinho. Segui o passo a passo e hoje minha conta caiu de R$480 pra R$40."</p>
+        <div class="testimonial-author"><div class="testimonial-avatar">R</div><div><div class="testimonial-name">Roberto Silva</div><div class="testimonial-city">Recife, PE</div></div></div>
+      </div>
+      <div class="testimonial-card">
+        <div class="testimonial-stars">★★★★★</div>
+        <p class="testimonial-text">"Sou eletricista há 8 anos e nunca tinha mexido com solar. Fiz o curso e no primeiro mês fechei dois projetos de R$18.000 cada."</p>
+        <div class="testimonial-author"><div class="testimonial-avatar">C</div><div><div class="testimonial-name">Carlos Ferreira</div><div class="testimonial-city">Caruaru, PE</div></div></div>
+      </div>
+      <div class="testimonial-card">
+        <div class="testimonial-stars">★★★★★</div>
+        <p class="testimonial-text">"Estava pagando R$700 por mês. Depois de instalar o sistema que aprendi no curso, hoje eu pago zero e ainda exporto energia."</p>
+        <div class="testimonial-author"><div class="testimonial-avatar">M</div><div><div class="testimonial-name">Marcos Oliveira</div><div class="testimonial-city">Fortaleza, CE</div></div></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- GARANTIA -->
+<section class="guarantee">
+  <div class="guarantee-inner">
+    <span class="guarantee-icon">🛡️</span>
+    <h2 class="guarantee-title">GARANTIA DE <span>7 DIAS</span></h2>
+    <p class="guarantee-text">Se por qualquer motivo você não ficar satisfeito nos primeiros 7 dias, basta enviar um e-mail e devolvemos 100% do seu dinheiro. Sem perguntas, sem burocracia. Você não tem nada a perder — apenas a conta de luz cara.</p>
+  </div>
+</section>
+
+<!-- FAQ -->
+<section class="faq">
+  <div class="section-inner">
+    <div class="faq-header">
+      <div class="section-tag">Dúvidas Frequentes</div>
+      <h2 class="section-title">PERGUNTAS <span>COMUNS</span></h2>
+    </div>
+    <div class="faq-list">
+      <div class="faq-item">
+        <div class="faq-question" onclick="toggleFaq(this)">Preciso ter conhecimento técnico para fazer o curso?<span class="faq-toggle">+</span></div>
+        <div class="faq-answer">Não. O curso foi desenvolvido para quem está começando do zero. Explicamos cada conceito de forma simples, com exemplos práticos e vídeos detalhados. Se você sabe ligar uma lâmpada, você consegue acompanhar.</div>
+      </div>
+      <div class="faq-item">
+        <div class="faq-question" onclick="toggleFaq(this)">Consigo realmente instalar sozinho ou preciso de um profissional?<span class="faq-toggle">+</span></div>
+        <div class="faq-answer">Para as partes estruturais e mecânicas (fixação dos painéis), qualquer pessoa consegue. Para as conexões elétricas e aprovação junto à distribuidora, a lei exige um profissional habilitado. O curso te ensina tudo e orienta sobre quando contratar um eletricista.</div>
+      </div>
+      <div class="faq-item">
+        <div class="faq-question" onclick="toggleFaq(this)">O acesso é para sempre?<span class="faq-toggle">+</span></div>
+        <div class="faq-answer">Sim. Ao comprar qualquer plano, você tem acesso vitalício a todo o conteúdo adquirido, incluindo todas as atualizações futuras que forem feitas no curso.</div>
+      </div>
+      <div class="faq-item">
+        <div class="faq-question" onclick="toggleFaq(this)">E se eu quiser usar o conhecimento para prestar serviço?<span class="faq-toggle">+</span></div>
+        <div class="faq-answer">Os Planos Profissional e Elite foram criados exatamente para isso. Você vai aprender a precificar projetos, conseguir clientes e transformar o conhecimento em renda. O mercado solar está em explosão no Brasil e falta mão de obra qualificada.</div>
+      </div>
+      <div class="faq-item">
+        <div class="faq-question" onclick="toggleFaq(this)">Como funciona a garantia?<span class="faq-toggle">+</span></div>
+        <div class="faq-answer">Você tem 7 dias corridos após a compra. Se não ficar satisfeito, basta enviar um e-mail para o suporte e reembolsamos 100% do valor pago, sem questionamentos.</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- CTA FINAL -->
+<section class="final-cta">
+  <div class="final-cta-inner">
+    <h2 class="final-cta-title">PARE DE PAGAR<br>PRO SOL <span>APARECER</span></h2>
+    <p class="final-cta-subtitle">Comece hoje. O sol vai nascer de qualquer forma — a diferença é se ele vai trabalhar pra você ou pra distribuidora.</p>
+    <div class="final-price-display">
+      <div class="final-price-de">de R$ 97 por apenas</div>
+      <div class="final-price-value">R$27</div>
+      <div class="final-price-label">acesso vitalício · todas as atualizações</div>
+    </div>
+    <a href="#planos" class="btn-final">☀️ GARANTIR MEU ACESSO AGORA</a>
+    <div class="final-security">
+      <div class="final-security-item">🔒 Pagamento seguro</div>
+      <div class="final-security-item">🛡️ Garantia de 7 dias</div>
+      <div class="final-security-item">⚡ Acesso imediato</div>
+    </div>
+  </div>
+</section>
+
+<!-- FOOTER -->
+<footer>
+  <div class="footer-logo">Solar do <span>Zero</span></div>
+  <div class="footer-sub">Uma iniciativa Engemaia Energia Solar · Todos os direitos reservados</div>
+  <div class="footer-links">
+    <a href="#">Termos de Uso</a>
+    <a href="#">Política de Privacidade</a>
+    <a href="#">Suporte</a>
+  </div>
+</footer>
+
+<script>
+  function nextStep(fromStep) {
+    const bar = document.getElementById('bar' + fromStep);
+    if (bar) { bar.classList.remove('active'); bar.classList.add('done'); }
+    const nextBar = document.getElementById('bar' + (fromStep + 1));
+    if (nextBar) nextBar.classList.add('active');
+    document.getElementById('step' + fromStep).classList.remove('active');
+    document.getElementById('step' + (fromStep + 1)).classList.add('active');
+  }
+
+  function showResult() {
+    for (let i = 0; i < 4; i++) {
+      const bar = document.getElementById('bar' + i);
+      if (bar) { bar.classList.remove('active'); bar.classList.add('done'); }
+    }
+    document.getElementById('step3').classList.remove('active');
+    document.getElementById('stepResult').classList.add('active');
+  }
+
+  function closeQuizAndReveal() {
+    document.getElementById('quizOverlay').classList.add('hidden');
+    setTimeout(() => {
+      document.getElementById('hero-section').scrollIntoView({ behavior: 'smooth' });
+    }, 150);
+  }
+
+  function toggleFaq(el) {
+    const item = el.parentElement;
+    const isOpen = item.classList.contains('open');
+    document.querySelectorAll('.faq-item').forEach(f => f.classList.remove('open'));
+    if (!isOpen) item.classList.add('open');
+  }
+</script>
+</body>
+</html>
