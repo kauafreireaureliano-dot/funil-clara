@@ -1,1 +1,4 @@
+/pages/* /pages/:splat 200
+/checkouts/* /checkouts/:splat 200
+/funnels/* /funnels/:splat 200
 /* /index.html 200
