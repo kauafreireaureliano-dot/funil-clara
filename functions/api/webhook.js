@@ -36,8 +36,9 @@ export async function onRequestPost(context) {
     const funnelId = url.searchParams.get('funnel') || payment.metadata?.funnel_id;
     // Ignora pagamentos que não vieram pelo checkout do Nebula
     if (!funnelId) return new Response('ok', { status: 200 });
-    const email   = payment.metadata?.buyer_email || payment.payer?.email;
-    const nomeComprador = payment.metadata?.buyer_nome || '';
+    const email          = payment.metadata?.buyer_email || payment.payer?.email;
+    const nomeComprador  = payment.metadata?.buyer_nome || '';
+    const telefoneComprador = payment.metadata?.buyer_celular || payment.payer?.phone?.number || '';
     if (!email || email === 'XXXXXXXXXX') return new Response('ok', { status: 200 });
 
     const origin = url.origin;
@@ -167,7 +168,7 @@ export async function onRequestPost(context) {
       }),
     });
 
-    // ── Notificação + Meta CAPI — waitUntil garante execução ──
+    // ── Notificação + Meta CAPI + WhatsApp followup — waitUntil garante execução ──
     const sideEffects = Promise.all([
 
       // Notificação Supabase
@@ -177,10 +178,24 @@ export async function onRequestPost(context) {
         body: JSON.stringify({
           event: 'pagamento_confirmado',
           email,
+          nome: nomeComprador,
+          telefone: telefoneComprador,
           valor: String(payment.transaction_amount),
           produto: payment.description || 'Apostilas Clara Aureliano',
           payment_id: paymentId,
           timestamp: new Date().toISOString(),
+        }),
+      }).catch(() => {}) : Promise.resolve(),
+
+      // WhatsApp followup automático (3 min após confirmação)
+      (env.WA_SERVICE_URL && env.WA_API_KEY && telefoneComprador) ? fetch(`${env.WA_SERVICE_URL}/send`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', 'x-api-key': env.WA_API_KEY },
+        body: JSON.stringify({
+          phone: telefoneComprador,
+          name: nomeComprador,
+          message: (env.WA_FOLLOWUP_MSG || 'Oii meu bem, obrigada pela compra! 💚').replace('{nome}', nomeComprador || 'meu bem'),
+          delay_ms: parseInt(env.WA_FOLLOWUP_DELAY || '180000'),
         }),
       }).catch(() => {}) : Promise.resolve(),
 

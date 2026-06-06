@@ -1206,8 +1206,8 @@
 
     <!-- ══ INTEGRAÇÕES ══ -->
     <div class="section" id="sec-integracoes">
-      <div class="section-title">🔌 Integrações — MP + Resend</div>
-      <div class="section-desc">Configure as chaves de API para ativar o checkout com PIX e o envio automático de email após o pagamento.</div>
+      <div class="section-title">🔌 Integrações</div>
+      <div class="section-desc">Configure as chaves de API para PIX, email automático, WhatsApp followup e rastreamento.</div>
 
       <div class="card">
         <div class="card-title">1️⃣ Mercado Pago — Access Token</div>
@@ -1248,6 +1248,24 @@
         </p>
         <div style="background:#fff8e1;border-radius:8px;padding:10px 12px;font-size:12px;color:#7c4d00">
           ⚡ O email é enviado em segundos após o PIX ser confirmado.
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="card-title">💬 WhatsApp Automático (Followup)</div>
+        <p style="font-size:13px;color:var(--muted);margin-bottom:12px;line-height:1.6">
+          Envia uma mensagem automática para o comprador 3 minutos após a compra ser confirmada. Requer o serviço Nebula WhatsApp rodando no Render.com.<br><br>
+          No Cloudflare → Settings → Environment variables, adicione:
+        </p>
+        <div style="background:#f0f2f5;border-radius:8px;padding:12px;font-size:12px;color:var(--muted);line-height:2;margin-bottom:12px">
+          <code>WA_SERVICE_URL</code> = URL do seu serviço no Render (ex: https://nebula-wa.onrender.com)<br>
+          <code>WA_API_KEY</code> = A senha que você definiu em <code>API_SECRET</code> no Render<br>
+          <code>WA_FOLLOWUP_MSG</code> = Texto da mensagem (use <code>{nome}</code> para o nome do cliente)<br>
+          <code>WA_FOLLOWUP_DELAY</code> = Delay em ms (padrão: 180000 = 3 minutos)
+        </div>
+        <div style="background:#f0fdf4;border:1px solid #86efac;border-radius:8px;padding:12px;font-size:12px;color:#166534;line-height:1.6">
+          <strong>Mensagem sugerida:</strong><br>
+          <em>Oii {nome}, aqui é a Clara da equipe de Recheios Secretos, e vim te parabenizar por fazer parte do nosso time ❤️👏🏼 Como você comprou nossas receitas básicas, eu tenho um presente especial pra você! Posso te enviar agora? 🥰</em>
         </div>
       </div>
 
@@ -3421,6 +3439,7 @@ ${bumps.length ? `\n## Order Bumps (ofertas adicionais antes do pagamento)\n${bu
 - \`#formCard\` — div/section que contém o formulário principal (some ao mostrar o PIX)
 - \`#inNome\` — input texto do nome completo
 - \`#inEmail\` — input email
+- \`#inCelular\` — input tel do WhatsApp/celular (com DDD)
 - \`#formErr\` — div para mensagem de erro (vazia por padrão)
 - \`#totalDisplay\` — elemento que exibe o valor total (ex: "R$ 9,90")
 - \`#payBtn\` — botão de gerar PIX
@@ -3626,6 +3645,8 @@ input:focus{border-color:${c.cor}}
     <input type="text" id="inNome" placeholder="Seu nome">
     <label>E-mail</label>
     <input type="email" id="inEmail" placeholder="seu@email.com">
+    <label>WhatsApp (com DDD)</label>
+    <input type="tel" id="inCelular" placeholder="Ex: 11912345678">
     <div class="total-bar">
       <span>Total</span>
       <strong id="totalDisplay">R$ ${c.valor}</strong>
@@ -3677,9 +3698,10 @@ function toggleBump(i) {
 }
 
 async function iniciarPagamento() {
-  const nome  = document.getElementById('inNome').value.trim();
-  const email = document.getElementById('inEmail').value.trim();
-  const errEl = document.getElementById('formErr');
+  const nome    = document.getElementById('inNome').value.trim();
+  const email   = document.getElementById('inEmail').value.trim();
+  const celular = (document.getElementById('inCelular')?.value || '').replace(/\D/g,'');
+  const errEl   = document.getElementById('formErr');
   errEl.textContent = '';
   if (!nome)  { errEl.textContent = 'Informe seu nome'; return; }
   if (!email||!email.includes('@')) { errEl.textContent = 'Informe um e-mail válido'; return; }
@@ -3696,7 +3718,7 @@ async function iniciarPagamento() {
     if (typeof fbq !== 'undefined') fbq('track','InitiateCheckout',{currency:'BRL',value:total},{eventID:eventId});
     const res = await fetch('/api/pagamento', {
       method:'POST', headers:{'Content-Type':'application/json'},
-      body: JSON.stringify({ email, nome, valor: total.toFixed(2).replace('.',','), produto: PRODUTO, funnel_id: FUNNEL||undefined, delivery_url: DELIV_URL||undefined, delivery_name: DELIV_NAME||undefined, bumps: selectedBumps.length ? selectedBumps : undefined }),
+      body: JSON.stringify({ email, nome, celular: celular||undefined, valor: total.toFixed(2).replace('.',','), produto: PRODUTO, funnel_id: FUNNEL||undefined, delivery_url: DELIV_URL||undefined, delivery_name: DELIV_NAME||undefined, bumps: selectedBumps.length ? selectedBumps : undefined }),
     });
     const data = await res.json();
     if (!res.ok || !data.qr_code) throw new Error(data.erro || 'Erro ao gerar PIX');
